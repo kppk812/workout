@@ -31,6 +31,7 @@
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     ::-webkit-scrollbar { display: none; }
     
+    /* ライトモード */
     :root {
       --bg-primary: #ffffff; --bg-secondary: #f4f4f5; --bg-app: #fafafa; --bg-nav: rgba(255, 255, 255, 0.92);
       --text-primary: #09090b; --text-secondary: #52525b; --text-tertiary: #a1a1aa; --accent: #2563eb; --border: #e4e4e7;
@@ -46,6 +47,7 @@
       color-scheme: light;
     }
 
+    /* ダークモード */
     :root[data-theme="dark"] {
       --bg-primary: #18181b; --bg-secondary: #27272a; --bg-app: #000000; --bg-nav: rgba(24, 24, 27, 0.95);
       --text-primary: #fafafa; --text-secondary: #a1a1aa; --text-tertiary: #52525b; --border: #3f3f46;
@@ -530,7 +532,7 @@
       if ((localStorage.getItem('wt_theme') || 'auto') === 'auto') applyThemeSettings();
     });
 
-
+ 
     const CLIENT_ID = '504605284753-9482edtgg5ndcp8p1723pvf4mfe12t6b.apps.googleusercontent.com';
     const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
     
@@ -682,62 +684,63 @@
       return map[cat] || "full";
     }
 
+    // --- 種目データベース ---
     const PRESET_DB = [
-      { c: "胸", n: "ベンチプレス（バーベル）", s: "べんちぷれす ばーべる bench press", i: {"胸":1.0, "肩":0.4, "腕":0.4, "腹・体幹":0.05} },
-      { c: "胸", n: "インクラインベンチプレス（バーベル）", s: "いんくらいんべんちぷれす ばーべる incline bench press", i: {"胸":1.0, "肩":0.6, "腕":0.4, "腹・体幹":0.05} },
-      { c: "胸", n: "デクラインベンチプレス（バーベル）", s: "でくらいんべんちぷれす ばーべる decline bench press", i: {"胸":1.0, "腕":0.4, "腹・体幹":0.05} },
-      { c: "胸", n: "ダンベルプレス（ダンベル）", s: "だんべるぷれす だんべる dumbbell press", i: {"胸":1.0, "肩":0.3, "腕":0.3, "腹・体幹":0.05} },
-      { c: "胸", n: "インクラインダンベルプレス（ダンベル）", s: "いんくらいんだんべるぷれす だんべる incline dumbbell press", i: {"胸":1.0, "肩":0.5, "腕":0.3, "腹・体幹":0.05} },
-      { c: "胸", n: "デクラインダンベルプレス（ダンベル）", s: "でくらいんだんべるぷれす だんべる decline dumbbell press", i: {"胸":1.0, "腕":0.3, "腹・体幹":0.05} },
-      { c: "胸", n: "ダンベルフライ（ダンベル）", s: "だんべるふらい だんべる dumbbell fly", i: {"胸":1.0, "肩":0.2, "腹・体幹":0.05} },
-      { c: "胸", n: "インクラインダンベルフライ（ダンベル）", s: "いんくらいんだんべるふらい だんべる incline dumbbell fly", i: {"胸":1.0, "肩":0.3, "腹・体幹":0.05} },
-      { c: "胸", n: "チェストプレス（マシン）", s: "ちぇすとぷれす ましん chest press", i: {"胸":1.0, "肩":0.3, "腕":0.3} },
-      { c: "胸", n: "ペックデックフライ / マシンフライ（マシン）", s: "ぺっくでっくふらい ましんふらい peck deck fly machine", i: {"胸":1.0, "肩":0.1} },
-      { c: "胸", n: "ケーブルクロスオーバー（ケーブル）", s: "けーぶるくろすおーばー cable crossover", i: {"胸":1.0, "肩":0.1, "腹・体幹":0.1} },
-      { c: "胸", n: "プッシュアップ / 腕立て伏せ（自重）", s: "ぷっしゅあっぷ うでたてふせ push up", i: {"胸":1.0, "肩":0.3, "腕":0.4, "腹・体幹":0.2} },
-      { c: "胸", n: "ディップス（自重・加重）", s: "でぃっぷす dips", i: {"胸":1.0, "肩":0.4, "腕":0.8, "腹・体幹":0.1} },
-      { c: "胸", n: "ダンベルプルオーバー（ダンベル）", s: "だんべるぷるおーばー dumbbell pullover", i: {"胸":1.0, "背中":0.6, "腹・体幹":0.05} },
-      { c: "背中", n: "デッドリフト（バーベル）", s: "でっどりふと ばーべる deadlift", i: {"背中":1.0, "脚":1.0, "腹・体幹":0.3, "腕":0.2} },
-      { c: "背中", n: "チンニング / 懸垂（自重・加重）", s: "ちんにんぐ けんすい chinning pull up", i: {"背中":1.0, "腕":0.5, "腹・体幹":0.1} },
-      { c: "背中", n: "ラットプルダウン（マシン・ケーブル）", s: "らっとぷるだうん lat pulldown", i: {"背中":1.0, "腕":0.4} },
-      { c: "背中", n: "ベントオーバーロウ（バーベル）", s: "べんとおーばーろう bent over row", i: {"背中":1.0, "腕":0.4, "脚":0.3, "腹・体幹":0.2} },
-      { c: "背中", n: "ワンアームダンベルロウ（ダンベル）", s: "わんあーむだんべるろう one arm dumbbell row", i: {"背中":1.0, "腕":0.3, "腹・体幹":0.1} },
-      { c: "背中", n: "シーテッドロウ（マシン・ケーブル）", s: "しーてっどろう seated row", i: {"背中":1.0, "腕":0.4} },
-      { c: "背中", n: "シュラッグ（バーベル・ダンベル・マシン）", s: "しゅらっぐ shrug", i: {"背中":1.0, "腕":0.1, "腹・体幹":0.05} },
-      { c: "背中", n: "バックエクステンション（自重・加重・マシン）", s: "ばっくえくすてんしょん back extension", i: {"背中":1.0, "脚":0.5} },
-      { c: "背中", n: "インバーテッドロウ / 斜め懸垂（自重）", s: "いんばーてっどろう ななめけんすい inverted row", i: {"背中":1.0, "腕":0.4, "腹・体幹":0.15} },
-      { c: "脚", n: "バックスクワット（バーベル）", s: "ばっくすくわっと back squat", i: {"脚":1.0, "腹・体幹":0.2, "背中":0.3} },
-      { c: "脚", n: "フロントスクワット（バーベル）", s: "ふろんとすくわっと front squat", i: {"脚":1.0, "腹・体幹":0.25, "背中":0.4} },
-      { c: "脚", n: "ハックスクワット（マシン）", s: "はっくすくわっと hack squat", i: {"脚":1.0} },
-      { c: "脚", n: "レッグプレス（マシン）", s: "れっぐぷれす leg press", i: {"脚":1.0} },
-      { c: "脚", n: "ランジ / ウォーキングランジ（バーベル・ダンベル・自重）", s: "らんじ うぉーきんぐらんじ lunge walking", i: {"脚":1.0, "腹・体幹":0.15} },
-      { c: "脚", n: "ブルガリアンスクワット（ダンベル・自重）", s: "ぶるがりあんすくわっと bulgarian squat", i: {"脚":1.0, "腹・体幹":0.15} },
-      { c: "脚", n: "レッグエクステンション（マシン）", s: "れっぐえくすてんしょん leg extension", i: {"脚":1.0} },
-      { c: "脚", n: "レッグカール（マシン）", s: "れっぐかーる leg curl", i: {"脚":1.0} },
-      { c: "脚", n: "ルーマニアンデッドリフト（バーベル・ダンベル）", s: "るーまにあんでっどりふと rdl romanian deadlift", i: {"脚":1.0, "背中":0.6, "腹・体幹":0.15} },
-      { c: "脚", n: "ヒップスラスト（バーベル・マシン・自重）", s: "ひっぷすらすと hip thrust", i: {"脚":1.0, "腹・体幹":0.05} },
-      { c: "脚", n: "スタンディングカーフレイズ（バーベル・マシン・自重）", s: "すたんでぃんぐかーふれいず standing calf raise", i: {"脚":1.0} },
-      { c: "肩", n: "オーバーヘッドプレス / ミリタリープレス（バーベル）", s: "おーばーへっどぷれす みりたりーぷれす overhead press military", i: {"肩":1.0, "腕":0.6, "胸":0.2, "腹・体幹":0.2} },
-      { c: "肩", n: "ダンベルショルダープレス（ダンベル）", s: "だんべるしょるだーぷれす dumbbell shoulder press", i: {"肩":1.0, "腕":0.5, "胸":0.2, "腹・体幹":0.05} },
-      { c: "肩", n: "サイドレイズ（ダンベル・ケーブル・マシン）", s: "さいどれいず side raise", i: {"肩":1.0, "腹・体幹":0.05} },
-      { c: "肩", n: "フロントレイズ（ダンベル・バーベル・ケーブル）", s: "ふろんとれいず front raise", i: {"肩":1.0, "胸":0.1, "腹・体幹":0.05} },
-      { c: "肩", n: "リアレイズ / ベントオーバーレイズ（ダンベル・ケーブル）", s: "りあれいず べんとおーばーれいず rear raise bent over", i: {"肩":1.0, "背中":0.2, "腹・体幹":0.05} },
-      { c: "肩", n: "アップライトロウ（バーベル・ケーブル）", s: "あっぷらいとろう upright row", i: {"肩":1.0, "腕":0.3, "背中":0.3, "腹・体幹":0.05} },
-      { c: "腕", n: "バーベルカール（バーベル）", s: "ばーべるかーる barbell curl", i: {"腕":1.0, "腹・体幹":0.05} },
-      { c: "腕", n: "ダンベルカール（ダンベル）", s: "だんべるかーる dumbbell curl", i: {"腕":1.0, "腹・体幹":0.05} },
-      { c: "腕", n: "ハンマーカール（ダンベル）", s: "はんまーかーる hammer curl", i: {"腕":1.0, "腹・体幹":0.05} },
-      { c: "腕", n: "ケーブルカール（ケーブル）", s: "けーぶるかーる cable curl", i: {"腕":1.0, "腹・体幹":0.05} },
-      { c: "腕", n: "トライセプスエクステンション（バーベル・ダンベル）", s: "とらいせぷすえくすてんしょん triceps extension", i: {"腕":1.0, "腹・体幹":0.05} },
-      { c: "腕", n: "スカルクラッシャー（バーベル）", s: "すかるくらっしゃー skull crusher", i: {"腕":1.0, "胸":0.1} },
-      { c: "腕", n: "トライセプスプレスダウン（ケーブル）", s: "とらいせぷすぷれすだうん triceps pressdown", i: {"腕":1.0, "腹・体幹":0.05} },
-      { c: "腕", n: "フレンチプレス（ダンベル・バーベル）", s: "ふれんちぷれす french press", i: {"腕":1.0, "腹・体幹":0.05} },
-      { c: "腹・体幹", n: "クランチ（自重・マシン・ケーブル）", s: "くらんち crunch", i: {"腹・体幹":1.0} },
-      { c: "腹・体幹", n: "シットアップ（自重）", s: "しっとあっぷ 腹筋 ふっきん sit up", i: {"腹・体幹":1.0, "脚":0.2} },
-      { c: "腹・体幹", n: "レッグレイズ（自重）", s: "れっぐれいず leg raise", i: {"腹・体幹":1.0, "脚":0.3} },
-      { c: "腹・体幹", n: "アブローラー / 腹筋ローラー（専用器具）", s: "あぶろーらー ふっきんろーらー ab roller", i: {"腹・体幹":1.0, "腕":0.4, "背中":0.3, "肩":0.2} },
-      { c: "腹・体幹", n: "プランク（自重）", s: "ぷらんく plank", i: {"腹・体幹":1.0, "肩":0.3} },
-      { c: "全身", n: "クリーン＆ジャーク（バーベル）", s: "くりーんあんどじゃーく clean and jerk", i: {"脚":1.0, "背中":0.8, "肩":0.8, "腕":0.5, "腹・体幹":0.3} },
-      { c: "全身", n: "スナッチ（バーベル）", s: "すなっち snatch", i: {"脚":1.0, "背中":0.8, "肩":0.7, "腕":0.4, "腹・体幹":0.25} }
+      { c: "胸", n: "ベンチプレス（バーベル）", s: "べんちぷれす ばーべる bench press" },
+      { c: "胸", n: "インクラインベンチプレス（バーベル）", s: "いんくらいんべんちぷれす ばーべる incline bench press" },
+      { c: "胸", n: "デクラインベンチプレス（バーベル）", s: "でくらいんべんちぷれす ばーべる decline bench press" },
+      { c: "胸", n: "ダンベルプレス（ダンベル）", s: "だんべるぷれす だんべる dumbbell press" },
+      { c: "胸", n: "インクラインダンベルプレス（ダンベル）", s: "いんくらいんだんべるぷれす だんべる incline dumbbell press" },
+      { c: "胸", n: "デクラインダンベルプレス（ダンベル）", s: "でくらいんだんべるぷれす だんべる decline dumbbell press" },
+      { c: "胸", n: "ダンベルフライ（ダンベル）", s: "だんべるふらい だんべる dumbbell fly" },
+      { c: "胸", n: "インクラインダンベルフライ（ダンベル）", s: "いんくらいんだんべるふらい だんべる incline dumbbell fly" },
+      { c: "胸", n: "チェストプレス（マシン）", s: "ちぇすとぷれす ましん chest press" },
+      { c: "胸", n: "ペックデックフライ / マシンフライ（マシン）", s: "ぺっくでっくふらい ましんふらい peck deck fly machine" },
+      { c: "胸", n: "ケーブルクロスオーバー（ケーブル）", s: "けーぶるくろすおーばー cable crossover" },
+      { c: "胸", n: "プッシュアップ / 腕立て伏せ（自重）", s: "ぷっしゅあっぷ うでたてふせ push up" },
+      { c: "胸", n: "ディップス（自重・加重）", s: "でぃっぷす dips" },
+      { c: "胸", n: "ダンベルプルオーバー（ダンベル）", s: "だんべるぷるおーばー dumbbell pullover" },
+      { c: "背中", n: "デッドリフト（バーベル）", s: "でっどりふと ばーべる deadlift" },
+      { c: "背中", n: "チンニング / 懸垂（自重・加重）", s: "ちんにんぐ けんすい chinning pull up" },
+      { c: "背中", n: "ラットプルダウン（マシン・ケーブル）", s: "らっとぷるだうん lat pulldown" },
+      { c: "背中", n: "ベントオーバーロウ（バーベル）", s: "べんとおーばーろう bent over row" },
+      { c: "背中", n: "ワンアームダンベルロウ（ダンベル）", s: "わんあーむだんべるろう one arm dumbbell row" },
+      { c: "背中", n: "シーテッドロウ（マシン・ケーブル）", s: "しーてっどろう seated row" },
+      { c: "背中", n: "シュラッグ（バーベル・ダンベル・マシン）", s: "しゅらっぐ shrug" },
+      { c: "背中", n: "バックエクステンション（自重・加重・マシン）", s: "ばっくえくすてんしょん back extension" },
+      { c: "背中", n: "インバーテッドロウ / 斜め懸垂（自重）", s: "いんばーてっどろう ななめけんすい inverted row" },
+      { c: "脚", n: "バックスクワット（バーベル）", s: "ばっくすくわっと back squat" },
+      { c: "脚", n: "フロントスクワット（バーベル）", s: "ふろんとすくわっと front squat" },
+      { c: "脚", n: "ハックスクワット（マシン）", s: "はっくすくわっと hack squat" },
+      { c: "脚", n: "レッグプレス（マシン）", s: "れっぐぷれす leg press" },
+      { c: "脚", n: "ランジ / ウォーキングランジ（バーベル・ダンベル・自重）", s: "らんじ うぉーきんぐらんじ lunge walking" },
+      { c: "脚", n: "ブルガリアンスクワット（ダンベル・自重）", s: "ぶるがりあんすくわっと bulgarian squat" },
+      { c: "脚", n: "レッグエクステンション（マシン）", s: "れっぐえくすてんしょん leg extension" },
+      { c: "脚", n: "レッグカール（マシン）", s: "れっぐかーる leg curl" },
+      { c: "脚", n: "ルーマニアンデッドリフト（バーベル・ダンベル）", s: "るーまにあんでっどりふと rdl romanian deadlift" },
+      { c: "脚", n: "ヒップスラスト（バーベル・マシン・自重）", s: "ひっぷすらすと hip thrust" },
+      { c: "脚", n: "スタンディングカーフレイズ（バーベル・マシン・自重）", s: "すたんでぃんぐかーふれいず standing calf raise" },
+      { c: "肩", n: "オーバーヘッドプレス / ミリタリープレス（バーベル）", s: "おーばーへっどぷれす みりたりーぷれす overhead press military" },
+      { c: "肩", n: "ダンベルショルダープレス（ダンベル）", s: "だんべるしょるだーぷれす dumbbell shoulder press" },
+      { c: "肩", n: "サイドレイズ（ダンベル・ケーブル・マシン）", s: "さいどれいず side raise" },
+      { c: "肩", n: "フロントレイズ（ダンベル・バーベル・ケーブル）", s: "ふろんとれいず front raise" },
+      { c: "肩", n: "リアレイズ / ベントオーバーレイズ（ダンベル・ケーブル）", s: "りあれいず べんとおーばーれいず rear raise bent over" },
+      { c: "肩", n: "アップライトロウ（バーベル・ケーブル）", s: "あっぷらいとろう upright row" },
+      { c: "腕", n: "バーベルカール（バーベル）", s: "ばーべるかーる barbell curl" },
+      { c: "腕", n: "ダンベルカール（ダンベル）", s: "だんべるかーる dumbbell curl" },
+      { c: "腕", n: "ハンマーカール（ダンベル）", s: "はんまーかーる hammer curl" },
+      { c: "腕", n: "ケーブルカール（ケーブル）", s: "けーぶるかーる cable curl" },
+      { c: "腕", n: "トライセプスエクステンション（バーベル・ダンベル）", s: "とらいせぷすえくすてんしょん triceps extension" },
+      { c: "腕", n: "スカルクラッシャー（バーベル）", s: "すかるくらっしゃー skull crusher" },
+      { c: "腕", n: "トライセプスプレスダウン（ケーブル）", s: "とらいせぷすぷれすだうん triceps pressdown" },
+      { c: "腕", n: "フレンチプレス（ダンベル・バーベル）", s: "ふれんちぷれす french press" },
+      { c: "腹・体幹", n: "クランチ（自重・マシン・ケーブル）", s: "くらんち crunch" },
+      { c: "腹・体幹", n: "シットアップ（自重）", s: "しっとあっぷ 腹筋 ふっきん sit up" },
+      { c: "腹・体幹", n: "レッグレイズ（自重）", s: "れっぐれいず leg raise" },
+      { c: "腹・体幹", n: "アブローラー / 腹筋ローラー（専用器具）", s: "あぶろーらー ふっきんろーらー ab roller" },
+      { c: "腹・体幹", n: "プランク（自重）", s: "ぷらんく plank" },
+      { c: "全身", n: "クリーン＆ジャーク（バーベル）", s: "くりーんあんどじゃーく clean and jerk" },
+      { c: "全身", n: "スナッチ（バーベル）", s: "すなっち snatch" }
     ];
 
     let customExercises = JSON.parse(localStorage.getItem("wt_custom_ex_v5")) || [];
@@ -772,7 +775,7 @@
       } else if (name.includes("フライ") || name.includes("ペックデック")) {
         impacts["胸"] = 1.0; impacts["肩"] = 0.2;
       } else if (name.includes("デッドリフト")) {
-        impacts["背中"] = 0.8; impacts["脚"] = 1.0; impacts["腹・体幹"] = 0.25;
+        impacts["背中"] = 0.8; impacts["脚"] = 1.0; impacts["腹・体幹"] = 0.15;
       } else if (name.includes("ロウ") || name.includes("プルダウン") || name.includes("チンニング") || name.includes("懸垂")) {
         impacts["背中"] = 1.0; impacts["腕"] = 0.5;
       } else if (name.includes("スクワット") || name.includes("レッグプレス") || name.includes("ランジ")) {
@@ -786,7 +789,7 @@
       } else if (name.includes("クランチ") || name.includes("シットアップ") || name.includes("ローラー") || name.includes("プランク")) {
         impacts["腹・体幹"] = 1.0;
       } else if (name.includes("スナッチ") || name.includes("クリーン")) {
-        impacts["脚"] = 0.8; impacts["背中"] = 0.8; impacts["肩"] = 0.6; impacts["腹・体幹"] = 0.2;
+        impacts["脚"] = 0.8; impacts["背中"] = 0.8; impacts["肩"] = 0.6; impacts["腹・体幹"] = 0.1;
       }
       
       if (name.includes("バーベル") || name.includes("ダンベル") || name.includes("ケトルベル")) {
@@ -1290,11 +1293,11 @@
         const msgs = [];
         const pChest = stats["胸"] / totalScore; const pBack = stats["背中"] / totalScore; const pLegs = stats["脚"] / totalScore; const pShoulder = stats["肩"] / totalScore; const pArms = stats["腕"] / totalScore;
         if (totalScore >= 140) msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#ef4444' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><path d='M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z'></path></svg><div><b style='color:var(--text-primary);'>素晴らしいトレーニング量です！</b><br>関節の痛みや疲労を感じた場合は、計画的なディロードを取り入れましょう。</div></div>");
-        if ((pChest + pArms) > 0.65) msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#ea580c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'></path><line x1='12' y1='9' x2='12' y2='13'></line><line x1='12' y1='17' x2='12.01' y2='17'></line></svg><div><b style='color:var(--text-primary);'>上半身の前面と腕に特化しています。</b><br>全身の機能性を高めるため、背中や下半身の強化をお勧めします。</div></div>");
+        if ((pChest + pArms) > 0.60) msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#ea580c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'></path><line x1='12' y1='9' x2='12' y2='13'></line><line x1='12' y1='17' x2='12.01' y2='17'></line></svg><div><b style='color:var(--text-primary);'>上半身の前面と腕に特化しています。</b><br>全身の機能性を高めるため、背中や下半身の強化をお勧めします。</div></div>");
         if (pLegs < 0.15) msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#ea580c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'></path><line x1='12' y1='9' x2='12' y2='13'></line><line x1='12' y1='17' x2='12.01' y2='17'></line></svg><div><b style='color:var(--text-primary);'>脚への負荷が不足気味です。</b><br>スクワット等を取り入れると、基礎代謝の向上に大きく貢献します。</div></div>");
-        if (pChest > pBack * 1.5 && (pChest + pArms) <= 0.65) msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#ea580c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'></path><line x1='12' y1='9' x2='12' y2='13'></line><line x1='12' y1='17' x2='12.01' y2='17'></line></svg><div><b style='color:var(--text-primary);'>胸に対して背中のボリュームが不足しています。</b><br>美しい姿勢を保つため、ロウイング系の種目を増やしましょう。</div></div>");
+        if (pChest > pBack * 1.5 && (pChest + pArms) <= 0.60) msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#ea580c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'></path><line x1='12' y1='9' x2='12' y2='13'></line><line x1='12' y1='17' x2='12.01' y2='17'></line></svg><div><b style='color:var(--text-primary);'>胸に対して背中のボリュームが不足しています。</b><br>美しい姿勢を保つため、ロウイング系の種目を増やしましょう。</div></div>");
         else if (pBack > pChest * 2) msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#eab308' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='16' x2='12' y2='12'></line><line x1='12' y1='8' x2='12.01' y2='8'></line></svg><div><b style='color:var(--text-primary);'>背中を非常にしっかり鍛えられています。</b><br>プレス系（胸）の種目もバランス良く追加するとさらに立体的になります。</div></div>");
-        if (stats["腹・体幹"] === 0) msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#eab308' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='16' x2='12' y2='12'></line><line x1='12' y1='8' x2='12.01' y2='8'></line></svg><div><b style='color:var(--text-primary);'>体幹への負荷記録がありません。</b><br>フォーム安定や腰痛予防のため、プランクなどのメニューもおすすめです。</div></div>");
+        if (stats["腹・体幹"] < totalScore * 0.05) msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#eab308' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='16' x2='12' y2='12'></line><line x1='12' y1='8' x2='12.01' y2='8'></line></svg><div><b style='color:var(--text-primary);'>体幹への直接的なトレーニングが不足しています。</b><br>フリーウェイトの補助だけでは不十分なため、プランクやクランチなどのメニューも追加してみましょう。</div></div>");
         if (msgs.length === 0) advice = "<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#3b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'></polygon></svg><div><b style='color:var(--text-primary);'>全身が非常にバランス良く鍛えられています！</b><br>現在のメニュー構成は理想的です。この調子で継続しましょう。</div></div>";
         else advice = msgs.join("");
       }
