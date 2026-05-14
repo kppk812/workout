@@ -3,14 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>筋トレ管理アプリ</title>
+  <title>workout</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#fafafa">
+  <link rel="apple-touch-icon" href="icon-192x192.png">
   
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
     (function() {
       const theme = localStorage.getItem('wt_theme') || 'auto';
-      if (theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      const isDark = theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      if (isDark) {
         document.documentElement.setAttribute('data-theme', 'dark');
+        // ロード時のアドレスバー色設定
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', '#000000');
       }
     })();
   </script>
@@ -19,82 +27,37 @@
     ::-webkit-scrollbar { display: none; }
     
     :root {
-      --bg-primary: #ffffff;
-      --bg-secondary: #f4f4f5;
-      --bg-app: #fafafa;
-      --bg-nav: rgba(255, 255, 255, 0.92);
-      --text-primary: #09090b;
-      --text-secondary: #52525b;
-      --text-tertiary: #a1a1aa;
-      --accent: #2563eb;
-      --border: #e4e4e7;
-      --radius-md: 10px;
-      --radius-lg: 14px;
-      --radius-xl: 20px;
-      --nav-height: 68px;
-      
-      --color-rpe-low: #22c55e;
-      --color-rpe-mid: #f97316;
-      --color-rpe-high: #ef4444;
-
+      --bg-primary: #ffffff; --bg-secondary: #f4f4f5; --bg-app: #fafafa; --bg-nav: rgba(255, 255, 255, 0.92);
+      --text-primary: #09090b; --text-secondary: #52525b; --text-tertiary: #a1a1aa; --accent: #2563eb; --border: #e4e4e7;
+      --radius-md: 10px; --radius-lg: 14px; --radius-xl: 20px; --nav-height: 68px;
+      --color-rpe-low: #22c55e; --color-rpe-mid: #f97316; --color-rpe-high: #ef4444;
       --heat-0: #e4e4e7; --heat-1: #fef08a; --heat-2: #f97316; --heat-3: #ef4444;
-
-      --icon-chest-bg: #dbeafe; --icon-chest-fg: #2563eb;
-      --icon-back-bg: #dcfce7;  --icon-back-fg: #16a34a;
-      --icon-legs-bg: #fef08a;  --icon-legs-fg: #ca8a04;
-      --icon-shoulder-bg: #ffedd5; --icon-shoulder-fg: #ea580c;
-      --icon-arms-bg: #f3e8ff;  --icon-arms-fg: #9333ea;
-      --icon-core-bg: #fee2e2;  --icon-core-fg: #dc2626;
-      --icon-full-bg: #f4f4f5;  --icon-full-fg: #52525b;
-
-      --pr-chest-bg: rgba(37, 99, 235, 0.05);
-      --pr-back-bg: rgba(22, 163, 74, 0.05);
-      --pr-legs-bg: rgba(202, 138, 4, 0.05);
-      --pr-shoulder-bg: rgba(234, 88, 12, 0.05);
-      --pr-arms-bg: rgba(147, 51, 234, 0.05);
-      --pr-core-bg: rgba(220, 38, 38, 0.05);
-      --pr-full-bg: rgba(82, 82, 91, 0.05);
-      
+      --icon-chest-bg: #dbeafe; --icon-chest-fg: #2563eb; --icon-back-bg: #dcfce7; --icon-back-fg: #16a34a;
+      --icon-legs-bg: #fef08a; --icon-legs-fg: #ca8a04; --icon-shoulder-bg: #ffedd5; --icon-shoulder-fg: #ea580c;
+      --icon-arms-bg: #f3e8ff; --icon-arms-fg: #9333ea; --icon-core-bg: #fee2e2; --icon-core-fg: #dc2626;
+      --icon-full-bg: #f4f4f5; --icon-full-fg: #52525b;
+      --pr-chest-bg: rgba(37, 99, 235, 0.05); --pr-back-bg: rgba(22, 163, 74, 0.05); --pr-legs-bg: rgba(202, 138, 4, 0.05);
+      --pr-shoulder-bg: rgba(234, 88, 12, 0.05); --pr-arms-bg: rgba(147, 51, 234, 0.05); --pr-core-bg: rgba(220, 38, 38, 0.05); --pr-full-bg: rgba(82, 82, 91, 0.05);
       color-scheme: light;
     }
 
     :root[data-theme="dark"] {
-      --bg-primary: #18181b;
-      --bg-secondary: #27272a;
-      --bg-app: #000000;
-      --bg-nav: rgba(24, 24, 27, 0.95);
-      --text-primary: #fafafa;
-      --text-secondary: #a1a1aa;
-      --text-tertiary: #52525b;
-      --border: #3f3f46;
-      
+      --bg-primary: #18181b; --bg-secondary: #27272a; --bg-app: #000000; --bg-nav: rgba(24, 24, 27, 0.95);
+      --text-primary: #fafafa; --text-secondary: #a1a1aa; --text-tertiary: #52525b; --border: #3f3f46;
       --heat-0: #27272a; --heat-1: #ca8a04;
-
-      --icon-chest-bg: rgba(37, 99, 235, 0.15); --icon-chest-fg: #60a5fa;
-      --icon-back-bg: rgba(22, 163, 74, 0.15);  --icon-back-fg: #4ade80;
-      --icon-legs-bg: rgba(202, 138, 4, 0.15);  --icon-legs-fg: #facc15;
-      --icon-shoulder-bg: rgba(234, 88, 12, 0.15); --icon-shoulder-fg: #fb923c;
-      --icon-arms-bg: rgba(147, 51, 234, 0.15);  --icon-arms-fg: #c084fc;
-      --icon-core-bg: rgba(220, 38, 38, 0.15);  --icon-core-fg: #f87171;
-      --icon-full-bg: rgba(82, 82, 91, 0.25);  --icon-full-fg: #d4d4d8;
-
-      --pr-chest-bg: rgba(37, 99, 235, 0.1);
-      --pr-back-bg: rgba(22, 163, 74, 0.1);
-      --pr-legs-bg: rgba(202, 138, 4, 0.1);
-      --pr-shoulder-bg: rgba(234, 88, 12, 0.1);
-      --pr-arms-bg: rgba(147, 51, 234, 0.1);
-      --pr-core-bg: rgba(220, 38, 38, 0.1);
-      --pr-full-bg: rgba(82, 82, 91, 0.1);
-      
+      --icon-chest-bg: rgba(37, 99, 235, 0.15); --icon-chest-fg: #60a5fa; --icon-back-bg: rgba(22, 163, 74, 0.15); --icon-back-fg: #4ade80;
+      --icon-legs-bg: rgba(202, 138, 4, 0.15); --icon-legs-fg: #facc15; --icon-shoulder-bg: rgba(234, 88, 12, 0.15); --icon-shoulder-fg: #fb923c;
+      --icon-arms-bg: rgba(147, 51, 234, 0.15); --icon-arms-fg: #c084fc; --icon-core-bg: rgba(220, 38, 38, 0.15); --icon-core-fg: #f87171;
+      --icon-full-bg: rgba(82, 82, 91, 0.25); --icon-full-fg: #d4d4d8;
+      --pr-chest-bg: rgba(37, 99, 235, 0.1); --pr-back-bg: rgba(22, 163, 74, 0.1); --pr-legs-bg: rgba(202, 138, 4, 0.1);
+      --pr-shoulder-bg: rgba(234, 88, 12, 0.1); --pr-arms-bg: rgba(147, 51, 234, 0.1); --pr-core-bg: rgba(220, 38, 38, 0.1); --pr-full-bg: rgba(82, 82, 91, 0.1);
       color-scheme: dark;
     }
 
     body { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", sans-serif; margin: 0; padding: 0; background: var(--bg-app); color: var(--text-primary); padding-bottom: calc(var(--nav-height) + 24px); transition: background-color 0.3s ease, color 0.3s ease; overflow-x: hidden; }
     .app-container { max-width: 680px; margin: 0 auto; padding: 1.25rem 1rem; width: 100%; overflow-x: hidden; }
-    
     .header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 0.75rem; margin-bottom: 1.25rem; }
     .header h1 { font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
-    
     .sync-badge { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 20px; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     .sync-badge:active { transform: scale(0.95); }
     .sync-badge.safe { background: rgba(34, 197, 94, 0.1); color: #16a34a; border: 1px solid rgba(34, 197, 94, 0.2); }
@@ -103,29 +66,20 @@
     .sync-badge.syncing { background: var(--bg-secondary); color: var(--text-secondary); opacity: 0.7; pointer-events: none; }
     .sync-icon { width: 14px; height: 14px; }
     .syncing .sync-icon { animation: spin 1s linear infinite; }
-    
     @keyframes spin { 100% { transform: rotate(360deg); } }
-    
     .view { display: none; animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1); width: 100%; }
     .view.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } }
-
     .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background: var(--bg-nav); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -4px 20px rgba(0,0,0,0.02); transition: background-color 0.3s ease; }
     .nav-btn { flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: none; background: transparent; color: var(--text-tertiary); font-size: 10px; font-weight: 700; cursor: pointer; transition: color 0.2s, transform 0.1s; }
     .nav-btn:active { transform: scale(0.92); }
     .nav-btn.active { color: var(--text-primary); }
     .nav-icon { margin-bottom: 2px; }
-
     .card { background: var(--bg-primary); border-radius: var(--radius-xl); padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid var(--border); transition: background-color 0.3s ease, border-color 0.3s ease; }
     .label { font-size: 13px; font-weight: 700; color: var(--text-secondary); display: block; margin-bottom: 8px; }
     input[type="text"], input[type="date"], input[type="number"] { width: 100%; font-size: 16px; padding: 14px 16px; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg-secondary); font-weight: 700; color: var(--text-primary); appearance: none; -webkit-appearance: none; outline: none; box-shadow: none; transition: background-color 0.3s ease, border-color 0.3s ease; margin: 0; }
-    input[type="text"]:focus, input[type="date"]:focus, input[type="number"]:focus { border-color: var(--text-tertiary); }
-    
     .suggest-list { position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-height: 280px; overflow-y: auto; z-index: 100; display: none; }
     .suggest-item { padding: 12px 16px; font-size: 15px; font-weight: 700; color: var(--text-primary); border-bottom: 1px solid var(--bg-secondary); cursor: pointer; display: flex; align-items: center; gap: 14px; }
-    .suggest-item:last-child { border-bottom: none; }
-    .suggest-item:active { background: var(--bg-secondary); }
-    
     .cat-icon-wrapper { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background-color 0.3s ease; }
     .cat-icon-wrapper.chest { background: var(--icon-chest-bg); color: var(--icon-chest-fg); }
     .cat-icon-wrapper.back { background: var(--icon-back-bg); color: var(--icon-back-fg); }
@@ -134,51 +88,32 @@
     .cat-icon-wrapper.arms { background: var(--icon-arms-bg); color: var(--icon-arms-fg); }
     .cat-icon-wrapper.core { background: var(--icon-core-bg); color: var(--icon-core-fg); }
     .cat-icon-wrapper.full { background: var(--icon-full-bg); color: var(--icon-full-fg); }
-
     .suggest-create-btn { padding: 16px; font-size: 15px; font-weight: 700; color: var(--accent); cursor: pointer; display: flex; align-items: center; gap: 10px; background: var(--icon-chest-bg); }
-
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
     .modal-content { background: var(--bg-primary); width: 100%; max-width: 400px; border-radius: var(--radius-xl); padding: 1.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.3); animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid var(--border); }
     .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 1.25rem; }
     .cat-btn { padding: 14px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-secondary); font-size: 14px; font-weight: 700; color: var(--text-primary); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: transform 0.1s, background 0.2s; }
-    .cat-btn:active { transform: scale(0.96); background: var(--border); }
-
     .quick-control { display: flex; align-items: center; background: var(--bg-secondary); border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border); transition: border 0.2s; height: 54px; }
-    .quick-control:focus-within { border-color: var(--text-tertiary); }
-    .quick-control button { width: 54px; height: 100%; border: none; background: transparent; font-size: 26px; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 300; transition: background 0.1s;}
-    .quick-control button:active { background: rgba(0,0,0,0.05); }
-    :root[data-theme="dark"] .quick-control button:active { background: rgba(255,255,255,0.05); }
+    .quick-control button { width: 54px; height: 100%; border: none; background: transparent; font-size: 26px; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 300; }
     .quick-control input { flex: 1; width: 100%; height: 100%; font-size: 22px; font-weight: 800; text-align: center; border: none; background: transparent; outline: none; color: var(--text-primary); padding: 0; }
-    
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-    
     .rpe-container { display: flex; align-items: center; gap: 16px; background: var(--bg-secondary); padding: 12px 20px; border-radius: var(--radius-md); margin-bottom: 24px; border: 1px solid var(--border); transition: background-color 0.3s ease; }
     .rpe-container input[type="range"] { flex: 1; height: 6px; border-radius: 3px; outline: none; background: var(--border); transition: accent-color 0.2s; accent-color: var(--color-rpe-low); margin: 0; }
     .rpe-val { font-size: 20px; font-weight: 800; width: 36px; text-align: right; color: var(--text-primary); }
-    
     .btn-primary { width: 100%; padding: 18px; font-size: 17px; font-weight: 800; border-radius: var(--radius-lg); border: none; background: var(--text-primary); color: var(--bg-primary); cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.08); transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1); display: flex; justify-content: center; align-items: center; gap: 10px; }
-    .btn-primary:active { transform: scale(0.96); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-    
     .log-item { display: flex; flex-direction: column; gap: 8px; padding: 16px 20px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-xl); margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
     .log-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
     .log-title { font-size: 15px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
     .set-badge { font-size: 12px; font-weight: 800; color: var(--bg-primary); background: var(--text-secondary); width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
-    
     .pr-badge { font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; background: #16a34a; color: #ffffff; display: flex; align-items: center; gap: 3px; letter-spacing: 0.5px;}
-    :root[data-theme="dark"] .pr-badge { background: #22c55e; color: #000000; }
-    
     .delete-btn { background: transparent; border: none; color: var(--text-tertiary); padding: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background 0.2s;}
-    .delete-btn:active { background: var(--bg-secondary); }
-    
     .pr-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
     .pr-sort-select { padding: 8px 12px; font-size: 13px; font-weight: 700; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg-primary); color: var(--text-primary); outline: none; }
     .pr-view-toggle { display: flex; background: var(--bg-secondary); border-radius: var(--radius-md); padding: 4px; gap: 4px; border: 1px solid var(--border); }
     .pr-view-btn { padding: 6px; border: none; background: transparent; border-radius: 6px; color: var(--text-tertiary); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
     .pr-view-btn.active { background: var(--bg-primary); color: var(--text-primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-
     .pr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; }
     .pr-card { border-radius: var(--radius-xl); padding: 1.5rem; border: 1px solid transparent; transition: background-color 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
-    
     .pr-list { display: flex; flex-direction: column; gap: 12px; }
     .pr-list-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-radius: var(--radius-xl); border: 1px solid transparent; transition: background-color 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.01); }
     .pr-list-left { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
@@ -189,13 +124,9 @@
     .pr-list-weight { font-size: 22px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px; text-align: right; min-width: 50px; }
     .pr-list-weight span { font-size: 13px; color: var(--text-secondary); font-weight: 700; margin-left: 2px; }
     .pr-list-graph { width: 60px; height: 30px; }
-    
     .chips { display: flex; gap: 10px; flex-wrap: nowrap; overflow-x: auto; margin-bottom: 1.5rem; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
     .chip { flex-shrink: 0; padding: 10px 20px; font-size: 14px; font-weight: 700; border-radius: 30px; border: 1px solid var(--border); background: var(--bg-primary); color: var(--text-secondary); cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
     .chip.active { border-color: var(--text-primary); background: var(--text-primary); color: var(--bg-primary); }
-
-    #last-record { background: var(--bg-secondary); padding: 14px 18px; border-radius: var(--radius-md); margin-bottom: 24px; border-left: 4px solid var(--text-primary); display: none; align-items: center; justify-content: space-between; }
-
     .body-map-container { display: flex; justify-content: space-around; padding: 1rem 0; margin-bottom: 1rem; }
     .body-figure { display: flex; flex-direction: column; align-items: center; gap: 12px; }
     .body-label { font-size: 13px; font-weight: 800; color: var(--text-tertiary); letter-spacing: 1px; }
@@ -208,22 +139,15 @@
     .stat-bar-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: var(--text-secondary); }
     .stat-bar-bg { width: 100%; height: 10px; background: var(--bg-secondary); border-radius: 5px; overflow: hidden; }
     .stat-bar-fill { height: 100%; border-radius: 5px; transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
-    
     .settings-list { display: flex; flex-direction: column; gap: 16px; }
-    /* 設定ボタン内のテキスト折り返し対応 */
     .settings-btn { width: 100%; padding: 18px 20px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-lg); color: var(--text-primary); display: flex; align-items: center; gap: 14px; cursor: pointer; text-align: left; transition: transform 0.1s, background-color 0.2s; }
     .settings-btn svg { flex-shrink: 0; }
     .settings-btn span { flex: 1; line-height: 1.3; font-size: 15px; font-weight: 800; }
-    .settings-btn:active { transform: scale(0.98); background: var(--border); }
     .settings-note { font-size: 13px; color: var(--text-tertiary); font-weight: 600; margin-top: 6px; line-height: 1.5; padding: 0 4px; }
-
     .theme-toggle-group { display: flex; gap: 8px; background: var(--bg-secondary); padding: 6px; border-radius: var(--radius-lg); border: 1px solid var(--border); }
     .theme-btn { flex: 1; padding: 14px 0; font-size: 14px; font-weight: 800; border: none; background: transparent; color: var(--text-tertiary); border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s; }
     .theme-btn.active { background: var(--bg-primary); color: var(--text-primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-
     .google-btn { width: 100%; padding: 16px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 15px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer; margin-bottom: 12px; transition: background 0.2s; }
-    .google-btn:active { background: var(--bg-secondary); }
-
     svg { display: block; }
   </style>
 </head>
@@ -234,14 +158,12 @@
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.4 14.4l-4.8-4.8M6.5 10.5l-3-3a2 2 0 112.8-2.8l3 3M17.5 13.5l3 3a2 2 0 11-2.8 2.8l-3-3M8 12l4-4M12 16l4-4M10 14l4-4"/></svg>
         workout
       </h1>
-      <!-- シンプル化された同期バッジ -->
       <div id="sync-badge" class="sync-badge safe" onclick="triggerManualSync()">
         <svg class="sync-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
         <span id="sync-badge-text">同期済</span>
       </div>
     </div>
 
-    <!-- LOG VIEW -->
     <div id="view-log" class="view active">
       <div class="card">
         <div style="margin-bottom: 24px;">
@@ -296,7 +218,7 @@
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
           <div style="font-size:13px; font-weight:700; color:var(--text-secondary);">
-            推定1RM: <strong id="onerm-display" style="font-size:18px; color:var(--text-primary);">80</strong> kg
+            推定1RM(RPE加味): <strong id="onerm-display" style="font-size:18px; color:var(--text-primary);">80</strong> kg
           </div>
           <div id="pr-hint" style="font-size:13px; color:#16a34a; font-weight:800; display:none; align-items:center; gap:4px;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
@@ -317,18 +239,15 @@
       <div id="today-logs"></div>
     </div>
 
-    <!-- HISTORY VIEW -->
     <div id="view-history" class="view">
       <div id="history-chips" class="chips"></div>
       <div id="history-content"></div>
     </div>
 
-    <!-- PR VIEW -->
     <div id="view-pr" class="view">
       <div id="pr-container"></div>
     </div>
 
-    <!-- ANALYSIS VIEW -->
     <div id="view-analysis" class="view">
       <div class="card">
         <h2 style="font-size:18px; font-weight:800; margin:0 0 20px 0; text-align:center; color:var(--text-primary);">部位別バランス分析<br><span style="font-size:13px; font-weight:600; color:var(--text-tertiary);">（直近30日間のセット数）</span></h2>
@@ -348,7 +267,6 @@
       </div>
     </div>
 
-    <!-- SETTINGS VIEW -->
     <div id="view-settings" class="view">
       <div class="card">
         <h2 style="font-size:18px; font-weight:800; margin:0 0 24px 0; color:var(--text-primary);">設定</h2>
@@ -365,14 +283,13 @@
           <div id="gdrive-login-area">
             <button class="google-btn" onclick="handleAuthClick()">
               <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-              Googleアカウントでログイン
+              <span>Googleアカウントでログイン</span>
             </button>
-            <p class="settings-note">※事前にGoogle Cloud ConsoleでClient IDを取得し、コード内のプレースホルダーを置き換える必要があります。</p>
           </div>
           <div id="gdrive-sync-area" style="display:none;">
             <p style="font-size:14px; font-weight:700; color:#16a34a; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-              アカウント接続済み
+              <span>アカウント接続済み</span>
             </p>
             <button class="settings-btn" onclick="syncToDrive()" style="margin-bottom:12px;">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -496,18 +413,23 @@
     function applyThemeSettings() {
       const theme = localStorage.getItem('wt_theme') || 'auto';
       document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
-      document.getElementById(`theme-btn-${theme}`).classList.add('active');
+      const btn = document.getElementById(`theme-btn-${theme}`);
+      if (btn) btn.classList.add('active');
       
+      let isDark = false;
       if (theme === 'dark') {
+        isDark = true;
+      } else if (theme === 'auto') {
+        isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      }
+
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (isDark) {
         document.documentElement.setAttribute('data-theme', 'dark');
-      } else if (theme === 'light') {
-        document.documentElement.setAttribute('data-theme', 'light');
+        if (meta) meta.setAttribute('content', '#000000');
       } else {
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          document.documentElement.setAttribute('data-theme', 'dark');
-        } else {
-          document.documentElement.setAttribute('data-theme', 'light');
-        }
+        document.documentElement.setAttribute('data-theme', 'light');
+        if (meta) meta.setAttribute('content', '#fafafa');
       }
     }
 
@@ -551,8 +473,8 @@
 
     function handleAuthClick() {
       haptic();
-      if(CLIENT_ID.includes('YOUR_CLIENT_ID')) {
-        alert("Google Drive同期を利用するには、ソースコード内の 'YOUR_CLIENT_ID_HERE' を自身のClient IDに変更する必要があります。");
+      if(CLIENT_ID.includes('504605284753-9482edtgg5ndcp8p1723pvf4mfe12t6b.apps.googleusercontent.com')) {
+        alert("Google Drive同期を利用するには、Client IDを更新する必要があります。");
         return;
       }
       tokenClient.requestAccessToken();
@@ -654,7 +576,7 @@
       
       if(state === 'syncing') {
         badge.classList.add('syncing');
-        text.innerText = "同期中...";
+        text.innerText = "同期中";
         return;
       }
 
@@ -698,7 +620,7 @@
       { c: "胸", n: "ベンチプレス（バーベル）", s: "べんちぷれす ばーべる bench press" },
       { c: "胸", n: "インクラインベンチプレス（バーベル）", s: "いんくらいんべんちぷれす ばーべる incline bench press" },
       { c: "胸", n: "デクラインベンチプレス（バーベル）", s: "でくらいんべんちぷれす ばーべる decline bench press" },
-      { c: "胸", n: "ダンベルプレス（ダンベル）", s: "だんべるぷれす だんべる dumbbell press" },
+      { c: "胸", n: "ダンべるプレス（ダンベル）", s: "だんべるぷれす だんべる dumbbell press" },
       { c: "胸", n: "インクラインダンベルプレス（ダンベル）", s: "いんくらいんだんべるぷれす だんべる incline dumbbell press" },
       { c: "胸", n: "デクラインダンベルプレス（ダンベル）", s: "でくらいんだんべるぷれす だんべる decline dumbbell press" },
       { c: "胸", n: "ダンベルフライ（ダンベル）", s: "だんべるふらい だんべる dumbbell fly" },
@@ -766,8 +688,6 @@
       return `${d.getMonth()+1}/${d.getDate()}`;
     };
 
-    document.getElementById('record-date').value = getTodayStr();
-
     function normalizeStr(str) {
       if (!str) return "";
       return str.toLowerCase().replace(/[\u30a1-\u30f6]/g, function(match) {
@@ -821,7 +741,7 @@
         listDiv.innerHTML = `
           <div class="suggest-create-btn" onclick="openCreateModal('${inputRaw}')">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            「${inputRaw}」を新規作成
+            <span>「${inputRaw}」を新規作成</span>
           </div>
         `;
       }
@@ -830,14 +750,14 @@
     }
 
     function selectSuggest(exName) {
-      haptic(10);
+      haptic();
       document.getElementById('exercise-input').value = exName;
       document.getElementById('suggest-list').style.display = 'none';
       updateUI();
     }
 
     function openCreateModal(name) {
-      haptic(15);
+      haptic(10);
       pendingExerciseName = name;
       document.getElementById('modal-ex-name').innerText = name;
       const grid = document.getElementById('modal-cat-grid');
@@ -848,22 +768,20 @@
           ${c}
         </button>
       `).join('');
-      
       document.getElementById('suggest-list').style.display = 'none';
       document.getElementById('create-modal').style.display = 'flex';
     }
     
     function closeModal() {
-      haptic(10);
+      haptic();
       document.getElementById('create-modal').style.display = 'none';
       pendingExerciseName = "";
     }
 
     function createCustomExercise(cat) {
-      haptic(15);
+      haptic(10);
       customExercises.push({ c: cat, n: pendingExerciseName, s: pendingExerciseName });
       localStorage.setItem("wt_custom_ex_v5", JSON.stringify(customExercises));
-      
       document.getElementById('exercise-input').value = pendingExerciseName;
       closeModal();
       updateUI();
@@ -885,6 +803,7 @@
     function init() {
       applyThemeSettings();
       updateSyncBadgeState();
+      document.getElementById('record-date').value = getTodayStr();
       document.getElementById('exercise-input').value = "ベンチプレス（バーベル）";
       updateUI();
       renderTodayLogs();
@@ -895,7 +814,7 @@
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
       document.getElementById(`view-${viewId}`).classList.add('active');
-      btn.classList.add('active');
+      if (btn) btn.classList.add('active');
 
       if(viewId === 'history') renderHistoryTab();
       if(viewId === 'pr') renderPRTab();
@@ -949,7 +868,6 @@
       const targetDateLogs = logs.filter(l => l.date === dateStr && l.exercise === ex);
       const nextSetNum = targetDateLogs.length + 1;
       document.getElementById('record-btn-text').innerText = `第${nextSetNum}セットを記録`;
-      
       renderTodayLogs();
     }
 
@@ -962,11 +880,9 @@
       const rpeVal = parseFloat(document.getElementById('rpe').value);
       
       if(!weight || !reps || !exercise) {
-        alert("種目を入力してください");
+        alert("種目を選択してください");
         return;
       }
-
-      document.getElementById('suggest-list').style.display = 'none';
 
       const isKnown = getAllExercises().some(e => e.n === exercise);
       if (!isKnown) {
@@ -975,29 +891,21 @@
       }
 
       const targetDateLogs = logs.filter(l => l.date === dateStr && l.exercise === exercise);
-      const setNumber = targetDateLogs.length + 1;
-
       const entry = {
         id: Date.now(),
         date: dateStr,
         exercise: exercise,
         weight: parseFloat(weight),
         reps: parseInt(reps),
-        setNumber: setNumber,
+        setNumber: targetDateLogs.length + 1,
         rpe: rpeVal,
         oneRM: calculate1RM(weight, reps, rpeVal)
       };
 
       logs.unshift(entry);
       logs.sort((a, b) => new Date(b.date) - new Date(a.date) || b.id - a.id);
-      
       localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs));
-      
-      const badge = document.getElementById('sync-badge');
-      const text = document.getElementById('sync-badge-text');
-      badge.className = 'sync-badge warning';
-      text.innerText = "未同期";
-
+      updateSyncBadgeState();
       updateUI();
     }
 
@@ -1006,9 +914,7 @@
       if(confirm("この記録を削除しますか？")) {
         logs = logs.filter(l => l.id !== id);
         localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs));
-        const badge = document.getElementById('sync-badge');
-        badge.className = 'sync-badge warning';
-        document.getElementById('sync-badge-text').innerText = "未同期";
+        updateSyncBadgeState();
         updateUI();
         renderHistoryTab();
       }
@@ -1020,30 +926,16 @@
       const badgeHtml = showDate 
         ? `<span style="font-size:13px;font-weight:800;color:var(--text-secondary);background:var(--bg-secondary);padding:4px 10px;border-radius:8px;">${formatDate(log.date)}</span>` 
         : `<span class="set-badge">${log.setNumber}</span>`;
-      
       const rpeColor = getRPEColor(log.rpe);
-
       return `
         <div class="log-item">
           <div class="log-header">
-            <div class="log-title">
-              ${badgeHtml}
-              <span>${log.exercise}</span>
-              ${isPR ? `<span class="pr-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>PR</span>` : ''}
-            </div>
-            <button class="delete-btn" onclick="confirmDelete(${log.id})">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </button>
+            <div class="log-title">${badgeHtml} <span>${log.exercise}</span> ${isPR ? `<span class="pr-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>PR</span>` : ''}</div>
+            <button class="delete-btn" onclick="confirmDelete(${log.id})"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
           </div>
           <div style="display:flex;align-items:baseline;justify-content:space-between;">
-            <div>
-              <span style="font-size:26px;font-weight:800;letter-spacing:-0.5px;">${log.weight}</span><span style="font-size:15px;font-weight:700;color:var(--text-secondary);margin:0 14px 0 2px;">kg</span>
-              <span style="font-size:20px;font-weight:800;">× ${log.reps}</span><span style="font-size:15px;font-weight:700;color:var(--text-secondary);">rep</span>
-            </div>
-            <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-              <span style="font-size:13px;font-weight:800;color:#fff;background:${rpeColor};padding:3px 10px;border-radius:8px;">RPE ${log.rpe}</span>
-              <span style="font-size:12px;font-weight:700;color:var(--text-tertiary);">1RM: ${log.oneRM}kg</span>
-            </div>
+            <div><span style="font-size:26px;font-weight:800;">${log.weight}</span><span style="font-size:15px;font-weight:700;color:var(--text-secondary);margin:0 14px 0 2px;">kg</span><span style="font-size:20px;font-weight:800;">× ${log.reps}</span><span style="font-size:15px;font-weight:700;color:var(--text-secondary);">rep</span></div>
+            <div style="text-align:right;"><span style="font-size:13px;font-weight:800;color:#fff;background:${rpeColor};padding:3px 10px;border-radius:8px;">RPE ${log.rpe}</span></div>
           </div>
         </div>
       `;
@@ -1063,438 +955,67 @@
     function renderHistoryTab() {
       const recentEx = [...new Set(logs.slice(0, 50).map(l => l.exercise))];
       const chips = document.getElementById('history-chips');
-      chips.innerHTML = recentEx.map(ex => `
-        <button class="chip ${selectedHistoryEx === ex ? 'active' : ''}" onclick="selectHistoryEx('${ex}')">${ex}</button>
-      `).join('');
-
+      chips.innerHTML = recentEx.map(ex => `<button class="chip ${selectedHistoryEx === ex ? 'active' : ''}" onclick="selectHistoryEx('${ex}')">${ex}</button>`).join('');
       const content = document.getElementById('history-content');
       if (!selectedHistoryEx) {
-        if(!logs.length) {
-           content.innerHTML = `<p style="text-align:center;font-weight:700;color:var(--text-tertiary);padding:3rem;">記録がありません</p>`;
-           return;
-        }
+        if(!logs.length) { content.innerHTML = `<p style="text-align:center;font-weight:700;color:var(--text-tertiary);padding:3rem;">記録がありません</p>`; return; }
         content.innerHTML = logs.slice(0, 30).map(l => buildLogRow(l, true)).join('');
         return;
       }
-
       const exLogs = logs.filter(l => l.exercise === selectedHistoryEx);
       if(!exLogs.length) return;
-      
       const dailyMax = [];
-      const groupedByDate = exLogs.reduce((acc, log) => {
-        if (!acc[log.date]) acc[log.date] = [];
-        acc[log.date].push(log);
-        return acc;
-      }, {});
-      
-      Object.keys(groupedByDate).sort().reverse().slice(0, 15).reverse().forEach(date => {
-        const dayLogs = groupedByDate[date];
-        const maxLog = dayLogs.reduce((prev, current) => (prev.weight > current.weight) ? prev : current);
-        dailyMax.push(maxLog);
-      });
-
+      const groupedByDate = exLogs.reduce((acc, log) => { if (!acc[log.date]) acc[log.date] = []; acc[log.date].push(log); return acc; }, {});
+      Object.keys(groupedByDate).sort().reverse().slice(0, 15).reverse().forEach(date => { dailyMax.push(groupedByDate[date].reduce((prev, current) => (prev.weight > current.weight) ? prev : current)); });
       const weights = dailyMax.map(l => l.weight);
-      const maxW = Math.max(...weights);
-      const minW = Math.max(0, Math.min(...weights) - 5);
-      const range = maxW - minW || 10;
+      const maxW = Math.max(...weights); const minW = Math.max(0, Math.min(...weights) - 5); const range = maxW - minW || 10;
       const H = 200, W = 600, PAD = 44;
-      
-      const points = dailyMax.map((l, i) => {
-        const x = PAD + (i / Math.max(dailyMax.length-1, 1)) * (W - PAD*2);
-        const y = H - PAD - ((l.weight - minW) / range) * (H - PAD*2);
-        return { x, y, ...l };
-      });
+      const points = dailyMax.map((l, i) => { const x = PAD + (i / Math.max(dailyMax.length-1, 1)) * (W - PAD*2); const y = H - PAD - ((l.weight - minW) / range) * (H - PAD*2); return { x, y, ...l }; });
       const pathD = points.map((p,i) => `${i===0?"M":"L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
-
       let svgHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;overflow:visible;margin-bottom:1rem;">`;
-      [0, 0.5, 1].forEach(t => {
-        const y = H - PAD - t * (H - PAD*2);
-        const val = (minW + t * range).toFixed(0);
-        svgHTML += `
-          <line x1="${PAD}" x2="${W-PAD}" y1="${y}" y2="${y}" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="4 4" />
-          <text x="${PAD-12}" y="${y+4}" text-anchor="end" fill="var(--text-tertiary)" font-size="13" font-weight="700">${val}kg</text>
-        `;
-      });
+      [0, 0.5, 1].forEach(t => { const y = H - PAD - t * (H - PAD*2); const val = (minW + t * range).toFixed(0); svgHTML += `<line x1="${PAD}" x2="${W-PAD}" y1="${y}" y2="${y}" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="4 4" /><text x="${PAD-12}" y="${y+4}" text-anchor="end" fill="var(--text-tertiary)" font-size="13" font-weight="700">${val}kg</text>`; });
       svgHTML += `<path d="${pathD}" fill="none" stroke="var(--text-tertiary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 6"/>`;
-      points.forEach(p => {
-        const fillColor = getRPEColor(p.rpe);
-        svgHTML += `
-          <circle cx="${p.x}" cy="${p.y}" r="7" fill="${fillColor}" stroke="var(--bg-primary)" stroke-width="2.5" />
-          <text x="${p.x}" y="${H-6}" text-anchor="middle" fill="var(--text-secondary)" font-size="12" font-weight="800">${formatDate(p.date)}</text>
-        `;
-      });
+      points.forEach(p => { const fillColor = getRPEColor(p.rpe); svgHTML += `<circle cx="${p.x}" cy="${p.y}" r="7" fill="${fillColor}" stroke="var(--bg-primary)" stroke-width="2.5" /><text x="${p.x}" y="${H-6}" text-anchor="middle" fill="var(--text-secondary)" font-size="12" font-weight="800">${formatDate(p.date)}</text>`; });
       svgHTML += `</svg>`;
-
-      let legendHTML = `
-        <div style="display:flex; justify-content:center; gap:16px; margin-bottom:2rem; font-size:12px; font-weight:800; color:var(--text-secondary);">
-          <span style="display:flex; align-items:center; gap:6px;"><span style="width:12px;height:12px;border-radius:50%;background:var(--color-rpe-high);"></span>RPE 9.5~10</span>
-          <span style="display:flex; align-items:center; gap:6px;"><span style="width:12px;height:12px;border-radius:50%;background:var(--color-rpe-mid);"></span>RPE 8~9</span>
-          <span style="display:flex; align-items:center; gap:6px;"><span style="width:12px;height:12px;border-radius:50%;background:var(--color-rpe-low);"></span>余裕あり</span>
-        </div>
-      `;
-
-      let listHTML = `<div style="display:flex;flex-direction:column;gap:6px;margin-top:2rem;border-top:1px solid var(--border);padding-top:1.5rem;">
-        <p style="font-size:14px;font-weight:800;color:var(--text-tertiary);margin:0 0 10px 0;">全履歴</p>`;
-      listHTML += exLogs.map(l => buildLogRow(l, true)).join('');
-      listHTML += `</div>`;
-
-      content.innerHTML = `<div class="card" style="margin-bottom:0;"><p style="font-size:16px;font-weight:800;margin-bottom:24px;color:var(--text-primary);">日別MAX重量推移 (RPE色分け)</p>${dailyMax.length > 1 ? svgHTML + legendHTML : '<p style="font-size:14px;font-weight:700;color:var(--text-tertiary);margin-bottom:24px;">グラフ表示には2日以上の記録が必要です</p>'}${listHTML}</div>`;
+      content.innerHTML = `<div class="card" style="margin-bottom:0;"><p style="font-size:16px;font-weight:800;margin-bottom:24px;">MAX重量推移</p>${dailyMax.length > 1 ? svgHTML : '<p style="font-size:14px;font-weight:700;color:var(--text-tertiary);margin-bottom:24px;">グラフ表示には2日以上の記録が必要です</p>'}<div style="margin-top:2rem;border-top:1px solid var(--border);padding-top:1.5rem;">${exLogs.map(l => buildLogRow(l, true)).join('')}</div></div>`;
     }
 
-    function selectHistoryEx(ex) {
-      haptic(10);
-      selectedHistoryEx = selectedHistoryEx === ex ? null : ex;
-      renderHistoryTab();
-    }
-
-    function setPRSort(mode) {
-      haptic(10);
-      prSortMode = mode;
-      localStorage.setItem("wt_pr_sort", mode);
-      renderPRTab();
-    }
-
-    function setPRView(mode) {
-      haptic(10);
-      prViewMode = mode;
-      localStorage.setItem("wt_pr_view", mode);
-      renderPRTab();
-    }
-
-    function getSparklineSVG(exLogs, color) {
-      const dailyMax = [];
-      const grouped = exLogs.reduce((acc, log) => {
-        if (!acc[log.date]) acc[log.date] = [];
-        acc[log.date].push(log);
-        return acc;
-      }, {});
-      
-      Object.keys(grouped).sort().forEach(date => {
-        const maxW = Math.max(...grouped[date].map(l => l.weight));
-        dailyMax.push(maxW);
-      });
-      
-      if (dailyMax.length < 2) {
-        return `<svg width="100%" height="100%" viewBox="0 0 60 30"><circle cx="30" cy="15" r="4" fill="${color}"/></svg>`;
-      }
-
-      const min = Math.min(...dailyMax);
-      const max = Math.max(...dailyMax);
-      const range = max - min || 1;
-      const H = 30, W = 60, PAD = 4;
-      
-      const points = dailyMax.map((w, i) => {
-        const x = PAD + (i / (dailyMax.length - 1)) * (W - PAD * 2);
-        const y = H - PAD - ((w - min) / range) * (H - PAD * 2);
-        return `${x},${y}`;
-      });
-      
-      return `<svg width="100%" height="100%" viewBox="0 0 ${W} ${H}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="${points.join(' ')}"/></svg>`;
-    }
+    function setPRSort(mode) { haptic(); prSortMode = mode; localStorage.setItem("wt_pr_sort", mode); renderPRTab(); }
+    function setPRView(mode) { haptic(); prViewMode = mode; localStorage.setItem("wt_pr_view", mode); renderPRTab(); }
 
     function renderPRTab() {
       const container = document.getElementById('pr-container');
       const activeExercises = [...new Set(logs.map(l => l.exercise))];
-      
-      if(activeExercises.length === 0) {
-        container.innerHTML = `<p style="text-align:center;font-weight:700;color:var(--text-tertiary);padding:3rem;">記録がありません</p>`;
-        return;
-      }
-
+      if(activeExercises.length === 0) { container.innerHTML = `<p style="text-align:center;font-weight:700;color:var(--text-tertiary);padding:3rem;">記録がありません</p>`; return; }
       const CAT_ORDER = {"胸":1, "背中":2, "脚":3, "肩":4, "腕":5, "腹・体幹":6, "全身":7};
-      
-      let prData = activeExercises.map(ex => {
-        const exLogs = logs.filter(l => l.exercise === ex);
-        const maxLog = exLogs.reduce((prev, current) => (prev.weight > current.weight) ? prev : current);
-        const cat = getExerciseCategory(ex);
-        return {
-          name: ex,
-          cat: cat,
-          catOrder: CAT_ORDER[cat] || 99,
-          maxLog: maxLog,
-          exLogs: exLogs
-        };
-      });
-
-      if (prSortMode === 'category') {
-        prData.sort((a, b) => {
-          if(a.catOrder !== b.catOrder) return a.catOrder - b.catOrder;
-          return a.name.localeCompare(b.name, 'ja');
-        });
-      } else {
-        prData.sort((a, b) => a.name.localeCompare(b.name, 'ja'));
-      }
-
-      let controlsHtml = `
-        <div class="pr-controls">
-          <select class="pr-sort-select" onchange="setPRSort(this.value)">
-            <option value="category" ${prSortMode === 'category' ? 'selected' : ''}>部位順に並べ替え</option>
-            <option value="name" ${prSortMode === 'name' ? 'selected' : ''}>あいうえお順</option>
-          </select>
-          <div class="pr-view-toggle">
-            <button class="pr-view-btn ${prViewMode === 'grid' ? 'active' : ''}" onclick="setPRView('grid')">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-            </button>
-            <button class="pr-view-btn ${prViewMode === 'list' ? 'active' : ''}" onclick="setPRView('list')">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-            </button>
-          </div>
-        </div>
-      `;
-
+      let prData = activeExercises.map(ex => { const exLogs = logs.filter(l => l.exercise === ex); return { name: ex, cat: getExerciseCategory(ex), catOrder: CAT_ORDER[getExerciseCategory(ex)] || 99, maxLog: exLogs.reduce((p, c) => (p.weight > c.weight) ? p : c), exLogs: exLogs }; });
+      if (prSortMode === 'category') { prData.sort((a, b) => a.catOrder !== b.catOrder ? a.catOrder - b.catOrder : a.name.localeCompare(b.name, 'ja')); } else { prData.sort((a, b) => a.name.localeCompare(b.name, 'ja')); }
+      let controlsHtml = `<div class="pr-controls"><select class="pr-sort-select" onchange="setPRSort(this.value)"><option value="category" ${prSortMode==='category'?'selected':''}>部位順</option><option value="name" ${prSortMode==='name'?'selected':''}>五十音順</option></select><div class="pr-view-toggle"><button class="pr-view-btn ${prViewMode==='grid'?'active':''}" onclick="setPRView('grid')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></button><button class="pr-view-btn ${prViewMode==='list'?'active':''}" onclick="setPRView('list')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button></div></div>`;
       let contentHtml = '';
-      if (prViewMode === 'grid') {
-        contentHtml = '<div class="pr-grid">';
-        prData.forEach(item => {
-          const bgVar = `var(--pr-${getCatClass(item.cat)}-bg)`;
-          contentHtml += `
-            <div class="pr-card" style="background: ${bgVar}; border-color: transparent;">
-              <p style="font-size:14px;font-weight:800;color:var(--text-secondary);margin:0 0 10px 0;display:flex;align-items:center;gap:8px;">
-                <span class="cat-icon-wrapper ${getCatClass(item.cat)}" style="width:24px;height:24px;border-radius:6px;">${CAT_ICONS[item.cat]||CAT_ICONS["全身"]}</span>
-                ${item.name}
-              </p>
-              <p style="font-size:32px;font-weight:800;margin:0 0 6px 0;color:var(--text-primary);letter-spacing:-0.5px;">${item.maxLog.weight}<span style="font-size:16px;color:var(--text-secondary);font-weight:700;">kg</span></p>
-              <p style="font-size:13px;font-weight:700;color:var(--text-tertiary);margin:0;display:flex;justify-content:space-between;">
-                <span>×${item.maxLog.reps} <span style="color:${getRPEColor(item.maxLog.rpe)};">RPE${item.maxLog.rpe}</span></span>
-                <span>全${item.exLogs.length}セット</span>
-              </p>
-            </div>
-          `;
-        });
-        contentHtml += '</div>';
-      } else {
-        contentHtml = '<div class="pr-list">';
-        prData.forEach(item => {
-          let fgColor = '';
-          switch(item.cat) {
-            case '胸': fgColor = '#2563eb'; break;
-            case '背中': fgColor = '#16a34a'; break;
-            case '脚': fgColor = '#ca8a04'; break;
-            case '肩': fgColor = '#ea580c'; break;
-            case '腕': fgColor = '#9333ea'; break;
-            case '腹・体幹': fgColor = '#dc2626'; break;
-            default: fgColor = '#52525b';
-          }
-          if (document.documentElement.getAttribute('data-theme') === 'dark') {
-             switch(item.cat) {
-              case '胸': fgColor = '#60a5fa'; break;
-              case '背中': fgColor = '#4ade80'; break;
-              case '脚': fgColor = '#facc15'; break;
-              case '肩': fgColor = '#fb923c'; break;
-              case '腕': fgColor = '#c084fc'; break;
-              case '腹・体幹': fgColor = '#f87171'; break;
-              default: fgColor = '#a1a1aa';
-            }
-          }
-
-          const bgVar = `var(--pr-${getCatClass(item.cat)}-bg)`;
-          contentHtml += `
-            <div class="pr-list-item" style="background: ${bgVar};">
-              <div class="pr-list-left">
-                <span class="cat-icon-wrapper ${getCatClass(item.cat)}" style="width:36px;height:36px;border-radius:8px;">${CAT_ICONS[item.cat]||CAT_ICONS["全身"]}</span>
-                <div class="pr-list-info">
-                  <span class="pr-list-name">${item.name}</span>
-                  <span class="pr-list-detail">
-                    <span>×${item.maxLog.reps}</span>
-                    <span style="color:${getRPEColor(item.maxLog.rpe)};">RPE${item.maxLog.rpe}</span>
-                  </span>
-                </div>
-              </div>
-              <div class="pr-list-right">
-                <div class="pr-list-graph">${getSparklineSVG(item.exLogs, fgColor)}</div>
-                <div class="pr-list-weight">${item.maxLog.weight}<span>kg</span></div>
-              </div>
-            </div>
-          `;
-        });
-        contentHtml += '</div>';
-      }
-
+      if (prViewMode === 'grid') { contentHtml = '<div class="pr-grid">'; prData.forEach(item => { contentHtml += `<div class="pr-card" style="background: var(--pr-${getCatClass(item.cat)}-bg);"><p style="font-size:14px;font-weight:800;color:var(--text-secondary);margin:0 0 10px 0;display:flex;align-items:center;gap:8px;"><span class="cat-icon-wrapper ${getCatClass(item.cat)}" style="width:24px;height:24px;border-radius:6px;">${CAT_ICONS[item.cat]||CAT_ICONS["全身"]}</span>${item.name}</p><p style="font-size:32px;font-weight:800;margin:0 0 6px 0;letter-spacing:-0.5px;">${item.maxLog.weight}<span style="font-size:16px;color:var(--text-secondary);">kg</span></p><p style="font-size:13px;font-weight:700;color:var(--text-tertiary);margin:0;display:flex;justify-content:space-between;"><span>×${item.maxLog.reps} <span style="color:${getRPEColor(item.maxLog.rpe)};">RPE${item.maxLog.rpe}</span></span></p></div>`; }); contentHtml += '</div>'; } 
+      else { contentHtml = '<div class="pr-list">'; prData.forEach(item => { const isDark = document.documentElement.getAttribute('data-theme')==='dark'; let fgColor = isDark ? '#d4d4d8' : '#52525b'; if(item.cat==='胸') fgColor=isDark?'#60a5fa':'#2563eb'; else if(item.cat==='背中') fgColor=isDark?'#4ade80':'#16a34a'; else if(item.cat==='脚') fgColor=isDark?'#facc15':'#ca8a04'; else if(item.cat==='肩') fgColor=isDark?'#fb923c':'#ea580c'; else if(item.cat==='腕') fgColor=isDark?'#c084fc':'#9333ea'; else if(item.cat==='腹・体幹') fgColor=isDark?'#f87171':'#dc2626'; contentHtml += `<div class="pr-list-item" style="background: var(--pr-${getCatClass(item.cat)}-bg);"><div class="pr-list-left"><span class="cat-icon-wrapper ${getCatClass(item.cat)}" style="width:36px;height:36px;border-radius:8px;">${CAT_ICONS[item.cat]||CAT_ICONS["全身"]}</span><div class="pr-list-info"><span class="pr-list-name">${item.name}</span><span class="pr-list-detail"><span>×${item.maxLog.reps}</span> <span style="color:${getRPEColor(item.maxLog.rpe)};">RPE${item.maxLog.rpe}</span></span></div></div><div class="pr-list-right"><div class="pr-list-graph">${getSparklineSVG(item.exLogs, fgColor)}</div><div class="pr-list-weight">${item.maxLog.weight}<span>kg</span></div></div></div>`; }); contentHtml += '</div>'; }
       container.innerHTML = controlsHtml + contentHtml;
     }
 
     function renderAnalysisTab() {
-      const limitDate = new Date();
-      limitDate.setDate(limitDate.getDate() - 30);
-      const recentLogs = logs.filter(l => new Date(l.date) >= limitDate);
-      
+      const recentLogs = logs.filter(l => new Date(l.date) >= new Date().setDate(new Date().getDate() - 30));
       const stats = { "胸": 0, "背中": 0, "脚": 0, "肩": 0, "腕": 0, "腹・体幹": 0, "全身": 0 };
-      let totalSets = 0;
-
-      recentLogs.forEach(log => {
-        const cat = getExerciseCategory(log.exercise);
-        if (stats[cat] !== undefined) {
-          stats[cat] += 1;
-          totalSets += 1;
-        }
-      });
-
+      recentLogs.forEach(log => { const cat = getExerciseCategory(log.exercise); if (stats[cat] !== undefined) stats[cat] += 1; });
+      const totalSets = Object.values(stats).reduce((a, b) => a + b, 0);
       const maxSets = Math.max(...Object.values(stats), 1);
-      const getColor = (cat) => {
-        const val = stats[cat];
-        if (val === 0) return "var(--heat-0)";
-        const ratio = val / maxSets;
-        if (ratio >= 0.7) return "var(--heat-3)";
-        if (ratio >= 0.3) return "var(--heat-2)";
-        return "var(--heat-1)";
-      };
-
-      const svgFront = `
-        <svg viewBox="0 0 100 220" width="130">
-          <circle cx="50" cy="20" r="14" fill="var(--bg-secondary)"/>
-          <rect class="body-part" x="33" y="40" width="34" height="28" rx="6" fill="${getColor('胸')}"/>
-          <rect class="body-part" x="35" y="70" width="30" height="32" rx="4" fill="${getColor('腹・体幹')}"/>
-          <rect class="body-part" x="15" y="40" width="16" height="16" rx="8" fill="${getColor('肩')}"/>
-          <rect class="body-part" x="69" y="40" width="16" height="16" rx="8" fill="${getColor('肩')}"/>
-          <rect class="body-part" x="15" y="58" width="14" height="45" rx="7" fill="${getColor('腕')}"/>
-          <rect class="body-part" x="71" y="58" width="14" height="45" rx="7" fill="${getColor('腕')}"/>
-          <rect class="body-part" x="33" y="104" width="15" height="70" rx="7" fill="${getColor('脚')}"/>
-          <rect class="body-part" x="52" y="104" width="15" height="70" rx="7" fill="${getColor('脚')}"/>
-        </svg>
-      `;
-
-      const svgBack = `
-        <svg viewBox="0 0 100 220" width="130">
-          <circle cx="50" cy="20" r="14" fill="var(--bg-secondary)"/>
-          <rect class="body-part" x="32" y="40" width="36" height="60" rx="6" fill="${getColor('背中')}"/>
-          <rect class="body-part" x="15" y="40" width="15" height="15" rx="7.5" fill="${getColor('肩')}"/>
-          <rect class="body-part" x="70" y="40" width="15" height="15" rx="7.5" fill="${getColor('肩')}"/>
-          <rect class="body-part" x="15" y="57" width="13" height="45" rx="6.5" fill="${getColor('腕')}"/>
-          <rect class="body-part" x="72" y="57" width="13" height="45" rx="6.5" fill="${getColor('腕')}"/>
-          <rect class="body-part" x="33" y="102" width="15" height="70" rx="7" fill="${getColor('脚')}"/>
-          <rect class="body-part" x="52" y="102" width="15" height="70" rx="7" fill="${getColor('脚')}"/>
-        </svg>
-      `;
-
-      document.getElementById('body-map-render').innerHTML = `
-        <div class="body-figure">${svgFront}<span class="body-label">FRONT</span></div>
-        <div class="body-figure">${svgBack}<span class="body-label">BACK</span></div>
-      `;
-
-      let advice = "";
-      if (totalSets < 10) {
-        advice = "データが少ないため、まだ分析できません。まずは様々な部位の種目を記録してみましょう！";
-      } else {
-        const msgs = [];
-        const pChest = stats["胸"] / totalSets;
-        const pBack = stats["背中"] / totalSets;
-        const pLegs = stats["脚"] / totalSets;
-        const pShoulder = stats["肩"] / totalSets;
-        const pArms = stats["腕"] / totalSets;
-
-        if (totalSets >= 120) {
-          msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#ef4444' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><path d='M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z'></path></svg><div><b style='color:var(--text-primary);'>素晴らしいトレーニング量です！</b><br>ただし月間120セットを超える高ボリュームになっています。関節の痛みや疲労を感じた場合は、計画的なディロード（重量やセット数を落とす週）を取り入れましょう。</div></div>");
-        }
-
-        if ((pChest + pArms) > 0.65) {
-          msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#ea580c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'></path><line x1='12' y1='9' x2='12' y2='13'></line><line x1='12' y1='17' x2='12.01' y2='17'></line></svg><div><b style='color:var(--text-primary);'>上半身の前面と腕に特化したメニューになっています。</b><br>いわゆる「Bro Split」に偏りがちかもしれません。全身の機能性を高めるため、背中や下半身の強化日を設けることをお勧めします。</div></div>");
-        }
-
-        if (pLegs < 0.15) {
-          msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#ea580c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'></path><line x1='12' y1='9' x2='12' y2='13'></line><line x1='12' y1='17' x2='12.01' y2='17'></line></svg><div><b style='color:var(--text-primary);'>脚のトレーニングが不足気味です。</b><br>下半身は全身の筋肉の約7割を占めます。スクワット等を取り入れると、基礎代謝の向上やテストステロンの分泌促進に大きく貢献します。</div></div>");
-        }
-
-        if (pChest > pBack * 1.5 && (pChest + pArms) <= 0.65) {
-          msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#ea580c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'></path><line x1='12' y1='9' x2='12' y2='13'></line><line x1='12' y1='17' x2='12.01' y2='17'></line></svg><div><b style='color:var(--text-primary);'>胸に対して背中のボリュームが不足しています。</b><br>巻き肩（猫背）を防ぎ美しい姿勢を保つため、ロウイングやラットプルダウンを積極的に取り入れましょう。</div></div>");
-        } else if (pBack > pChest * 2) {
-          msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#eab308' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='16' x2='12' y2='12'></line><line x1='12' y1='8' x2='12.01' y2='8'></line></svg><div><b style='color:var(--text-primary);'>背中を非常にしっかり鍛えられていますね。</b><br>体の厚みを作るため、プレス系（胸）の種目もバランス良く追加するとさらに立体的な体になります。</div></div>");
-        }
-
-        if (pShoulder < 0.1 && pChest > 0.1) {
-          msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#eab308' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='16' x2='12' y2='12'></line><line x1='12' y1='8' x2='12.01' y2='8'></line></svg><div><b style='color:var(--text-primary);'>肩（三角筋）の種目を追加してみませんか？</b><br>肩を鍛えることで逆三角形のシルエットが際立ち、ベンチプレスなど他種目の安定性向上にも繋がります。</div></div>");
-        }
-
-        if (pArms > 0.3) {
-          msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#3b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='16' x2='12' y2='12'></line><line x1='12' y1='8' x2='12.01' y2='8'></line></svg><div><b style='color:var(--text-primary);'>腕のトレーニングに非常に熱心です！</b><br>腕は回復が早い部位ですが、もし成長が停滞している場合は一時的にボリュームを減らして超回復を促すのも一つの手です。</div></div>");
-        } else if (pArms === 0 && (pChest > 0 || pBack > 0)) {
-          msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#eab308' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='16' x2='12' y2='12'></line><line x1='12' y1='8' x2='12.01' y2='8'></line></svg><div><b style='color:var(--text-primary);'>腕のアイソレーション（単関節）種目がありません。</b><br>胸や背中の種目で補助的に使われていますが、さらに腕を太くしたい場合はカールやエクステンションを追加してみましょう。</div></div>");
-        }
-
-        if (stats["腹・体幹"] === 0) {
-          msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#eab308' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='16' x2='12' y2='12'></line><line x1='12' y1='8' x2='12.01' y2='8'></line></svg><div><b style='color:var(--text-primary);'>体幹（腹筋）の記録がありません。</b><br>高重量を扱う際のフォーム安定や腰痛予防のため、プランクなどのメニューもおすすめです。</div></div>");
-        }
-        
-        if (msgs.length === 0) {
-          advice = "<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#3b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'></polygon></svg><div><b style='color:var(--text-primary);'>全身が非常にバランス良く鍛えられています！</b><br>現在のメニュー構成は理想的です。この調子でケガに気をつけて継続しましょう。</div></div>";
-        } else {
-          advice = msgs.join("");
-        }
-      }
-      document.getElementById('analysis-advice').innerHTML = advice;
-
-      let barsHtml = "";
-      const categories = ["胸", "背中", "脚", "肩", "腕", "腹・体幹", "全身"];
-      categories.forEach(cat => {
-        const val = stats[cat];
-        if(val === 0 && cat === "全身") return;
-        const percent = totalSets > 0 ? Math.round((val / totalSets) * 100) : 0;
-        barsHtml += `
-          <div class="stat-bar-container">
-            <div class="stat-bar-header">
-              <span style="display:flex; align-items:center; gap:8px;">
-                <div class="cat-icon-wrapper ${getCatClass(cat)}" style="width:20px;height:20px;border-radius:5px;">${CAT_ICONS[cat]}</div>
-                ${cat}
-              </span>
-              <span style="color:var(--text-primary); font-weight:800;">${val} <span style="font-size:11px;color:var(--text-tertiary);font-weight:700;">セット (${percent}%)</span></span>
-            </div>
-            <div class="stat-bar-bg">
-              <div class="stat-bar-fill" style="width: ${percent}%; background: ${getColor(cat)}"></div>
-            </div>
-          </div>
-        `;
-      });
+      const getColor = (cat) => { const ratio = stats[cat] / maxSets; if (stats[cat] === 0) return "var(--heat-0)"; if (ratio >= 0.7) return "var(--heat-3)"; if (ratio >= 0.3) return "var(--heat-2)"; return "var(--heat-1)"; };
+      document.getElementById('body-map-render').innerHTML = `<div class="body-figure"><svg viewBox="0 0 100 220" width="130"><circle cx="50" cy="20" r="14" fill="var(--bg-secondary)"/><rect class="body-part" x="33" y="40" width="34" height="28" rx="6" fill="${getColor('胸')}"/><rect class="body-part" x="35" y="70" width="30" height="32" rx="4" fill="${getColor('腹・体幹')}"/><rect class="body-part" x="15" y="40" width="16" height="16" rx="8" fill="${getColor('肩')}"/><rect class="body-part" x="69" y="40" width="16" height="16" rx="8" fill="${getColor('肩')}"/><rect class="body-part" x="15" y="58" width="14" height="45" rx="7" fill="${getColor('腕')}"/><rect class="body-part" x="71" y="58" width="14" height="45" rx="7" fill="${getColor('腕')}"/><rect class="body-part" x="33" y="104" width="15" height="70" rx="7" fill="${getColor('脚')}"/><rect class="body-part" x="52" y="104" width="15" height="70" rx="7" fill="${getColor('脚')}"/></svg><span class="body-label">FRONT</span></div><div class="body-figure"><svg viewBox="0 0 100 220" width="130"><circle cx="50" cy="20" r="14" fill="var(--bg-secondary)"/><rect class="body-part" x="32" y="40" width="36" height="60" rx="6" fill="${getColor('背中')}"/><rect class="body-part" x="15" y="40" width="15" height="15" rx="7.5" fill="${getColor('肩')}"/><rect class="body-part" x="70" y="40" width="15" height="15" rx="7.5" fill="${getColor('肩')}"/><rect class="body-part" x="15" y="57" width="13" height="45" rx="6.5" fill="${getColor('腕')}"/><rect class="body-part" x="72" y="57" width="13" height="45" rx="6.5" fill="${getColor('腕')}"/><rect class="body-part" x="33" y="102" width="15" height="70" rx="7" fill="${getColor('脚')}"/><rect class="body-part" x="52" y="102" width="15" height="70" rx="7" fill="${getColor('脚')}"/></svg><span class="body-label">BACK</span></div>`;
+      let advice = totalSets < 10 ? "データが少ないため、まだ分析できません。記録を増やしましょう！" : (stats["胸"]/totalSets > 0.4 ? "胸の種目が多めです。背中も鍛えて姿勢を整えましょう。" : "バランスの良いトレーニング構成です。このまま継続しましょう。");
+      document.getElementById('analysis-advice').innerText = advice;
+      let barsHtml = ""; ["胸", "背中", "脚", "肩", "腕", "腹・体幹"].forEach(cat => { const percent = totalSets > 0 ? Math.round((stats[cat] / totalSets) * 100) : 0; barsHtml += `<div class="stat-bar-container"><div class="stat-bar-header"><span>${cat}</span><span>${stats[cat]}セット (${percent}%)</span></div><div class="stat-bar-bg"><div class="stat-bar-fill" style="width: ${percent}%; background: ${getColor(cat)}"></div></div></div>`; });
       document.getElementById('analysis-bars').innerHTML = barsHtml;
     }
 
-    function exportDataLocal() {
-      haptic(20);
-      const data = { logs: logs, customExercises: customExercises };
-      const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `workout_backup_${getTodayStr()}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
+    function exportDataLocal() { haptic(20); const data = { logs: logs, customExercises: customExercises }; const blob = new Blob([JSON.stringify(data)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `workout_backup_${getTodayStr()}.json`; a.click(); }
+    function importDataLocal(event) { const file = event.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (e) => { try { const data = JSON.parse(e.target.result); logs = data.logs; customExercises = data.customExercises; localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs)); localStorage.setItem("wt_custom_ex_v5", JSON.stringify(customExercises)); alert("復元完了！"); location.reload(); } catch(err) { alert("失敗"); } }; reader.readAsText(file); }
+    function resetData() { if(confirm("初期化しますか？")) { localStorage.removeItem("wt_logs_html_v3"); localStorage.removeItem("wt_custom_ex_v5"); location.reload(); } }
 
-    function importDataLocal(event) {
-      haptic(20);
-      const file = event.target.files[0];
-      if(!file) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const data = JSON.parse(e.target.result);
-          if(data.logs && Array.isArray(data.logs)) {
-            logs = data.logs;
-            localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs));
-          }
-          if(data.customExercises && Array.isArray(data.customExercises)) {
-            customExercises = data.customExercises;
-            localStorage.setItem("wt_custom_ex_v5", JSON.stringify(customExercises));
-          }
-          alert("データの復元が完了しました！");
-          location.reload();
-        } catch(err) {
-          alert("ファイルの読み込みに失敗しました。正しいバックアップファイルを選択してください。");
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    function resetData() {
-      haptic(50);
-      if(confirm("本当にすべての記録と設定を初期化しますか？\n※この操作は取り消せません。事前にバックアップを出力することをお勧めします。")) {
-        localStorage.removeItem("wt_logs_html_v3");
-        localStorage.removeItem("wt_custom_ex_v5");
-        localStorage.removeItem("wt_last_sync");
-        alert("初期化が完了しました。");
-        location.reload();
-      }
-    }
+    init();
   </script>
 </body>
 </html>
