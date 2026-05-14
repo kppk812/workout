@@ -344,7 +344,7 @@
           <div class="legend-item"><div class="legend-color" style="background:var(--heat-3);"></div>オーバー</div>
           <div class="legend-item"><div class="legend-color" style="background:var(--heat-2);"></div>適正量</div>
           <div class="legend-item"><div class="legend-color" style="background:var(--heat-1);"></div>不足</div>
-          <div class="legend-item"><div class="legend-color" style="background:var(--heat-0);"></div>なし</div>
+          <div class="legend-item"><div class="legend-color" style="background:var(--heat-0); border:1px solid var(--border);"></div>なし</div>
         </div>
 
         <div id="analysis-advice" class="advice-box"></div>
@@ -371,6 +371,7 @@
               <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
               <span>Googleアカウントでログイン</span>
             </button>
+            <p class="settings-note">事前にGoogle Cloud ConsoleでClient IDを取得し、コード内に挿入してください。</p>
           </div>
           <div id="gdrive-sync-area" style="display:none;">
             <p style="font-size:14px; font-weight:700; color:#16a34a; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
@@ -518,7 +519,7 @@
       <span>分析</span>
     </button>
     <button class="nav-btn" onclick="switchView('settings', this)">
-      <svg class="nav-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 .33-1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      <svg class="nav-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
       <span>設定</span>
     </button>
   </div>
@@ -530,6 +531,7 @@
     const viewOrder = ['log', 'history', 'analysis', 'settings'];
 
     document.addEventListener('touchstart', e => {
+      // 修正: 入力要素やスクロール可能な要素上でスワイプを無効化する条件を精密化
       if (e.target.closest('input[type="range"], .chips')) return;
       if (document.querySelector('.modal-overlay.show, .bottom-sheet.show')) return;
       touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY;
@@ -569,6 +571,7 @@
     function setTheme(mode) { haptic(); localStorage.setItem('wt_theme', mode); applyThemeSettings(); }
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => { if ((localStorage.getItem('wt_theme') || 'auto') === 'auto') applyThemeSettings(); });
 
+   
     const CLIENT_ID = '504605284753-9482edtgg5ndcp8p1723pvf4mfe12t6b.apps.googleusercontent.com';
     const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
     const DRIVE_FILE_NAME = 'workout_app_data_v1.json';
@@ -1047,8 +1050,13 @@
         contentHtml = '<div class="pr-list">'; 
         prData.forEach(item => { 
           const isDark = document.documentElement.getAttribute('data-theme')==='dark'; 
-          let fgColor = isDark ? '#d4d4d8' : '#52525b'; 
-          if(item.cat==='胸') fgColor=isDark?'#60a5fa':'#2563eb'; else if(item.cat==='背中') fgColor=isDark?'#4ade80':'#16a34a'; else if(item.cat==='脚') fgColor=isDark?'#facc15':'#ca8a04'; else if(item.cat==='肩') fgColor=isDark?'#fb923c':'#ea580c'; else if(item.cat==='腕') fgColor=isDark?'#c084fc':'#9333ea'; else if(item.cat==='腹・体幹') fgColor=isDark?'#f87171':'#dc2626'; 
+          let fgColor = isDark ? '#e4e4e7' : '#3f3f46'; 
+          if(item.cat==='胸') fgColor=isDark?'#93c5fd':'#1d4ed8'; 
+          else if(item.cat==='背中') fgColor=isDark?'#86efac':'#15803d'; 
+          else if(item.cat==='脚') fgColor=isDark?'#fde047':'#a16207'; 
+          else if(item.cat==='肩') fgColor=isDark?'#fdba74':'#c2410c'; 
+          else if(item.cat==='腕') fgColor=isDark?'#d8b4fe':'#7e22ce'; 
+          else if(item.cat==='腹・体幹') fgColor=isDark?'#fca5a5':'#b91c1c';
           const wDisplay = item.maxLog.weight === 0 ? '自重' : `${item.maxLog.weight}<span>kg</span>`;
           contentHtml += `<div class="pr-list-item" style="background: var(--pr-${getCatClass(item.cat)}-bg);" onclick="openHistoryDetail('${item.name}')"><div class="pr-list-left"><span class="cat-icon-wrapper ${getCatClass(item.cat)}" style="width:36px;height:36px;border-radius:8px;">${CAT_ICONS[item.cat]||CAT_ICONS["全身"]}</span><div class="pr-list-info"><span class="pr-list-name">${item.name}</span><span class="pr-list-detail"><span>×${item.maxLog.reps}</span> <span style="color:${getRPEColor(item.maxLog.rpe)};">RPE${item.maxLog.rpe}</span></span></div></div><div class="pr-list-right"><div class="pr-list-graph">${getSparklineSVG(item.exLogs, fgColor)}</div><div class="pr-list-weight">${wDisplay}</div></div></div>`; 
         }); 
@@ -1223,48 +1231,73 @@
 
         const totalTarget = Object.values(TARGETS_PER_WEEK).reduce((a,b)=>a+b,0) * k;
         
+        // --- ここから新しいロジック（胸と背中のバランスなど） ---
+        const chestVol = stats["胸"];
+        const backVol = stats["背中"];
+        const ratioCB = (backVol > 0) ? (chestVol / backVol) : chestVol; 
+
         if (period === '7') {
           if (totalScore > totalTarget * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>今週は全体的にトレーニング量が多く、オーバートレーニングの兆候があります。</b><br>関節の痛みや強い疲労を感じる場合は、数日の完全休養やディロード（軽めのトレーニング）を検討してください。</div>");
+          
           if (stats["脚"] < tLegs * 0.4) msgs.push("<div><b style='color:var(--text-primary);'>今週は下半身のトレーニングが不足気味です。</b><br>週の後半でスクワットなどを取り入れて、全身にバランスよく刺激を入れていきましょう。</div>");
           else if (stats["脚"] > tLegs * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>今週は脚への負荷が非常に高いです。</b><br>膝や腰の疲労に注意し、しっかりとリカバリーに努めてください。</div>");
+          
           if (stats["胸"] > tChest * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>今週は胸のトレーニング量がやや過剰です。</b><br>肩関節の負担を減らすため、プレス種目を少し控えるか背中の種目に時間を割きましょう。</div>");
           
-          if (stats["背中"] < stats["胸"] * 0.5 && stats["胸"] > 0) msgs.push("<div><b style='color:var(--text-primary);'>胸に対して背中のトレーニングが不足しています。</b><br>巻き肩を防ぐためにも、次回のトレーニングではロウイングやプル系を意識して取り入れてみてください。</div>");
+          // 胸に対して背中が極端に少ない（比率で判定）
+          if (ratioCB > 1.5 && chestVol > tChest * 0.2) msgs.push("<div><b style='color:var(--text-primary);'>胸に対して背中のトレーニングが不足しています。</b><br>巻き肩を防ぐためにも、次回のトレーニングではロウイングやプル系を意識して取り入れてみてください。</div>");
           else if (stats["背中"] < tBack * 0.4) msgs.push("<div><b style='color:var(--text-primary);'>今週は背中のトレーニングが不足気味です。</b><br>背中は姿勢を保ち逆三角形を作るために重要です。プル系種目を取り入れましょう。</div>");
           else if (stats["背中"] > tBack * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>今週は背中のトレーニング量が非常に多いです。</b><br>素晴らしい追い込みですが、腰への疲労蓄積に注意してください。</div>");
           
+          if (ratioCB < 0.5 && backVol > tBack * 0.2) msgs.push("<div><b style='color:var(--text-primary);'>今週は胸のトレーニングが不足気味です。</b><br>上半身の厚みを作るために、ベンチプレスなどのプレス系種目を追加してみましょう。</div>");
+
           if (stats["腕"] > tArms * 1.8) msgs.push("<div><b style='color:var(--text-primary);'>今週は腕（二頭・三頭）への負荷がかなり高くなっています。</b><br>腕は他部位のトレーニングでも酷使されるため、少し休ませたほうが筋肥大に繋がる可能性があります。</div>");
-          if (stats["肩"] < tShoulder * 0.4 && totalScore > totalTarget * 0.3) msgs.push("<div><b style='color:var(--text-primary);'>今週は肩（三角筋）を直接刺激する種目が少ないようです。</b><br>レイズ系種目を追加すると、他のプレストレーニングの安定性向上にも繋がります。</div>");
-          if (stats["腹・体幹"] < tCore * 0.3) msgs.push("<div><b style='color:var(--text-primary);'>今週は体幹部への直接的なアプローチが不足しています。</b><br>プランクやクランチなどを少し追加して、フリーウェイト時の体幹の安定力を底上げしましょう。</div>");
+          
+          if (stats["肩"] < tShoulder * 0.4 && totalScore > totalTarget * 0.2) msgs.push("<div><b style='color:var(--text-primary);'>今週は肩（三角筋）を直接刺激する種目が少ないようです。</b><br>レイズ系種目を追加すると、他のプレストレーニングの安定性向上にも繋がります。</div>");
+          
+          if (stats["腹・体幹"] < tCore * 0.3 && totalScore > totalTarget * 0.2) msgs.push("<div><b style='color:var(--text-primary);'>今週は体幹部への直接的なアプローチが不足しています。</b><br>プランクやクランチなどを少し追加して、フリーウェイト時の体幹の安定力を底上げしましょう。</div>");
         } else if (period === '30') {
           if (totalScore > totalTarget * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>直近1ヶ月のボリュームが非常に高く、回復キャパシティを超えている可能性があります。</b><br>成長が停滞している場合は、1週間のディロード（負荷を落とす週）を設けるのが効果的です。</div>");
+          
           if (stats["脚"] < tLegs * 0.4) msgs.push("<div><b style='color:var(--text-primary);'>この1ヶ月間、脚のボリュームが最小有効ボリューム(MEV)に達していません。</b><br>下半身の筋肉量は全身の土台となるため、優先的に種目を追加することをお勧めします。</div>");
           else if (stats["脚"] > tLegs * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>この1ヶ月間、脚への負荷が極めて高い状態が続いています。</b><br>関節系の怪我を防ぐため、完全休養日を戦略的に設定しましょう。</div>");
-          if (stats["胸"] > tChest * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>直近1ヶ月、胸のトレーニング量が過剰（MRV超過）気味です。</b><br>肩の前側や肘に違和感がある場合は、プレス系種目を一時的に減らしてください。</div>");
           
-          if (stats["背中"] < stats["胸"] * 0.5 && stats["胸"] > 0) msgs.push("<div><b style='color:var(--text-primary);'>直近1ヶ月の傾向として、胸のトレーニング量が背中を大きく上回っています。</b><br>長期的には姿勢の悪化や巻き肩、肩の痛みに繋がるため、背中（引く動作）のボリュームを意識して増やしましょう。</div>");
+          if (stats["胸"] > tChest * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>直近1ヶ月、胸のトレーニング量が過剰気味です。</b><br>肩の前側や肘に違和感がある場合は、プレス系種目を一時的に減らしてください。</div>");
+          
+          if (ratioCB > 1.5 && chestVol > tChest * 0.2) msgs.push("<div><b style='color:var(--text-primary);'>直近1ヶ月の傾向として、胸のトレーニング量が背中を大きく上回っています。</b><br>長期的には姿勢の悪化や巻き肩、肩の痛みに繋がるため、背中（引く動作）のボリュームを意識して増やしましょう。</div>");
           else if (stats["背中"] < tBack * 0.4) msgs.push("<div><b style='color:var(--text-primary);'>この1ヶ月、背中のトレーニングが全体的に不足しています。</b><br>背中は逆三角形のシルエット作りに不可欠です。メニューを見直してみましょう。</div>");
           else if (stats["背中"] > tBack * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>この1ヶ月、背中のトレーニング量が非常に多いです。</b><br>特に腰部のオーバートレーニングには気をつけてください。</div>");
           
+          if (ratioCB < 0.5 && backVol > tBack * 0.2) msgs.push("<div><b style='color:var(--text-primary);'>胸のトレーニング量が背中に比べて不足しています。</b><br>厚い胸板を作るために、プレス系種目のセット数を増やしてみましょう。</div>");
+
           if (stats["腕"] > tArms * 1.8) msgs.push("<div><b style='color:var(--text-primary);'>この1ヶ月間、腕のアイソレーション種目のボリュームが多すぎます。</b><br>腕の成長が止まっている場合、逆にセット数を減らして回復を促すアプローチが有効です。</div>");
-          if (stats["肩"] < tShoulder * 0.4 && totalScore > totalTarget * 0.3) msgs.push("<div><b style='color:var(--text-primary);'>1ヶ月のトータルで見ると、肩のボリュームが不足しています。</b><br>肩の筋肉は回復が比較的早いため、週の複数日に分けてサイドレイズなどを取り入れると効果的です。</div>");
-          if (stats["腹・体幹"] < tCore * 0.3) msgs.push("<div><b style='color:var(--text-primary);'>この1ヶ月間、腹筋群への直接的な刺激が足りていません。</b><br>姿勢維持の補助だけではなく、体幹専用の種目をルーティンに組み込むと全身の連動力が高まります。</div>");
+          
+          if (stats["肩"] < tShoulder * 0.4 && totalScore > totalTarget * 0.2) msgs.push("<div><b style='color:var(--text-primary);'>1ヶ月のトータルで見ると、肩のボリュームが不足しています。</b><br>肩の筋肉は回復が比較的早いため、週の複数日に分けてサイドレイズなどを取り入れると効果的です。</div>");
+          
+          if (stats["腹・体幹"] < tCore * 0.3 && totalScore > totalTarget * 0.2) msgs.push("<div><b style='color:var(--text-primary);'>この1ヶ月間、腹筋群への直接的な刺激が足りていません。</b><br>姿勢維持の補助だけではなく、体幹専用の種目をルーティンに組み込むと全身の連動力が高まります。</div>");
         } else if (period === '365') {
           if (totalScore > totalTarget * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>この1年間、極めて高いハードワークを継続しています。</b><br>素晴らしい精神力ですが、慢性的な関節の摩耗を防ぐため、定期的にトレーニング強度を落とす『ピリオダイゼーション（期分け）』の導入をお勧めします。</div>");
+          
           if (stats["脚"] < tLegs * 0.4) msgs.push("<div><b style='color:var(--text-primary);'>長期的（1年）に見ても、下半身のボリュームが明確に不足しています。</b><br>上半身ばかりが発達するアンバランスな体型になるリスクがあるため、脚のトレーニング日を固定することをお勧めします。</div>");
           else if (stats["脚"] > tLegs * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>年間を通じて脚に凄まじいボリュームを割いています。</b><br>オーバーワークによる関節の怪我に十分注意し、定期的に休む期間を設けてください。</div>");
+          
           if (stats["胸"] > tChest * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>この1年、胸への負荷が非常に高く設定されています。</b><br>大胸筋の発達には良いですが、肩関節の怪我などの慢性障害には注意してください。</div>");
           
-          if (stats["背中"] < stats["胸"] * 0.5 && stats["胸"] > 0) msgs.push("<div><b style='color:var(--text-primary);'>年間を通して『押す種目（胸）』が『引く種目（背中）』を上回る傾向が定着しています。</b><br>将来的な怪我や巻き肩を防ぎ、美しい姿勢を作るため、抜本的なメニューの改訂をご検討ください。</div>");
+          if (ratioCB > 1.5 && chestVol > tChest * 0.2) msgs.push("<div><b style='color:var(--text-primary);'>年間を通して『押す種目（胸）』が『引く種目（背中）』を上回る傾向が定着しています。</b><br>将来的な怪我や巻き肩を防ぎ、美しい姿勢を作るため、抜本的なメニューの改訂をご検討ください。</div>");
           else if (stats["背中"] < tBack * 0.4) msgs.push("<div><b style='color:var(--text-primary);'>この1年間、背中へのアプローチが圧倒的に不足しています。</b><br>ボディメイクにおいて背中の発達は最重要課題の一つです。プルダウンやロウイングを徹底しましょう。</div>");
           else if (stats["背中"] > tBack * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>1年間、背中を非常に重点的に鍛え上げています。</b><br>見事なボリュームですが、疲労が抜けない時期があれば種目を絞り込んでみましょう。</div>");
           
           if (stats["腕"] > tArms * 1.8) msgs.push("<div><b style='color:var(--text-primary);'>年間を通じて腕のトレーニングに膨大なリソースを割いています。</b><br>もし腕の太さが頭打ちになっているなら、完全にオーバートレーニングです。勇気を持って腕の種目を半分に減らしてみてください。</div>");
-          if (stats["肩"] < tShoulder * 0.4 && totalScore > totalTarget * 0.3) msgs.push("<div><b style='color:var(--text-primary);'>この1年間、肩へのアプローチが手薄な状態が続いています。</b><br>逆三角形の美しいシルエットを作るには、サイドレイズやショルダープレスを長期的かつ計画的にこなす必要があります。</div>");
-          if (stats["腹・体幹"] < tCore * 0.3) msgs.push("<div><b style='color:var(--text-primary);'>年間を通して、腹筋・体幹部への直接的なトレーニングがほぼ行われていません。</b><br>高重量のスクワットやデッドリフトを行う際の怪我を防ぐためにも、強靭な体幹作りは必須です。</div>");
+          
+          if (stats["肩"] < tShoulder * 0.4 && totalScore > totalTarget * 0.2) msgs.push("<div><b style='color:var(--text-primary);'>この1年間、肩へのアプローチが手薄な状態が続いています。</b><br>逆三角形の美しいシルエットを作るには、サイドレイズやショルダープレスを長期的かつ計画的にこなす必要があります。</div>");
+          
+          if (stats["腹・体幹"] < tCore * 0.3 && totalScore > totalTarget * 0.2) msgs.push("<div><b style='color:var(--text-primary);'>年間を通して、腹筋・体幹部への直接的なトレーニングがほぼ行われていません。</b><br>高重量のスクワットやデッドリフトを行う際の怪我を防ぐためにも、強靭な体幹作りは必須です。</div>");
         }
 
-        if (msgs.length === 0) {
+        // BIG3（胸・背中・脚）のいずれかが不足している場合はパーフェクトを出さない
+        const isMissingBig3 = (stats["胸"] < tChest * 0.4) || (stats["背中"] < tBack * 0.4) || (stats["脚"] < tLegs * 0.4);
+
+        if (msgs.length === 0 && !isMissingBig3) {
           if (period === '7') advice = "<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#22c55e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'></polygon></svg><div><b style='color:var(--text-primary);'>今週は全身にバランス良く刺激が入っています！</b><br>素晴らしいペースです、この調子で怪我なく進めていきましょう。</div></div>";
           else if (period === '30') advice = "<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#22c55e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'></polygon></svg><div><b style='color:var(--text-primary);'>直近1ヶ月、非常に美しいバランスでトレーニングできています！</b><br>すべての部位が適正ボリューム内に収まっています。</div></div>";
           else advice = "<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#22c55e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'></polygon></svg><div><b style='color:var(--text-primary);'>この1年間、完璧なバランスで全身のトレーニングを継続できています！</b><br>理想的なボディメイクが進行しています。現在のプログラムはあなたに非常に合っています。</div></div>";
