@@ -11,12 +11,17 @@
   
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+
     (function() {
       const theme = localStorage.getItem('wt_theme') || 'auto';
       const isDark = theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
       if (isDark) {
         document.documentElement.setAttribute('data-theme', 'dark');
-        // ロード時のアドレスバー色設定
         const meta = document.querySelector('meta[name="theme-color"]');
         if (meta) meta.setAttribute('content', '#000000');
       }
@@ -56,8 +61,10 @@
 
     body { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", sans-serif; margin: 0; padding: 0; background: var(--bg-app); color: var(--text-primary); padding-bottom: calc(var(--nav-height) + 24px); transition: background-color 0.3s ease, color 0.3s ease; overflow-x: hidden; }
     .app-container { max-width: 680px; margin: 0 auto; padding: 1.25rem 1rem; width: 100%; overflow-x: hidden; }
+    
     .header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 0.75rem; margin-bottom: 1.25rem; }
     .header h1 { font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
+    
     .sync-badge { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 20px; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     .sync-badge:active { transform: scale(0.95); }
     .sync-badge.safe { background: rgba(34, 197, 94, 0.1); color: #16a34a; border: 1px solid rgba(34, 197, 94, 0.2); }
@@ -67,19 +74,27 @@
     .sync-icon { width: 14px; height: 14px; }
     .syncing .sync-icon { animation: spin 1s linear infinite; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
+    
     .view { display: none; animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1); width: 100%; }
     .view.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } }
+
     .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background: var(--bg-nav); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -4px 20px rgba(0,0,0,0.02); transition: background-color 0.3s ease; }
     .nav-btn { flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: none; background: transparent; color: var(--text-tertiary); font-size: 10px; font-weight: 700; cursor: pointer; transition: color 0.2s, transform 0.1s; }
     .nav-btn:active { transform: scale(0.92); }
     .nav-btn.active { color: var(--text-primary); }
     .nav-icon { margin-bottom: 2px; }
+
     .card { background: var(--bg-primary); border-radius: var(--radius-xl); padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid var(--border); transition: background-color 0.3s ease, border-color 0.3s ease; }
     .label { font-size: 13px; font-weight: 700; color: var(--text-secondary); display: block; margin-bottom: 8px; }
-    input[type="text"], input[type="date"], input[type="number"] { width: 100%; font-size: 16px; padding: 14px 16px; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg-secondary); font-weight: 700; color: var(--text-primary); appearance: none; -webkit-appearance: none; outline: none; box-shadow: none; transition: background-color 0.3s ease, border-color 0.3s ease; margin: 0; }
+    input[type="text"], input[type="date"], input[type="number"], select { width: 100%; font-size: 16px; padding: 14px 16px; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg-secondary); font-weight: 700; color: var(--text-primary); appearance: none; -webkit-appearance: none; outline: none; box-shadow: none; transition: background-color 0.3s ease, border-color 0.3s ease; margin: 0; }
+    input[type="text"]:focus, input[type="date"]:focus, input[type="number"]:focus, select:focus { border-color: var(--text-tertiary); }
+    
     .suggest-list { position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-height: 280px; overflow-y: auto; z-index: 100; display: none; }
     .suggest-item { padding: 12px 16px; font-size: 15px; font-weight: 700; color: var(--text-primary); border-bottom: 1px solid var(--bg-secondary); cursor: pointer; display: flex; align-items: center; gap: 14px; }
+    .suggest-item:last-child { border-bottom: none; }
+    .suggest-item:active { background: var(--bg-secondary); }
+    
     .cat-icon-wrapper { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background-color 0.3s ease; }
     .cat-icon-wrapper.chest { background: var(--icon-chest-bg); color: var(--icon-chest-fg); }
     .cat-icon-wrapper.back { background: var(--icon-back-bg); color: var(--icon-back-fg); }
@@ -88,32 +103,51 @@
     .cat-icon-wrapper.arms { background: var(--icon-arms-bg); color: var(--icon-arms-fg); }
     .cat-icon-wrapper.core { background: var(--icon-core-bg); color: var(--icon-core-fg); }
     .cat-icon-wrapper.full { background: var(--icon-full-bg); color: var(--icon-full-fg); }
+
     .suggest-create-btn { padding: 16px; font-size: 15px; font-weight: 700; color: var(--accent); cursor: pointer; display: flex; align-items: center; gap: 10px; background: var(--icon-chest-bg); }
+
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
-    .modal-content { background: var(--bg-primary); width: 100%; max-width: 400px; border-radius: var(--radius-xl); padding: 1.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.3); animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid var(--border); }
+    .modal-content { background: var(--bg-primary); width: 100%; max-width: 400px; border-radius: var(--radius-xl); padding: 1.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.3); animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid var(--border); max-height: 90vh; overflow-y: auto;}
     .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 1.25rem; }
     .cat-btn { padding: 14px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-secondary); font-size: 14px; font-weight: 700; color: var(--text-primary); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: transform 0.1s, background 0.2s; }
+    .cat-btn:active { transform: scale(0.96); background: var(--border); }
+
     .quick-control { display: flex; align-items: center; background: var(--bg-secondary); border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border); transition: border 0.2s; height: 54px; }
-    .quick-control button { width: 54px; height: 100%; border: none; background: transparent; font-size: 26px; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 300; }
+    .quick-control:focus-within { border-color: var(--text-tertiary); }
+    .quick-control button { width: 54px; height: 100%; border: none; background: transparent; font-size: 26px; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 300; transition: background 0.1s;}
+    .quick-control button:active { background: rgba(0,0,0,0.05); }
+    :root[data-theme="dark"] .quick-control button:active { background: rgba(255,255,255,0.05); }
     .quick-control input { flex: 1; width: 100%; height: 100%; font-size: 22px; font-weight: 800; text-align: center; border: none; background: transparent; outline: none; color: var(--text-primary); padding: 0; }
+    
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    
     .rpe-container { display: flex; align-items: center; gap: 16px; background: var(--bg-secondary); padding: 12px 20px; border-radius: var(--radius-md); margin-bottom: 24px; border: 1px solid var(--border); transition: background-color 0.3s ease; }
     .rpe-container input[type="range"] { flex: 1; height: 6px; border-radius: 3px; outline: none; background: var(--border); transition: accent-color 0.2s; accent-color: var(--color-rpe-low); margin: 0; }
     .rpe-val { font-size: 20px; font-weight: 800; width: 36px; text-align: right; color: var(--text-primary); }
+    
     .btn-primary { width: 100%; padding: 18px; font-size: 17px; font-weight: 800; border-radius: var(--radius-lg); border: none; background: var(--text-primary); color: var(--bg-primary); cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.08); transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1); display: flex; justify-content: center; align-items: center; gap: 10px; }
+    .btn-primary:active { transform: scale(0.96); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    
     .log-item { display: flex; flex-direction: column; gap: 8px; padding: 16px 20px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-xl); margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
     .log-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
     .log-title { font-size: 15px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
     .set-badge { font-size: 12px; font-weight: 800; color: var(--bg-primary); background: var(--text-secondary); width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+    
     .pr-badge { font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; background: #16a34a; color: #ffffff; display: flex; align-items: center; gap: 3px; letter-spacing: 0.5px;}
-    .delete-btn { background: transparent; border: none; color: var(--text-tertiary); padding: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background 0.2s;}
+    :root[data-theme="dark"] .pr-badge { background: #22c55e; color: #000000; }
+    
+    .action-btn { background: transparent; border: none; color: var(--text-tertiary); padding: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background 0.2s;}
+    .action-btn:active { background: var(--bg-secondary); }
+    
     .pr-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
     .pr-sort-select { padding: 8px 12px; font-size: 13px; font-weight: 700; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg-primary); color: var(--text-primary); outline: none; }
     .pr-view-toggle { display: flex; background: var(--bg-secondary); border-radius: var(--radius-md); padding: 4px; gap: 4px; border: 1px solid var(--border); }
     .pr-view-btn { padding: 6px; border: none; background: transparent; border-radius: 6px; color: var(--text-tertiary); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
     .pr-view-btn.active { background: var(--bg-primary); color: var(--text-primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
     .pr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; }
     .pr-card { border-radius: var(--radius-xl); padding: 1.5rem; border: 1px solid transparent; transition: background-color 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+    
     .pr-list { display: flex; flex-direction: column; gap: 12px; }
     .pr-list-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-radius: var(--radius-xl); border: 1px solid transparent; transition: background-color 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.01); }
     .pr-list-left { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
@@ -124,9 +158,13 @@
     .pr-list-weight { font-size: 22px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px; text-align: right; min-width: 50px; }
     .pr-list-weight span { font-size: 13px; color: var(--text-secondary); font-weight: 700; margin-left: 2px; }
     .pr-list-graph { width: 60px; height: 30px; }
+    
     .chips { display: flex; gap: 10px; flex-wrap: nowrap; overflow-x: auto; margin-bottom: 1.5rem; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
     .chip { flex-shrink: 0; padding: 10px 20px; font-size: 14px; font-weight: 700; border-radius: 30px; border: 1px solid var(--border); background: var(--bg-primary); color: var(--text-secondary); cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
     .chip.active { border-color: var(--text-primary); background: var(--text-primary); color: var(--bg-primary); }
+
+    #last-record { background: var(--bg-secondary); padding: 14px 18px; border-radius: var(--radius-md); margin-bottom: 24px; border-left: 4px solid var(--text-primary); display: none; align-items: center; justify-content: space-between; }
+
     .body-map-container { display: flex; justify-content: space-around; padding: 1rem 0; margin-bottom: 1rem; }
     .body-figure { display: flex; flex-direction: column; align-items: center; gap: 12px; }
     .body-label { font-size: 13px; font-weight: 800; color: var(--text-tertiary); letter-spacing: 1px; }
@@ -139,15 +177,19 @@
     .stat-bar-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: var(--text-secondary); }
     .stat-bar-bg { width: 100%; height: 10px; background: var(--bg-secondary); border-radius: 5px; overflow: hidden; }
     .stat-bar-fill { height: 100%; border-radius: 5px; transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+    
     .settings-list { display: flex; flex-direction: column; gap: 16px; }
     .settings-btn { width: 100%; padding: 18px 20px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-lg); color: var(--text-primary); display: flex; align-items: center; gap: 14px; cursor: pointer; text-align: left; transition: transform 0.1s, background-color 0.2s; }
     .settings-btn svg { flex-shrink: 0; }
     .settings-btn span { flex: 1; line-height: 1.3; font-size: 15px; font-weight: 800; }
+    .settings-btn:active { transform: scale(0.98); background: var(--border); }
     .settings-note { font-size: 13px; color: var(--text-tertiary); font-weight: 600; margin-top: 6px; line-height: 1.5; padding: 0 4px; }
     .theme-toggle-group { display: flex; gap: 8px; background: var(--bg-secondary); padding: 6px; border-radius: var(--radius-lg); border: 1px solid var(--border); }
     .theme-btn { flex: 1; padding: 14px 0; font-size: 14px; font-weight: 800; border: none; background: transparent; color: var(--text-tertiary); border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s; }
     .theme-btn.active { background: var(--bg-primary); color: var(--text-primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     .google-btn { width: 100%; padding: 16px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 15px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer; margin-bottom: 12px; transition: background 0.2s; }
+    .google-btn:active { background: var(--bg-secondary); }
+
     svg { display: block; }
   </style>
 </head>
@@ -174,9 +216,9 @@
           <div id="suggest-wrapper" style="position: relative;">
             <label class="label" style="display:flex; justify-content:space-between;">
               <span>種目検索</span>
-              <span style="font-size:11px; color:var(--text-tertiary); font-weight:600;">部位・ひらがな・英字対応</span>
+              <span style="font-size:11px; color:var(--text-tertiary); font-weight:600;">タップでクリア・部位・ひらがな・英字</span>
             </label>
-            <input type="text" id="exercise-input" autocomplete="off" placeholder="例: べんち、胸、squat" oninput="handleSuggest()" onfocus="handleSuggest()">
+            <input type="text" id="exercise-input" autocomplete="off" placeholder="例: べんち、胸、squat" oninput="handleSuggest()" onfocus="this.value=''; handleSuggest()">
             <div id="suggest-list" class="suggest-list"></div>
           </div>
         </div>
@@ -188,7 +230,7 @@
 
         <div class="grid-2">
           <div>
-            <label class="label">重量 (kg)</label>
+            <label class="label">重量 (kg) <span style="font-weight:500;font-size:11px;color:var(--text-tertiary);">※0で自重</span></label>
             <div class="quick-control">
               <button onclick="adjustVal('weight', -2.5)">-</button>
               <input type="number" id="weight" value="60" step="0.5" oninput="updateUI()">
@@ -218,7 +260,7 @@
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
           <div style="font-size:13px; font-weight:700; color:var(--text-secondary);">
-            推定1RM(RPE加味): <strong id="onerm-display" style="font-size:18px; color:var(--text-primary);">80</strong> kg
+            推定1RM: <strong id="onerm-display" style="font-size:18px; color:var(--text-primary);">80</strong> <span id="onerm-unit">kg</span>
           </div>
           <div id="pr-hint" style="font-size:13px; color:#16a34a; font-weight:800; display:none; align-items:center; gap:4px;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
@@ -250,7 +292,7 @@
 
     <div id="view-analysis" class="view">
       <div class="card">
-        <h2 style="font-size:18px; font-weight:800; margin:0 0 20px 0; text-align:center; color:var(--text-primary);">部位別バランス分析<br><span style="font-size:13px; font-weight:600; color:var(--text-tertiary);">（直近30日間のセット数）</span></h2>
+        <h2 style="font-size:18px; font-weight:800; margin:0 0 20px 0; text-align:center; color:var(--text-primary);">部位別バランス分析<br><span style="font-size:13px; font-weight:600; color:var(--text-tertiary);">（直近30日間の負荷スコア）</span></h2>
         
         <div class="body-map-container" id="body-map-render"></div>
 
@@ -285,11 +327,12 @@
               <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
               <span>Googleアカウントでログイン</span>
             </button>
+            <p class="settings-note">※事前にGoogle Cloud ConsoleでClient IDを取得し、コードの <code>const CLIENT_ID</code> 部分に挿入してください。</p>
           </div>
           <div id="gdrive-sync-area" style="display:none;">
             <p style="font-size:14px; font-weight:700; color:#16a34a; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-              <span>アカウント接続済み</span>
+              アカウント接続済み
             </p>
             <button class="settings-btn" onclick="syncToDrive()" style="margin-bottom:12px;">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -331,10 +374,65 @@
   <div id="create-modal" class="modal-overlay">
     <div class="modal-content">
       <h3 style="margin:0 0 16px 0; font-size:18px; font-weight:800;">新しい種目の作成</h3>
-      <p style="font-size:14px; color:var(--text-secondary); margin-bottom:16px;">「<span id="modal-ex-name" style="font-weight:800; color:var(--text-primary);"></span>」の部位を選択してください。</p>
+      <p style="font-size:14px; color:var(--text-secondary); margin-bottom:16px;">「<span id="modal-ex-name" style="font-weight:800; color:var(--text-primary);"></span>」の主働筋（メインの部位）を選択してください。</p>
       <div class="cat-grid" id="modal-cat-grid"></div>
       <div style="margin-top:24px; text-align:right;">
         <button onclick="closeModal()" style="padding:12px 20px; background:transparent; border:none; font-size:15px; font-weight:800; color:var(--text-secondary); cursor:pointer;">キャンセル</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="edit-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h3 style="margin:0 0 16px 0; font-size:18px; font-weight:800;">記録の編集</h3>
+      
+      <label class="label">日付</label>
+      <input type="date" id="edit-date" style="margin-bottom:16px;">
+      
+      <label class="label">種目</label>
+      <select id="edit-exercise" style="margin-bottom:16px;"></select>
+      
+      <div class="grid-2" style="margin-bottom: 16px;">
+        <div>
+          <label class="label">セット数</label>
+          <div class="quick-control" style="height: 48px;">
+            <button onclick="adjustEditVal('set', -1)" style="font-size:20px;">-</button>
+            <input type="number" id="edit-set" min="1" style="font-size:18px;">
+            <button onclick="adjustEditVal('set', 1)" style="font-size:20px;">+</button>
+          </div>
+        </div>
+        <div>
+          <label class="label">重量 (kg) <span style="font-weight:500;font-size:10px;">※0で自重</span></label>
+          <div class="quick-control" style="height: 48px;">
+            <button onclick="adjustEditVal('weight', -2.5)" style="font-size:20px;">-</button>
+            <input type="number" id="edit-weight" step="0.5" style="font-size:18px;">
+            <button onclick="adjustEditVal('weight', 2.5)" style="font-size:20px;">+</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="grid-2" style="margin-bottom: 16px;">
+        <div>
+          <label class="label">レップ数</label>
+          <div class="quick-control" style="height: 48px;">
+            <button onclick="adjustEditVal('reps', -1)" style="font-size:20px;">-</button>
+            <input type="number" id="edit-reps" min="1" style="font-size:18px;">
+            <button onclick="adjustEditVal('reps', 1)" style="font-size:20px;">+</button>
+          </div>
+        </div>
+        <div>
+          <label class="label">RPE</label>
+          <div class="quick-control" style="height: 48px;">
+            <button onclick="adjustEditVal('rpe', -0.5)" style="font-size:20px;">-</button>
+            <input type="number" id="edit-rpe" step="0.5" min="5" max="10" style="font-size:18px;">
+            <button onclick="adjustEditVal('rpe', 0.5)" style="font-size:20px;">+</button>
+          </div>
+        </div>
+      </div>
+      
+      <div style="display:flex; justify-content:space-between; margin-top:24px;">
+        <button onclick="closeEditModal()" style="padding:12px 20px; background:transparent; border:none; font-size:15px; font-weight:800; color:var(--text-secondary); cursor:pointer;">キャンセル</button>
+        <button onclick="saveEditLog()" style="padding:12px 24px; background:var(--accent); border:none; border-radius:var(--radius-md); font-size:15px; font-weight:800; color:#fff; cursor:pointer;">保存する</button>
       </div>
     </div>
   </div>
@@ -367,42 +465,35 @@
       if (navigator.vibrate) navigator.vibrate(ms);
     }
 
-    // --- スワイプジェスチャー ---
     let touchStartX = 0;
     let touchStartY = 0;
     const swipeThreshold = 50;
     const viewOrder = ['log', 'history', 'pr', 'analysis', 'settings'];
 
     document.addEventListener('touchstart', e => {
-      if (e.target.closest('input[type="range"], .chips, .suggest-list, .pr-list, .body-map-container')) return;
+      if (e.target.closest('input, select, button, .chips, .suggest-list, .pr-list, .body-map-container')) return;
       touchStartX = e.changedTouches[0].screenX;
       touchStartY = e.changedTouches[0].screenY;
     }, {passive: true});
 
     document.addEventListener('touchend', e => {
-      if (e.target.closest('input[type="range"], .chips, .suggest-list, .pr-list, .body-map-container')) return;
+      if (e.target.closest('input, select, button, .chips, .suggest-list, .pr-list, .body-map-container')) return;
       const touchEndX = e.changedTouches[0].screenX;
       const touchEndY = e.changedTouches[0].screenY;
-      
       const diffX = touchEndX - touchStartX;
       const diffY = touchEndY - touchStartY;
       
       if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > swipeThreshold) {
         const activeView = document.querySelector('.view.active');
         if(!activeView) return;
-        
         const currentViewId = activeView.id.replace('view-', '');
         const currentIndex = viewOrder.indexOf(currentViewId);
         const navBtns = document.querySelectorAll('.nav-btn');
         
-        if (diffX < 0) { // 左へスワイプ (右のタブへ)
-          if (currentIndex < viewOrder.length - 1) {
-            switchView(viewOrder[currentIndex + 1], navBtns[currentIndex + 1]);
-          }
-        } else { // 右へスワイプ (左のタブへ)
-          if (currentIndex > 0) {
-            switchView(viewOrder[currentIndex - 1], navBtns[currentIndex - 1]);
-          }
+        if (diffX < 0 && currentIndex < viewOrder.length - 1) {
+          switchView(viewOrder[currentIndex + 1], navBtns[currentIndex + 1]);
+        } else if (diffX > 0 && currentIndex > 0) {
+          switchView(viewOrder[currentIndex - 1], navBtns[currentIndex - 1]);
         }
       }
     }, {passive: true});
@@ -416,13 +507,7 @@
       const btn = document.getElementById(`theme-btn-${theme}`);
       if (btn) btn.classList.add('active');
       
-      let isDark = false;
-      if (theme === 'dark') {
-        isDark = true;
-      } else if (theme === 'auto') {
-        isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      }
-
+      let isDark = theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
       const meta = document.querySelector('meta[name="theme-color"]');
       if (isDark) {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -440,15 +525,15 @@
     }
 
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-      if ((localStorage.getItem('wt_theme') || 'auto') === 'auto') {
-        applyThemeSettings();
-      }
+      if ((localStorage.getItem('wt_theme') || 'auto') === 'auto') applyThemeSettings();
     });
 
     const CLIENT_ID = '504605284753-9482edtgg5ndcp8p1723pvf4mfe12t6b.apps.googleusercontent.com';
     const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
+    
     let tokenClient;
     let gapiAccessToken = null;
+    let editingLogId = null;
 
     function initGoogleDrive() {
       if (typeof google === 'undefined') return;
@@ -473,8 +558,8 @@
 
     function handleAuthClick() {
       haptic();
-      if(CLIENT_ID.includes('504605284753-9482edtgg5ndcp8p1723pvf4mfe12t6b.apps.googleusercontent.com')) {
-        alert("Google Drive同期を利用するには、Client IDを更新する必要があります。");
+      if(CLIENT_ID.includes('YOUR_CLIENT_ID')) {
+        alert("Google Drive同期を利用するには、コード内の 'YOUR_CLIENT_ID_HERE' を自身のClient IDに変更する必要があります。");
         return;
       }
       tokenClient.requestAccessToken();
@@ -504,17 +589,9 @@
 
       try {
         if (fileId) {
-          await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`, {
-            method: 'PATCH',
-            headers: { 'Authorization': `Bearer ${gapiAccessToken}` },
-            body: form
-          });
+          await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`, { method: 'PATCH', headers: { 'Authorization': `Bearer ${gapiAccessToken}` }, body: form });
         } else {
-          await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${gapiAccessToken}` },
-            body: form
-          });
+          await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', { method: 'POST', headers: { 'Authorization': `Bearer ${gapiAccessToken}` }, body: form });
         }
         localStorage.setItem("wt_last_sync", new Date().toISOString());
         updateSyncBadgeState('safe');
@@ -534,18 +611,10 @@
       
       if(fileId) {
         try {
-          const response = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
-            headers: { 'Authorization': `Bearer ${gapiAccessToken}` }
-          });
+          const response = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, { headers: { 'Authorization': `Bearer ${gapiAccessToken}` } });
           const data = await response.json();
-          if(data.logs) {
-            logs = data.logs;
-            localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs));
-          }
-          if(data.customExercises) {
-            customExercises = data.customExercises;
-            localStorage.setItem("wt_custom_ex_v5", JSON.stringify(customExercises));
-          }
+          if(data.logs) { logs = data.logs; localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs)); }
+          if(data.customExercises) { customExercises = data.customExercises; localStorage.setItem("wt_custom_ex_v5", JSON.stringify(customExercises)); }
           localStorage.setItem("wt_last_sync", new Date().toISOString());
           alert("クラウドから復元しました！");
           location.reload();
@@ -576,28 +645,22 @@
       
       if(state === 'syncing') {
         badge.classList.add('syncing');
-        text.innerText = "同期中";
+        text.innerText = "同期中...";
         return;
       }
-
       const lastSync = localStorage.getItem("wt_last_sync");
       if(!lastSync) {
         badge.classList.add('danger');
         text.innerText = "未設定";
         return;
       }
-
       const daysDiff = Math.floor((new Date() - new Date(lastSync)) / (1000 * 60 * 60 * 24));
-      
       if (daysDiff >= 7) {
-        badge.classList.add('danger');
-        text.innerText = "未同期";
+        badge.classList.add('danger'); text.innerText = "未同期";
       } else if (daysDiff >= 1) {
-        badge.classList.add('warning');
-        text.innerText = "未同期";
+        badge.classList.add('warning'); text.innerText = "未同期";
       } else {
-        badge.classList.add('safe');
-        text.innerText = "同期済";
+        badge.classList.add('safe'); text.innerText = "同期済";
       }
     }
 
@@ -616,62 +679,106 @@
       return map[cat] || "full";
     }
 
+    // --- 超特大・種目データベース ---
     const PRESET_DB = [
-      { c: "胸", n: "ベンチプレス（バーベル）", s: "べんちぷれす ばーべる bench press" },
-      { c: "胸", n: "インクラインベンチプレス（バーベル）", s: "いんくらいんべんちぷれす ばーべる incline bench press" },
-      { c: "胸", n: "デクラインベンチプレス（バーベル）", s: "でくらいんべんちぷれす ばーべる decline bench press" },
-      { c: "胸", n: "ダンべるプレス（ダンベル）", s: "だんべるぷれす だんべる dumbbell press" },
-      { c: "胸", n: "インクラインダンベルプレス（ダンベル）", s: "いんくらいんだんべるぷれす だんべる incline dumbbell press" },
-      { c: "胸", n: "デクラインダンベルプレス（ダンベル）", s: "でくらいんだんべるぷれす だんべる decline dumbbell press" },
-      { c: "胸", n: "ダンベルフライ（ダンベル）", s: "だんべるふらい だんべる dumbbell fly" },
-      { c: "胸", n: "インクラインダンベルフライ（ダンベル）", s: "いんくらいんだんべるふらい だんべる incline dumbbell fly" },
-      { c: "胸", n: "チェストプレス（マシン）", s: "ちぇすとぷれす ましん chest press" },
-      { c: "胸", n: "ペックデックフライ / マシンフライ（マシン）", s: "ぺっくでっくふらい ましんふらい peck deck fly machine" },
-      { c: "胸", n: "ケーブルクロスオーバー（ケーブル）", s: "けーぶるくろすおーばー cable crossover" },
-      { c: "胸", n: "プッシュアップ / 腕立て伏せ（自重）", s: "ぷっしゅあっぷ うでたてふせ push up" },
-      { c: "胸", n: "ディップス（自重・加重）", s: "でぃっぷす dips" },
-      { c: "胸", n: "ダンベルプルオーバー（ダンベル）", s: "だんべるぷるおーばー dumbbell pullover" },
-      { c: "背中", n: "デッドリフト（バーベル）", s: "でっどりふと ばーべる deadlift" },
-      { c: "背中", n: "チンニング / 懸垂（自重・加重）", s: "ちんにんぐ けんすい chinning pull up" },
-      { c: "背中", n: "ラットプルダウン（マシン・ケーブル）", s: "らっとぷるだうん lat pulldown" },
-      { c: "背中", n: "ベントオーバーロウ（バーベル）", s: "べんとおーばーろう bent over row" },
-      { c: "背中", n: "ワンアームダンベルロウ（ダンベル）", s: "わんあーむだんべるろう one arm dumbbell row" },
-      { c: "背中", n: "シーテッドロウ（マシン・ケーブル）", s: "しーてっどろう seated row" },
-      { c: "背中", n: "シュラッグ（バーベル・ダンベル・マシン）", s: "しゅらっぐ shrug" },
-      { c: "背中", n: "バックエクステンション（自重・加重・マシン）", s: "ばっくえくすてんしょん back extension" },
-      { c: "背中", n: "インバーテッドロウ / 斜め懸垂（自重）", s: "いんばーてっどろう ななめけんすい inverted row" },
-      { c: "脚", n: "バックスクワット（バーベル）", s: "ばっくすくわっと back squat" },
-      { c: "脚", n: "フロントスクワット（バーベル）", s: "ふろんとすくわっと front squat" },
-      { c: "脚", n: "ハックスクワット（マシン）", s: "はっくすくわっと hack squat" },
-      { c: "脚", n: "レッグプレス（マシン）", s: "れっぐぷれす leg press" },
-      { c: "脚", n: "ランジ / ウォーキングランジ（バーベル・ダンベル・自重）", s: "らんじ うぉーきんぐらんじ lunge walking" },
-      { c: "脚", n: "ブルガリアンスクワット（ダンベル・自重）", s: "ぶるがりあんすくわっと bulgarian squat" },
-      { c: "脚", n: "レッグエクステンション（マシン）", s: "れっぐえくすてんしょん leg extension" },
-      { c: "脚", n: "レッグカール（マシン）", s: "れっぐかーる leg curl" },
-      { c: "脚", n: "ルーマニアンデッドリフト（バーベル・ダンベル）", s: "るーまにあんでっどりふと rdl romanian deadlift" },
-      { c: "脚", n: "ヒップスラスト（バーベル・マシン・自重）", s: "ひっぷすらすと hip thrust" },
-      { c: "脚", n: "スタンディングカーフレイズ（バーベル・マシン・自重）", s: "すたんでぃんぐかーふれいず standing calf raise" },
-      { c: "肩", n: "オーバーヘッドプレス / ミリタリープレス（バーベル）", s: "おーばーへっどぷれす みりたりーぷれす overhead press military" },
-      { c: "肩", n: "ダンベルショルダープレス（ダンベル）", s: "だんべるしょるだーぷれす dumbbell shoulder press" },
-      { c: "肩", n: "サイドレイズ（ダンベル・ケーブル・マシン）", s: "さいどれいず side raise" },
-      { c: "肩", n: "フロントレイズ（ダンベル・バーベル・ケーブル）", s: "ふろんとれいず front raise" },
-      { c: "肩", n: "リアレイズ / ベントオーバーレイズ（ダンベル・ケーブル）", s: "りあれいず べんとおーばーれいず rear raise bent over" },
-      { c: "肩", n: "アップライトロウ（バーベル・ケーブル）", s: "あっぷらいとろう upright row" },
-      { c: "腕", n: "バーベルカール（バーベル）", s: "ばーべるかーる barbell curl" },
-      { c: "腕", n: "ダンベルカール（ダンベル）", s: "だんべるかーる dumbbell curl" },
-      { c: "腕", n: "ハンマーカール（ダンベル）", s: "はんまーかーる hammer curl" },
-      { c: "腕", n: "ケーブルカール（ケーブル）", s: "けーぶるかーる cable curl" },
-      { c: "腕", n: "トライセプスエクステンション（バーベル・ダンベル）", s: "とらいせぷすえくすてんしょん triceps extension" },
-      { c: "腕", n: "スカルクラッシャー（バーベル）", s: "すかるくらっしゃー skull crusher" },
-      { c: "腕", n: "トライセプスプレスダウン（ケーブル）", s: "とらいせぷすぷれすだうん triceps pressdown" },
-      { c: "腕", n: "フレンチプレス（ダンベル・バーベル）", s: "ふれんちぷれす french press" },
-      { c: "腹・体幹", n: "クランチ（自重・マシン・ケーブル）", s: "くらんち crunch" },
-      { c: "腹・体幹", n: "シットアップ（自重）", s: "しっとあっぷ 腹筋 ふっきん sit up" },
-      { c: "腹・体幹", n: "レッグレイズ（自重）", s: "れっぐれいず leg raise" },
-      { c: "腹・体幹", n: "アブローラー / 腹筋ローラー（専用器具）", s: "あぶろーらー ふっきんろーらー ab roller" },
-      { c: "腹・体幹", n: "プランク（自重）", s: "ぷらんく plank" },
-      { c: "全身", n: "クリーン＆ジャーク（バーベル）", s: "くりーんあんどじゃーく clean and jerk" },
-      { c: "全身", n: "スナッチ（バーベル）", s: "すなっち snatch" }
+      // 胸
+      { c: "胸", n: "ベンチプレス（バーベル）", s: "べんちぷれす ばーべる bench press", i: {"胸":1.0, "肩":0.4, "腕":0.4, "腹・体幹":0.2} },
+      { c: "胸", n: "インクラインベンチプレス（バーベル）", s: "いんくらいんべんちぷれす ばーべる incline bench press", i: {"胸":1.0, "肩":0.6, "腕":0.4, "腹・体幹":0.1} },
+      { c: "胸", n: "デクラインベンチプレス（バーベル）", s: "でくらいんべんちぷれす ばーべる decline bench press", i: {"胸":1.0, "腕":0.4, "腹・体幹":0.1} },
+      { c: "胸", n: "ダンベルプレス（ダンベル）", s: "だんべるぷれす だんべる dumbbell press", i: {"胸":1.0, "肩":0.3, "腕":0.3, "腹・体幹":0.2} },
+      { c: "胸", n: "インクラインダンベルプレス（ダンベル）", s: "いんくらいんだんべるぷれす だんべる", i: {"胸":1.0, "肩":0.5, "腕":0.3, "腹・体幹":0.2} },
+      { c: "胸", n: "デクラインダンベルプレス（ダンベル）", s: "でくらいんだんべるぷれす だんべる", i: {"胸":1.0, "腕":0.3, "腹・体幹":0.2} },
+      { c: "胸", n: "ダンベルフライ（ダンベル）", s: "だんべるふらい だんべる dumbbell fly", i: {"胸":1.0, "肩":0.2, "腹・体幹":0.1} },
+      { c: "胸", n: "インクラインダンベルフライ（ダンベル）", s: "いんくらいんだんべるふらい だんべる", i: {"胸":1.0, "肩":0.3, "腹・体幹":0.1} },
+      { c: "胸", n: "デクラインダンベルフライ（ダンベル）", s: "でくらいんだんべるふらい だんべる", i: {"胸":1.0, "腹・体幹":0.1} },
+      { c: "胸", n: "チェストプレス（マシン）", s: "ちぇすとぷれす ましん chest press", i: {"胸":1.0, "肩":0.3, "腕":0.3} },
+      { c: "胸", n: "ペックデックフライ（マシン）", s: "ぺっくでっくふらい ましんふらい peck deck fly", i: {"胸":1.0, "肩":0.1} },
+      { c: "胸", n: "ケーブルクロスオーバー（ケーブル）", s: "けーぶるくろすおーばー cable crossover", i: {"胸":1.0, "肩":0.1, "腹・体幹":0.2} },
+      { c: "胸", n: "プッシュアップ / 腕立て伏せ（自重）", s: "ぷっしゅあっぷ うでたてふせ push up", i: {"胸":1.0, "肩":0.3, "腕":0.4, "腹・体幹":0.5} },
+      { c: "胸", n: "加重プッシュアップ", s: "かじゅうぷっしゅあっぷ", i: {"胸":1.0, "肩":0.3, "腕":0.4, "腹・体幹":0.6} },
+      { c: "胸", n: "ディップス（自重・加重）", s: "でぃっぷす dips", i: {"胸":1.0, "肩":0.4, "腕":0.8, "腹・体幹":0.3} },
+      { c: "胸", n: "ダンベルプルオーバー（ダンベル）", s: "だんべるぷるおーばー dumbbell pullover", i: {"胸":1.0, "背中":0.6, "腹・体幹":0.2} },
+      // 背中
+      { c: "背中", n: "デッドリフト（バーベル）", s: "でっどりふと ばーべる deadlift", i: {"背中":1.0, "脚":1.0, "腹・体幹":0.8, "腕":0.2} },
+      { c: "背中", n: "スモウデッドリフト（バーベル）", s: "すもうでっどりふと ばーべる sumo deadlift", i: {"背中":0.8, "脚":1.0, "腹・体幹":0.7, "腕":0.2} },
+      { c: "背中", n: "ハーフデッドリフト（バーベル）", s: "はーふでっどりふと ばーべる", i: {"背中":1.0, "脚":0.4, "腹・体幹":0.6, "腕":0.2} },
+      { c: "背中", n: "チンニング / 懸垂（自重）", s: "ちんにんぐ けんすい chinning pull up", i: {"背中":1.0, "腕":0.5, "腹・体幹":0.3} },
+      { c: "背中", n: "加重チンニング / 懸垂（加重）", s: "かじゅうちんにんぐ けんすい", i: {"背中":1.0, "腕":0.5, "腹・体幹":0.4} },
+      { c: "背中", n: "ラットプルダウン（マシン）", s: "らっとぷるだうん lat pulldown", i: {"背中":1.0, "腕":0.4} },
+      { c: "背中", n: "リバースグリップラットプルダウン（マシン）", s: "りばーすぐりっぷらっとぷるだうん", i: {"背中":1.0, "腕":0.6} },
+      { c: "背中", n: "ベントオーバーロウ（バーベル）", s: "べんとおーばーろう bent over row", i: {"背中":1.0, "腕":0.4, "脚":0.3, "腹・体幹":0.6} },
+      { c: "背中", n: "ワンアームダンベルロウ（ダンベル）", s: "わんあーむだんべるろう one arm dumbbell row", i: {"背中":1.0, "腕":0.3, "腹・体幹":0.3} },
+      { c: "背中", n: "シーテッドロウ（マシン・ケーブル）", s: "しーてっどろう seated row", i: {"背中":1.0, "腕":0.4} },
+      { c: "背中", n: "Tバーロウ（バーベル・マシン）", s: "tばーろう t bar row", i: {"背中":1.0, "腕":0.4, "脚":0.2, "腹・体幹":0.4} },
+      { c: "背中", n: "シュラッグ（バーベル）", s: "しゅらっぐ ばーべる shrug", i: {"背中":1.0, "腕":0.1, "腹・体幹":0.2} },
+      { c: "背中", n: "シュラッグ（ダンベル）", s: "しゅらっぐ だんべる", i: {"背中":1.0, "腕":0.1, "腹・体幹":0.1} },
+      { c: "背中", n: "バックエクステンション（自重・加重）", s: "ばっくえくすてんしょん back extension", i: {"背中":1.0, "脚":0.5} },
+      { c: "背中", n: "ストレートアームプルダウン（ケーブル）", s: "すとれーとあーむぷるだうん", i: {"背中":1.0, "腕":0.2, "腹・体幹":0.3} },
+      { c: "背中", n: "インバーテッドロウ / 斜め懸垂（自重）", s: "いんばーてっどろう ななめけんすい", i: {"背中":1.0, "腕":0.4, "腹・体幹":0.4} },
+      // 脚
+      { c: "脚", n: "バックスクワット（バーベル）", s: "ばっくすくわっと back squat", i: {"脚":1.0, "腹・体幹":0.6, "背中":0.3} },
+      { c: "脚", n: "フロントスクワット（バーベル）", s: "ふろんとすくわっと front squat", i: {"脚":1.0, "腹・体幹":0.8, "背中":0.4} },
+      { c: "脚", n: "ゴブレットスクワット（ダンベル）", s: "ごぶれっとすくわっと", i: {"脚":1.0, "腹・体幹":0.5, "腕":0.2} },
+      { c: "脚", n: "ハックスクワット（マシン）", s: "はっくすくわっと hack squat", i: {"脚":1.0} },
+      { c: "脚", n: "レッグプレス（マシン）", s: "れっぐぷれす leg press", i: {"脚":1.0} },
+      { c: "脚", n: "ランジ（ダンベル）", s: "らんじ だんべる lunge", i: {"脚":1.0, "腹・体幹":0.3} },
+      { c: "脚", n: "ウォーキングランジ（ダンベル）", s: "うぉーきんぐらんじ", i: {"脚":1.0, "腹・体幹":0.4} },
+      { c: "脚", n: "ブルガリアンスクワット（ダンベル）", s: "ぶるがりあんすくわっと bulgarian squat", i: {"脚":1.0, "腹・体幹":0.4} },
+      { c: "脚", n: "レッグエクステンション（マシン）", s: "れっぐえくすてんしょん leg extension", i: {"脚":1.0} },
+      { c: "脚", n: "レッグカール（マシン）", s: "れっぐかーる leg curl", i: {"脚":1.0} },
+      { c: "脚", n: "ルーマニアンデッドリフト（バーベル）", s: "るーまにあんでっどりふと rdl", i: {"脚":1.0, "背中":0.6, "腹・体幹":0.4} },
+      { c: "脚", n: "ルーマニアンデッドリフト（ダンベル）", s: "るーまにあんでっどりふと だんべる", i: {"脚":1.0, "背中":0.4, "腹・体幹":0.2} },
+      { c: "脚", n: "ヒップスラスト（バーベル）", s: "ひっぷすらすと hip thrust", i: {"脚":1.0, "腹・体幹":0.3} },
+      { c: "脚", n: "スタンディングカーフレイズ（マシン）", s: "すたんでぃんぐかーふれいず standing calf raise", i: {"脚":1.0} },
+      { c: "脚", n: "シーテッドカーフレイズ（マシン）", s: "しーてっどかーふれいず seated calf raise", i: {"脚":1.0} },
+      { c: "脚", n: "アブダクション / アウターサイ（マシン）", s: "あぶだくしょん あうたーさい", i: {"脚":1.0} },
+      { c: "脚", n: "アダクション / インナーサイ（マシン）", s: "あだくしょん いんなーさい", i: {"脚":1.0} },
+      // 肩
+      { c: "肩", n: "ミリタリープレス（バーベル）", s: "みりたりーぷれす おーばーへっどぷれす overhead press military", i: {"肩":1.0, "腕":0.6, "胸":0.2, "腹・体幹":0.5} },
+      { c: "肩", n: "ショルダープレス（ダンベル）", s: "しょるだーぷれす だんべる shoulder press", i: {"肩":1.0, "腕":0.5, "胸":0.2, "腹・体幹":0.2} },
+      { c: "肩", n: "ショルダープレス（マシン）", s: "しょるだーぷれす ましん", i: {"肩":1.0, "腕":0.4, "胸":0.1} },
+      { c: "肩", n: "アーノルドプレス（ダンベル）", s: "あーのるどぷれす arnold press", i: {"肩":1.0, "腕":0.5, "腹・体幹":0.2} },
+      { c: "肩", n: "サイドレイズ（ダンベル）", s: "さいどれいず だんべる side raise", i: {"肩":1.0, "腹・体幹":0.1} },
+      { c: "肩", n: "サイドレイズ（ケーブル）", s: "さいどれいず けーぶる", i: {"肩":1.0, "腹・体幹":0.2} },
+      { c: "肩", n: "フロントレイズ（ダンベル）", s: "ふろんとれいず だんべる front raise", i: {"肩":1.0, "胸":0.1, "腹・体幹":0.1} },
+      { c: "肩", n: "リアレイズ（ダンベル）", s: "りあれいず だんべる rear raise", i: {"肩":1.0, "背中":0.2, "腹・体幹":0.1} },
+      { c: "肩", n: "リバースペックデック（マシン）", s: "りばーすぺっくでっく", i: {"肩":1.0, "背中":0.2} },
+      { c: "肩", n: "アップライトロウ（バーベル）", s: "あっぷらいとろう upright row", i: {"肩":1.0, "腕":0.3, "背中":0.3, "腹・体幹":0.2} },
+      { c: "肩", n: "フェイスプル（ケーブル）", s: "ふぇいすぷる face pull", i: {"肩":1.0, "背中":0.3, "腕":0.2} },
+      // 腕
+      { c: "腕", n: "バーベルカール（バーベル）", s: "ばーべるかーる barbell curl", i: {"腕":1.0, "腹・体幹":0.2} },
+      { c: "腕", n: "EZバーカール（バーベル）", s: "ezばーかーる", i: {"腕":1.0, "腹・体幹":0.2} },
+      { c: "腕", n: "ダンベルカール（ダンベル）", s: "だんべるかーる dumbbell curl", i: {"腕":1.0, "腹・体幹":0.1} },
+      { c: "腕", n: "インクラインダンベルカール（ダンベル）", s: "いんくらいんだんべるかーる", i: {"腕":1.0} },
+      { c: "腕", n: "ハンマーカール（ダンベル）", s: "はんまーかーる hammer curl", i: {"腕":1.0, "腹・体幹":0.1} },
+      { c: "腕", n: "プリーチャーカール（EZバー）", s: "ぷりーちゃーかーる", i: {"腕":1.0} },
+      { c: "腕", n: "ケーブルカール（ケーブル）", s: "けーぶるかーる cable curl", i: {"腕":1.0, "腹・体幹":0.1} },
+      { c: "腕", n: "スカルクラッシャー（EZバー）", s: "すかるくらっしゃー skull crusher", i: {"腕":1.0, "胸":0.1} },
+      { c: "腕", n: "フレンチプレス（ダンベル）", s: "ふれんちぷれす french press", i: {"腕":1.0, "腹・体幹":0.1} },
+      { c: "腕", n: "トライセプスエクステンション（ケーブル）", s: "とらいせぷすえくすてんしょん triceps extension", i: {"腕":1.0, "腹・体幹":0.1} },
+      { c: "腕", n: "プレスダウン（ケーブル）", s: "ぷれすだうん pressdown", i: {"腕":1.0, "腹・体幹":0.2} },
+      { c: "腕", n: "キックバック（ダンベル）", s: "きっくばっく kickback", i: {"腕":1.0, "肩":0.1} },
+      { c: "腕", n: "ナローグリップベンチプレス（バーベル）", s: "なろーぐりっぷべんちぷれす narrow bench press", i: {"腕":1.0, "胸":0.7, "肩":0.3, "腹・体幹":0.1} },
+      { c: "腕", n: "リストカール（バーベル）", s: "りすとかーる wrist curl", i: {"腕":1.0} },
+      // 腹・体幹
+      { c: "腹・体幹", n: "クランチ（自重）", s: "くらんち crunch", i: {"腹・体幹":1.0} },
+      { c: "腹・体幹", n: "ケーブルクランチ（ケーブル）", s: "けーぶるくらんち", i: {"腹・体幹":1.0, "腕":0.2} },
+      { c: "腹・体幹", n: "シットアップ（自重）", s: "しっとあっぷ 腹筋 ふっきん sit up", i: {"腹・体幹":1.0, "脚":0.2} },
+      { c: "腹・体幹", n: "レッグレイズ（自重）", s: "れっぐれいず leg raise", i: {"腹・体幹":1.0, "脚":0.3} },
+      { c: "腹・体幹", n: "ハンギングレッグレイズ（自重）", s: "はんぎんぐれっぐれいず hanging leg raise", i: {"腹・体幹":1.0, "脚":0.3, "腕":0.3, "背中":0.2} },
+      { c: "腹・体幹", n: "アブローラー / 腹筋ローラー（自重）", s: "あぶろーらー ふっきんろーらー ab roller", i: {"腹・体幹":1.0, "腕":0.4, "背中":0.3, "肩":0.2} },
+      { c: "腹・体幹", n: "プランク（自重）", s: "ぷらんく plank", i: {"腹・体幹":1.0, "肩":0.3} },
+      { c: "腹・体幹", n: "サイドプランク（自重）", s: "さいどぷらんく side plank", i: {"腹・体幹":1.0, "肩":0.3} },
+      { c: "腹・体幹", n: "ロシアンツイスト（自重・メディシンボール）", s: "ろしあんついすと", i: {"腹・体幹":1.0} },
+      { c: "腹・体幹", n: "ウッドチョップ（ケーブル）", s: "うっどちょっぷ", i: {"腹・体幹":1.0, "腕":0.3, "肩":0.2} },
+      // 全身
+      { c: "全身", n: "クリーン＆ジャーク（バーベル）", s: "くりーんあんどじゃーく clean and jerk", i: {"脚":1.0, "背中":0.8, "肩":0.8, "腕":0.5, "腹・体幹":0.8} },
+      { c: "全身", n: "パワークリーン（バーベル）", s: "ぱわーくりーん power clean", i: {"脚":1.0, "背中":0.9, "肩":0.6, "腕":0.4, "腹・体幹":0.7} },
+      { c: "全身", n: "スナッチ（バーベル）", s: "すなっち snatch", i: {"脚":1.0, "背中":0.8, "肩":0.7, "腕":0.4, "腹・体幹":0.7} },
+      { c: "全身", n: "スラスター（バーベル）", s: "すらすたー thruster", i: {"脚":1.0, "肩":0.8, "腕":0.5, "腹・体幹":0.6, "胸":0.2} },
+      { c: "全身", n: "ケトルベルスイング（ケトルベル）", s: "けとるべるすいんぐ kettlebell swing", i: {"脚":1.0, "背中":0.5, "腹・体幹":0.5, "肩":0.3} },
+      { c: "全身", n: "ターキッシュゲットアップ（ケトルベル）", s: "たーきっしゅげっとあっぷ turkish get up", i: {"腹・体幹":1.0, "肩":0.8, "脚":0.7, "腕":0.5} },
+      { c: "全身", n: "マッスルアップ（自重）", s: "まっするあっぷ muscle up", i: {"背中":1.0, "腕":1.0, "胸":0.6, "腹・体幹":0.5, "肩":0.4} }
     ];
 
     let customExercises = JSON.parse(localStorage.getItem("wt_custom_ex_v5")) || [];
@@ -696,12 +803,59 @@
     }
 
     function getAllExercises() {
-      return [...customExercises, ...PRESET_DB];
+      const customs = customExercises.map(name => ({ c: "カスタム", n: name, s: name, i: getMuscleImpactsFallback(name, "カスタム") }));
+      return [...PRESET_DB, ...customs];
     }
     
     function getExerciseCategory(exName) {
       const ex = getAllExercises().find(e => e.n === exName);
-      return ex ? ex.c : "全身";
+      return ex && ex.c !== "カスタム" ? ex.c : "全身";
+    }
+
+    // データベースから筋肉への影響度を取得、なければ名前から推測
+    function getMuscleImpacts(exName, primaryCat) {
+      const dbEx = getAllExercises().find(e => e.n === exName);
+      if (dbEx && dbEx.i) {
+        return dbEx.i;
+      }
+      return getMuscleImpactsFallback(exName, primaryCat);
+    }
+
+    // 未知のカスタム種目用の推測ロジック（バーベル/ダンベルなら体幹を追加など）
+    function getMuscleImpactsFallback(exName, primaryCat) {
+      const name = exName.toLowerCase();
+      const impacts = {};
+      const baseCat = primaryCat === "カスタム" ? "全身" : primaryCat;
+      impacts[baseCat] = 1.0;
+
+      if (name.includes("ベンチプレス") || name.includes("チェストプレス") || name.includes("ディップス") || name.includes("プッシュアップ") || name.includes("腕立て")) {
+        impacts["胸"] = 1.0; impacts["肩"] = 0.5; impacts["腕"] = 0.5;
+      } else if (name.includes("フライ") || name.includes("ペックデック")) {
+        impacts["胸"] = 1.0; impacts["肩"] = 0.2;
+      } else if (name.includes("デッドリフト")) {
+        impacts["背中"] = 0.8; impacts["脚"] = 1.0; impacts["腹・体幹"] = 0.6;
+      } else if (name.includes("ロウ") || name.includes("プルダウン") || name.includes("チンニング") || name.includes("懸垂")) {
+        impacts["背中"] = 1.0; impacts["腕"] = 0.5;
+      } else if (name.includes("スクワット") || name.includes("レッグプレス") || name.includes("ランジ")) {
+        impacts["脚"] = 1.0; impacts["腹・体幹"] = 0.4;
+      } else if (name.includes("ショルダープレス") || name.includes("ミリタリー") || name.includes("アップライトロウ")) {
+        impacts["肩"] = 1.0; impacts["腕"] = 0.5;
+      } else if (name.includes("レイズ")) {
+        impacts["肩"] = 1.0;
+      } else if (name.includes("カール") || name.includes("エクステンション") || name.includes("プレスダウン") || name.includes("クラッシャー")) {
+        impacts["腕"] = 1.0;
+      } else if (name.includes("クランチ") || name.includes("シットアップ") || name.includes("ローラー") || name.includes("プランク")) {
+        impacts["腹・体幹"] = 1.0;
+      } else if (name.includes("スナッチ") || name.includes("クリーン")) {
+        impacts["脚"] = 0.8; impacts["背中"] = 0.8; impacts["肩"] = 0.6; impacts["腹・体幹"] = 0.5;
+      }
+      
+      // フリーウェイト系の自動体幹補正
+      if (name.includes("バーベル") || name.includes("ダンベル") || name.includes("ケトルベル")) {
+        if(!impacts["腹・体幹"]) impacts["腹・体幹"] = 0.2;
+      }
+
+      return impacts;
     }
 
     function getRPEColor(rpe) {
@@ -741,7 +895,7 @@
         listDiv.innerHTML = `
           <div class="suggest-create-btn" onclick="openCreateModal('${inputRaw}')">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            <span>「${inputRaw}」を新規作成</span>
+            「${inputRaw}」を新規作成
           </div>
         `;
       }
@@ -750,14 +904,20 @@
     }
 
     function selectSuggest(exName) {
-      haptic();
+      haptic(10);
       document.getElementById('exercise-input').value = exName;
       document.getElementById('suggest-list').style.display = 'none';
       updateUI();
     }
 
+    document.addEventListener('click', (e) => {
+      if(!e.target.closest('#suggest-wrapper')) {
+        document.getElementById('suggest-list').style.display = 'none';
+      }
+    });
+
     function openCreateModal(name) {
-      haptic(10);
+      haptic(15);
       pendingExerciseName = name;
       document.getElementById('modal-ex-name').innerText = name;
       const grid = document.getElementById('modal-cat-grid');
@@ -768,23 +928,106 @@
           ${c}
         </button>
       `).join('');
+      
       document.getElementById('suggest-list').style.display = 'none';
       document.getElementById('create-modal').style.display = 'flex';
     }
     
     function closeModal() {
-      haptic();
+      haptic(10);
       document.getElementById('create-modal').style.display = 'none';
       pendingExerciseName = "";
     }
 
     function createCustomExercise(cat) {
-      haptic(10);
-      customExercises.push({ c: cat, n: pendingExerciseName, s: pendingExerciseName });
+      haptic(15);
+      customExercises.push(pendingExerciseName);
       localStorage.setItem("wt_custom_ex_v5", JSON.stringify(customExercises));
+      
       document.getElementById('exercise-input').value = pendingExerciseName;
       closeModal();
       updateUI();
+    }
+
+    // --- 編集モーダル関連 ---
+    function openEditModal(id) {
+      haptic();
+      const log = logs.find(l => l.id === id);
+      if(!log) return;
+      editingLogId = id;
+      
+      document.getElementById('edit-date').value = log.date;
+      
+      const allEx = getAllExercises();
+      const select = document.getElementById('edit-exercise');
+      // Setを使用した重複排除
+      const uniqueExNames = [...new Set(allEx.map(ex => ex.n))];
+      select.innerHTML = uniqueExNames.map(name => `<option value="${name}" ${name === log.exercise ? 'selected' : ''}>${name}</option>`).join('');
+      
+      document.getElementById('edit-weight').value = log.weight;
+      document.getElementById('edit-reps').value = log.reps;
+      document.getElementById('edit-rpe').value = log.rpe || 8;
+      document.getElementById('edit-set').value = log.setNumber || 1;
+      
+      document.getElementById('edit-modal').style.display = 'flex';
+    }
+
+    function closeEditModal() {
+      haptic();
+      document.getElementById('edit-modal').style.display = 'none';
+      editingLogId = null;
+    }
+
+    function adjustEditVal(idSuffix, delta) {
+      haptic();
+      const el = document.getElementById(`edit-${idSuffix}`);
+      let val = parseFloat(el.value) || 0;
+      val += delta;
+      if (idSuffix === 'weight' && val < 0) val = 0;
+      if (idSuffix === 'reps' && val < 1) val = 1;
+      if (idSuffix === 'set' && val < 1) val = 1;
+      if (idSuffix === 'rpe') {
+        if(val > 10) val = 10;
+        if(val < 5) val = 5;
+      }
+      el.value = (idSuffix === 'weight' || idSuffix === 'rpe') ? val : Math.round(val);
+    }
+
+    function saveEditLog() {
+      haptic(15);
+      if(!editingLogId) return;
+      
+      const logIndex = logs.findIndex(l => l.id === editingLogId);
+      if(logIndex === -1) return;
+      
+      const w = parseFloat(document.getElementById('edit-weight').value) || 0;
+      const r = parseInt(document.getElementById('edit-reps').value) || 1;
+      const rpe = parseFloat(document.getElementById('edit-rpe').value) || 8;
+      
+      logs[logIndex].date = document.getElementById('edit-date').value;
+      logs[logIndex].exercise = document.getElementById('edit-exercise').value;
+      logs[logIndex].setNumber = parseInt(document.getElementById('edit-set').value) || 1;
+      logs[logIndex].weight = w;
+      logs[logIndex].reps = r;
+      logs[logIndex].rpe = rpe;
+      logs[logIndex].oneRM = calculate1RM(w, r, rpe);
+      
+      logs.sort((a, b) => new Date(b.date) - new Date(a.date) || b.id - a.id);
+      localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs));
+      
+      const lastSync = localStorage.getItem("wt_last_sync");
+      if(gapiAccessToken && lastSync) {
+        const badge = document.getElementById('sync-badge');
+        const text = document.getElementById('sync-badge-text');
+        badge.className = 'sync-badge warning';
+        text.innerText = "未同期";
+      }
+
+      closeEditModal();
+      updateUI();
+      
+      const activeView = document.querySelector('.view.active').id;
+      if(activeView === 'view-history') renderHistoryTab();
     }
 
     const calculate1RM = (w, r, rpe) => {
@@ -797,7 +1040,8 @@
 
     const getPR = (ex) => {
       const exLogs = logs.filter(l => l.exercise === ex);
-      return exLogs.length ? Math.max(...exLogs.map(l => l.weight)) : null;
+      if(!exLogs.length) return null;
+      return exLogs.reduce((prev, current) => ((parseFloat(prev.weight)||0) > (parseFloat(current.weight)||0)) ? prev : current).weight;
     };
 
     function init() {
@@ -850,8 +1094,15 @@
       const rpeSlider = document.getElementById('rpe');
       rpeSlider.style.accentColor = getRPEColor(rpeVal);
 
-      const rm = calculate1RM(w, r, rpeVal);
-      document.getElementById('onerm-display').innerText = rm;
+      if (parseFloat(w) === 0) {
+        document.getElementById('onerm-display').innerText = "自重";
+        document.getElementById('onerm-unit').style.display = "none";
+      } else {
+        const rm = calculate1RM(w, r, rpeVal);
+        document.getElementById('onerm-display').innerText = rm;
+        document.getElementById('onerm-unit').style.display = "inline";
+      }
+
       const pr = getPR(ex);
       document.getElementById('pr-hint').style.display = (pr && parseFloat(w) > pr) ? 'flex' : 'none';
 
@@ -859,7 +1110,7 @@
       const container = document.getElementById('last-record');
       if (last && ex !== "") {
         document.getElementById('last-record-date').innerText = `前回の記録 (${formatDate(last.date)})`;
-        document.getElementById('last-record-val').innerHTML = `${last.weight}kg × ${last.reps} <span style="font-size:13px;color:var(--text-tertiary);">RPE${last.rpe}</span>`;
+        document.getElementById('last-record-val').innerHTML = `${last.weight === 0 ? '自重' : last.weight + 'kg'} × ${last.reps} <span style="font-size:13px;color:var(--text-tertiary);">RPE${last.rpe}</span>`;
         container.style.display = 'flex';
       } else {
         container.style.display = 'none';
@@ -905,7 +1156,14 @@
       logs.unshift(entry);
       logs.sort((a, b) => new Date(b.date) - new Date(a.date) || b.id - a.id);
       localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs));
-      updateSyncBadgeState();
+      
+      const lastSync = localStorage.getItem("wt_last_sync");
+      if(gapiAccessToken && lastSync) {
+        const badge = document.getElementById('sync-badge');
+        const text = document.getElementById('sync-badge-text');
+        badge.className = 'sync-badge warning';
+        text.innerText = "未同期";
+      }
       updateUI();
     }
 
@@ -914,28 +1172,46 @@
       if(confirm("この記録を削除しますか？")) {
         logs = logs.filter(l => l.id !== id);
         localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs));
-        updateSyncBadgeState();
+        
+        const lastSync = localStorage.getItem("wt_last_sync");
+        if(gapiAccessToken && lastSync) {
+          const badge = document.getElementById('sync-badge');
+          badge.className = 'sync-badge warning';
+          document.getElementById('sync-badge-text').innerText = "未同期";
+        }
         updateUI();
-        renderHistoryTab();
+        
+        const activeView = document.querySelector('.view.active').id;
+        if(activeView === 'view-history') renderHistoryTab();
       }
     }
 
     function buildLogRow(log, showDate = false) {
       const pr = getPR(log.exercise);
-      const isPR = pr && log.weight >= pr;
+      const isPR = pr && log.weight > 0 && log.weight >= pr;
       const badgeHtml = showDate 
         ? `<span style="font-size:13px;font-weight:800;color:var(--text-secondary);background:var(--bg-secondary);padding:4px 10px;border-radius:8px;">${formatDate(log.date)}</span>` 
         : `<span class="set-badge">${log.setNumber}</span>`;
       const rpeColor = getRPEColor(log.rpe);
+      
+      const weightDisplay = log.weight === 0 ? `<span style="font-size:24px;font-weight:800;letter-spacing:-0.5px;">自重</span>` : `<span style="font-size:26px;font-weight:800;letter-spacing:-0.5px;">${log.weight}</span><span style="font-size:15px;font-weight:700;color:var(--text-secondary);margin:0 14px 0 2px;">kg</span>`;
+      const rmDisplay = log.weight === 0 ? '自重' : `${log.oneRM}kg`;
+
       return `
         <div class="log-item">
           <div class="log-header">
             <div class="log-title">${badgeHtml} <span>${log.exercise}</span> ${isPR ? `<span class="pr-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>PR</span>` : ''}</div>
-            <button class="delete-btn" onclick="confirmDelete(${log.id})"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            <div style="display:flex; gap:4px;">
+              <button class="action-btn" onclick="openEditModal(${log.id})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></button>
+              <button class="action-btn" onclick="confirmDelete(${log.id})"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            </div>
           </div>
           <div style="display:flex;align-items:baseline;justify-content:space-between;">
-            <div><span style="font-size:26px;font-weight:800;">${log.weight}</span><span style="font-size:15px;font-weight:700;color:var(--text-secondary);margin:0 14px 0 2px;">kg</span><span style="font-size:20px;font-weight:800;">× ${log.reps}</span><span style="font-size:15px;font-weight:700;color:var(--text-secondary);">rep</span></div>
-            <div style="text-align:right;"><span style="font-size:13px;font-weight:800;color:#fff;background:${rpeColor};padding:3px 10px;border-radius:8px;">RPE ${log.rpe}</span></div>
+            <div>${weightDisplay}<span style="font-size:20px;font-weight:800;">× ${log.reps}</span><span style="font-size:15px;font-weight:700;color:var(--text-secondary);">rep</span></div>
+            <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+              <span style="font-size:13px;font-weight:800;color:#fff;background:${rpeColor};padding:3px 10px;border-radius:8px;">RPE ${log.rpe}</span>
+              <span style="font-size:12px;font-weight:700;color:var(--text-tertiary);">1RM: ${rmDisplay}</span>
+            </div>
           </div>
         </div>
       `;
@@ -966,7 +1242,7 @@
       if(!exLogs.length) return;
       const dailyMax = [];
       const groupedByDate = exLogs.reduce((acc, log) => { if (!acc[log.date]) acc[log.date] = []; acc[log.date].push(log); return acc; }, {});
-      Object.keys(groupedByDate).sort().reverse().slice(0, 15).reverse().forEach(date => { dailyMax.push(groupedByDate[date].reduce((prev, current) => (prev.weight > current.weight) ? prev : current)); });
+      Object.keys(groupedByDate).sort().reverse().slice(0, 15).reverse().forEach(date => { dailyMax.push(groupedByDate[date].reduce((prev, current) => ((parseFloat(prev.weight)||0) > (parseFloat(current.weight)||0)) ? prev : current)); });
       const weights = dailyMax.map(l => l.weight);
       const maxW = Math.max(...weights); const minW = Math.max(0, Math.min(...weights) - 5); const range = maxW - minW || 10;
       const H = 200, W = 600, PAD = 44;
@@ -980,42 +1256,117 @@
       content.innerHTML = `<div class="card" style="margin-bottom:0;"><p style="font-size:16px;font-weight:800;margin-bottom:24px;">MAX重量推移</p>${dailyMax.length > 1 ? svgHTML : '<p style="font-size:14px;font-weight:700;color:var(--text-tertiary);margin-bottom:24px;">グラフ表示には2日以上の記録が必要です</p>'}<div style="margin-top:2rem;border-top:1px solid var(--border);padding-top:1.5rem;">${exLogs.map(l => buildLogRow(l, true)).join('')}</div></div>`;
     }
 
+    function selectHistoryEx(ex) { haptic(10); selectedHistoryEx = selectedHistoryEx === ex ? null : ex; renderHistoryTab(); }
     function setPRSort(mode) { haptic(); prSortMode = mode; localStorage.setItem("wt_pr_sort", mode); renderPRTab(); }
     function setPRView(mode) { haptic(); prViewMode = mode; localStorage.setItem("wt_pr_view", mode); renderPRTab(); }
+
+    function getSparklineSVG(exLogs, color) {
+      const dailyMax = [];
+      const grouped = exLogs.reduce((acc, log) => { if (!acc[log.date]) acc[log.date] = []; acc[log.date].push(log); return acc; }, {});
+      Object.keys(grouped).sort().forEach(date => { dailyMax.push(Math.max(...grouped[date].map(l => parseFloat(l.weight)||0))); });
+      if (dailyMax.length < 2) return `<svg width="100%" height="100%" viewBox="0 0 60 30"><circle cx="30" cy="15" r="4" fill="${color}"/></svg>`;
+      const min = Math.min(...dailyMax); const max = Math.max(...dailyMax); const range = max - min || 1;
+      const H = 30, W = 60, PAD = 4;
+      const points = dailyMax.map((w, i) => { const x = PAD + (i / (dailyMax.length - 1)) * (W - PAD * 2); const y = H - PAD - ((w - min) / range) * (H - PAD * 2); return `${x},${y}`; });
+      return `<svg width="100%" height="100%" viewBox="0 0 ${W} ${H}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="${points.join(' ')}"/></svg>`;
+    }
 
     function renderPRTab() {
       const container = document.getElementById('pr-container');
       const activeExercises = [...new Set(logs.map(l => l.exercise))];
       if(activeExercises.length === 0) { container.innerHTML = `<p style="text-align:center;font-weight:700;color:var(--text-tertiary);padding:3rem;">記録がありません</p>`; return; }
       const CAT_ORDER = {"胸":1, "背中":2, "脚":3, "肩":4, "腕":5, "腹・体幹":6, "全身":7};
-      let prData = activeExercises.map(ex => { const exLogs = logs.filter(l => l.exercise === ex); return { name: ex, cat: getExerciseCategory(ex), catOrder: CAT_ORDER[getExerciseCategory(ex)] || 99, maxLog: exLogs.reduce((p, c) => (p.weight > c.weight) ? p : c), exLogs: exLogs }; });
-      if (prSortMode === 'category') { prData.sort((a, b) => a.catOrder !== b.catOrder ? a.catOrder - b.catOrder : a.name.localeCompare(b.name, 'ja')); } else { prData.sort((a, b) => a.name.localeCompare(b.name, 'ja')); }
+      
+      let prData = activeExercises.map(ex => { 
+        const exLogs = logs.filter(l => l.exercise === ex); 
+        const cat = getExerciseCategory(ex);
+        return { 
+          name: ex, 
+          cat: cat, 
+          catOrder: CAT_ORDER[cat] || 99, 
+          maxLog: exLogs.reduce((p, c) => ((parseFloat(p.weight)||0) > (parseFloat(c.weight)||0)) ? p : c), 
+          exLogs: exLogs 
+        }; 
+      });
+
+      if (prSortMode === 'category') { 
+        prData.sort((a, b) => a.catOrder !== b.catOrder ? a.catOrder - b.catOrder : a.name.localeCompare(b.name, 'ja')); 
+      } else { 
+        prData.sort((a, b) => a.name.localeCompare(b.name, 'ja')); 
+      }
+
       let controlsHtml = `<div class="pr-controls"><select class="pr-sort-select" onchange="setPRSort(this.value)"><option value="category" ${prSortMode==='category'?'selected':''}>部位順</option><option value="name" ${prSortMode==='name'?'selected':''}>五十音順</option></select><div class="pr-view-toggle"><button class="pr-view-btn ${prViewMode==='grid'?'active':''}" onclick="setPRView('grid')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></button><button class="pr-view-btn ${prViewMode==='list'?'active':''}" onclick="setPRView('list')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button></div></div>`;
       let contentHtml = '';
-      if (prViewMode === 'grid') { contentHtml = '<div class="pr-grid">'; prData.forEach(item => { contentHtml += `<div class="pr-card" style="background: var(--pr-${getCatClass(item.cat)}-bg);"><p style="font-size:14px;font-weight:800;color:var(--text-secondary);margin:0 0 10px 0;display:flex;align-items:center;gap:8px;"><span class="cat-icon-wrapper ${getCatClass(item.cat)}" style="width:24px;height:24px;border-radius:6px;">${CAT_ICONS[item.cat]||CAT_ICONS["全身"]}</span>${item.name}</p><p style="font-size:32px;font-weight:800;margin:0 0 6px 0;letter-spacing:-0.5px;">${item.maxLog.weight}<span style="font-size:16px;color:var(--text-secondary);">kg</span></p><p style="font-size:13px;font-weight:700;color:var(--text-tertiary);margin:0;display:flex;justify-content:space-between;"><span>×${item.maxLog.reps} <span style="color:${getRPEColor(item.maxLog.rpe)};">RPE${item.maxLog.rpe}</span></span></p></div>`; }); contentHtml += '</div>'; } 
-      else { contentHtml = '<div class="pr-list">'; prData.forEach(item => { const isDark = document.documentElement.getAttribute('data-theme')==='dark'; let fgColor = isDark ? '#d4d4d8' : '#52525b'; if(item.cat==='胸') fgColor=isDark?'#60a5fa':'#2563eb'; else if(item.cat==='背中') fgColor=isDark?'#4ade80':'#16a34a'; else if(item.cat==='脚') fgColor=isDark?'#facc15':'#ca8a04'; else if(item.cat==='肩') fgColor=isDark?'#fb923c':'#ea580c'; else if(item.cat==='腕') fgColor=isDark?'#c084fc':'#9333ea'; else if(item.cat==='腹・体幹') fgColor=isDark?'#f87171':'#dc2626'; contentHtml += `<div class="pr-list-item" style="background: var(--pr-${getCatClass(item.cat)}-bg);"><div class="pr-list-left"><span class="cat-icon-wrapper ${getCatClass(item.cat)}" style="width:36px;height:36px;border-radius:8px;">${CAT_ICONS[item.cat]||CAT_ICONS["全身"]}</span><div class="pr-list-info"><span class="pr-list-name">${item.name}</span><span class="pr-list-detail"><span>×${item.maxLog.reps}</span> <span style="color:${getRPEColor(item.maxLog.rpe)};">RPE${item.maxLog.rpe}</span></span></div></div><div class="pr-list-right"><div class="pr-list-graph">${getSparklineSVG(item.exLogs, fgColor)}</div><div class="pr-list-weight">${item.maxLog.weight}<span>kg</span></div></div></div>`; }); contentHtml += '</div>'; }
+      if (prViewMode === 'grid') { 
+        contentHtml = '<div class="pr-grid">'; 
+        prData.forEach(item => { 
+          const wDisplay = item.maxLog.weight === 0 ? '自重' : `${item.maxLog.weight}<span style="font-size:16px;color:var(--text-secondary);">kg</span>`;
+          contentHtml += `<div class="pr-card" style="background: var(--pr-${getCatClass(item.cat)}-bg);"><p style="font-size:14px;font-weight:800;color:var(--text-secondary);margin:0 0 10px 0;display:flex;align-items:center;gap:8px;"><span class="cat-icon-wrapper ${getCatClass(item.cat)}" style="width:24px;height:24px;border-radius:6px;">${CAT_ICONS[item.cat]||CAT_ICONS["全身"]}</span>${item.name}</p><p style="font-size:32px;font-weight:800;margin:0 0 6px 0;color:var(--text-primary);letter-spacing:-0.5px;">${wDisplay}</p><p style="font-size:13px;font-weight:700;color:var(--text-tertiary);margin:0;display:flex;justify-content:space-between;"><span>×${item.maxLog.reps} <span style="color:${getRPEColor(item.maxLog.rpe)};">RPE${item.maxLog.rpe}</span></span></p></div>`; 
+        }); 
+        contentHtml += '</div>'; 
+      } else { 
+        contentHtml = '<div class="pr-list">'; 
+        prData.forEach(item => { 
+          const isDark = document.documentElement.getAttribute('data-theme')==='dark'; 
+          let fgColor = isDark ? '#d4d4d8' : '#52525b'; 
+          if(item.cat==='胸') fgColor=isDark?'#60a5fa':'#2563eb'; else if(item.cat==='背中') fgColor=isDark?'#4ade80':'#16a34a'; else if(item.cat==='脚') fgColor=isDark?'#facc15':'#ca8a04'; else if(item.cat==='肩') fgColor=isDark?'#fb923c':'#ea580c'; else if(item.cat==='腕') fgColor=isDark?'#c084fc':'#9333ea'; else if(item.cat==='腹・体幹') fgColor=isDark?'#f87171':'#dc2626'; 
+          const wDisplay = item.maxLog.weight === 0 ? '自重' : `${item.maxLog.weight}<span>kg</span>`;
+          contentHtml += `<div class="pr-list-item" style="background: var(--pr-${getCatClass(item.cat)}-bg);"><div class="pr-list-left"><span class="cat-icon-wrapper ${getCatClass(item.cat)}" style="width:36px;height:36px;border-radius:8px;">${CAT_ICONS[item.cat]||CAT_ICONS["全身"]}</span><div class="pr-list-info"><span class="pr-list-name">${item.name}</span><span class="pr-list-detail"><span>×${item.maxLog.reps}</span> <span style="color:${getRPEColor(item.maxLog.rpe)};">RPE${item.maxLog.rpe}</span></span></div></div><div class="pr-list-right"><div class="pr-list-graph">${getSparklineSVG(item.exLogs, fgColor)}</div><div class="pr-list-weight">${wDisplay}</div></div></div>`; 
+        }); 
+        contentHtml += '</div>'; 
+      }
       container.innerHTML = controlsHtml + contentHtml;
     }
 
     function renderAnalysisTab() {
       const recentLogs = logs.filter(l => new Date(l.date) >= new Date().setDate(new Date().getDate() - 30));
       const stats = { "胸": 0, "背中": 0, "脚": 0, "肩": 0, "腕": 0, "腹・体幹": 0, "全身": 0 };
-      recentLogs.forEach(log => { const cat = getExerciseCategory(log.exercise); if (stats[cat] !== undefined) stats[cat] += 1; });
-      const totalSets = Object.values(stats).reduce((a, b) => a + b, 0);
-      const maxSets = Math.max(...Object.values(stats), 1);
-      const getColor = (cat) => { const ratio = stats[cat] / maxSets; if (stats[cat] === 0) return "var(--heat-0)"; if (ratio >= 0.7) return "var(--heat-3)"; if (ratio >= 0.3) return "var(--heat-2)"; return "var(--heat-1)"; };
+      let totalScore = 0;
+
+      recentLogs.forEach(log => { 
+        const cat = getExerciseCategory(log.exercise); 
+        const impacts = getMuscleImpacts(log.exercise, cat);
+        let intensity = log.rpe ? (parseFloat(log.rpe) / 8.0) : 1.0;
+        
+        for (const [muscle, impact] of Object.entries(impacts)) {
+          if (stats[muscle] !== undefined) {
+            const score = intensity * impact;
+            stats[muscle] += score;
+            totalScore += score;
+          }
+        }
+      });
+      
+      const maxScore = Math.max(...Object.values(stats), 1);
+      const getColor = (cat) => { const ratio = stats[cat] / maxScore; if (stats[cat] === 0) return "var(--heat-0)"; if (ratio >= 0.7) return "var(--heat-3)"; if (ratio >= 0.3) return "var(--heat-2)"; return "var(--heat-1)"; };
       document.getElementById('body-map-render').innerHTML = `<div class="body-figure"><svg viewBox="0 0 100 220" width="130"><circle cx="50" cy="20" r="14" fill="var(--bg-secondary)"/><rect class="body-part" x="33" y="40" width="34" height="28" rx="6" fill="${getColor('胸')}"/><rect class="body-part" x="35" y="70" width="30" height="32" rx="4" fill="${getColor('腹・体幹')}"/><rect class="body-part" x="15" y="40" width="16" height="16" rx="8" fill="${getColor('肩')}"/><rect class="body-part" x="69" y="40" width="16" height="16" rx="8" fill="${getColor('肩')}"/><rect class="body-part" x="15" y="58" width="14" height="45" rx="7" fill="${getColor('腕')}"/><rect class="body-part" x="71" y="58" width="14" height="45" rx="7" fill="${getColor('腕')}"/><rect class="body-part" x="33" y="104" width="15" height="70" rx="7" fill="${getColor('脚')}"/><rect class="body-part" x="52" y="104" width="15" height="70" rx="7" fill="${getColor('脚')}"/></svg><span class="body-label">FRONT</span></div><div class="body-figure"><svg viewBox="0 0 100 220" width="130"><circle cx="50" cy="20" r="14" fill="var(--bg-secondary)"/><rect class="body-part" x="32" y="40" width="36" height="60" rx="6" fill="${getColor('背中')}"/><rect class="body-part" x="15" y="40" width="15" height="15" rx="7.5" fill="${getColor('肩')}"/><rect class="body-part" x="70" y="40" width="15" height="15" rx="7.5" fill="${getColor('肩')}"/><rect class="body-part" x="15" y="57" width="13" height="45" rx="6.5" fill="${getColor('腕')}"/><rect class="body-part" x="72" y="57" width="13" height="45" rx="6.5" fill="${getColor('腕')}"/><rect class="body-part" x="33" y="102" width="15" height="70" rx="7" fill="${getColor('脚')}"/><rect class="body-part" x="52" y="102" width="15" height="70" rx="7" fill="${getColor('脚')}"/></svg><span class="body-label">BACK</span></div>`;
-      let advice = totalSets < 10 ? "データが少ないため、まだ分析できません。記録を増やしましょう！" : (stats["胸"]/totalSets > 0.4 ? "胸の種目が多めです。背中も鍛えて姿勢を整えましょう。" : "バランスの良いトレーニング構成です。このまま継続しましょう。");
-      document.getElementById('analysis-advice').innerText = advice;
-      let barsHtml = ""; ["胸", "背中", "脚", "肩", "腕", "腹・体幹"].forEach(cat => { const percent = totalSets > 0 ? Math.round((stats[cat] / totalSets) * 100) : 0; barsHtml += `<div class="stat-bar-container"><div class="stat-bar-header"><span>${cat}</span><span>${stats[cat]}セット (${percent}%)</span></div><div class="stat-bar-bg"><div class="stat-bar-fill" style="width: ${percent}%; background: ${getColor(cat)}"></div></div></div>`; });
+      
+      let advice = "";
+      if (totalScore < 10) { advice = "データが少ないため、まだ詳細分析できません。記録を増やしましょう！"; } 
+      else { 
+        const msgs = [];
+        const pChest = stats["胸"] / totalScore; const pBack = stats["背中"] / totalScore; const pLegs = stats["脚"] / totalScore; const pShoulder = stats["肩"] / totalScore; const pArms = stats["腕"] / totalScore;
+        if (totalScore >= 140) msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#ef4444' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><path d='M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z'></path></svg><div><b style='color:var(--text-primary);'>素晴らしいトレーニング量です！</b><br>関節の痛みや疲労を感じた場合は、計画的なディロードを取り入れましょう。</div></div>");
+        if ((pChest + pArms) > 0.65) msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#ea580c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'></path><line x1='12' y1='9' x2='12' y2='13'></line><line x1='12' y1='17' x2='12.01' y2='17'></line></svg><div><b style='color:var(--text-primary);'>上半身の前面と腕に特化しています。</b><br>全身の機能性を高めるため、背中や下半身の強化をお勧めします。</div></div>");
+        if (pLegs < 0.15) msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#ea580c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'></path><line x1='12' y1='9' x2='12' y2='13'></line><line x1='12' y1='17' x2='12.01' y2='17'></line></svg><div><b style='color:var(--text-primary);'>脚への負荷が不足気味です。</b><br>スクワット等を取り入れると、基礎代謝の向上に大きく貢献します。</div></div>");
+        if (pChest > pBack * 1.5 && (pChest + pArms) <= 0.65) msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#ea580c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'></path><line x1='12' y1='9' x2='12' y2='13'></line><line x1='12' y1='17' x2='12.01' y2='17'></line></svg><div><b style='color:var(--text-primary);'>胸に対して背中のボリュームが不足しています。</b><br>美しい姿勢を保つため、ロウイング系の種目を増やしましょう。</div></div>");
+        else if (pBack > pChest * 2) msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#eab308' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='16' x2='12' y2='12'></line><line x1='12' y1='8' x2='12.01' y2='8'></line></svg><div><b style='color:var(--text-primary);'>背中を非常にしっかり鍛えられています。</b><br>プレス系（胸）の種目もバランス良く追加するとさらに立体的になります。</div></div>");
+        if (stats["腹・体幹"] === 0) msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#eab308' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='16' x2='12' y2='12'></line><line x1='12' y1='8' x2='12.01' y2='8'></line></svg><div><b style='color:var(--text-primary);'>体幹への負荷記録がありません。</b><br>フォーム安定や腰痛予防のため、プランクなどのメニューもおすすめです。</div></div>");
+        if (msgs.length === 0) advice = "<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#3b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'></polygon></svg><div><b style='color:var(--text-primary);'>全身が非常にバランス良く鍛えられています！</b><br>現在のメニュー構成は理想的です。この調子で継続しましょう。</div></div>";
+        else advice = msgs.join("");
+      }
+      document.getElementById('analysis-advice').innerHTML = advice;
+
+      let barsHtml = ""; ["胸", "背中", "脚", "肩", "腕", "腹・体幹"].forEach(cat => { 
+        const val = stats[cat]; const percent = totalScore > 0 ? Math.round((val / totalScore) * 100) : 0; 
+        barsHtml += `<div class="stat-bar-container"><div class="stat-bar-header"><span style="display:flex; align-items:center; gap:8px;"><div class="cat-icon-wrapper ${getCatClass(cat)}" style="width:20px;height:20px;border-radius:5px;">${CAT_ICONS[cat]}</div>${cat}</span><span style="color:var(--text-primary); font-weight:800;">${val.toFixed(1)} <span style="font-size:11px;color:var(--text-tertiary);font-weight:700;">pt (${percent}%)</span></span></div><div class="stat-bar-bg"><div class="stat-bar-fill" style="width: ${percent}%; background: ${getColor(cat)}"></div></div></div>`; 
+      });
       document.getElementById('analysis-bars').innerHTML = barsHtml;
     }
 
     function exportDataLocal() { haptic(20); const data = { logs: logs, customExercises: customExercises }; const blob = new Blob([JSON.stringify(data)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `workout_backup_${getTodayStr()}.json`; a.click(); }
     function importDataLocal(event) { const file = event.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (e) => { try { const data = JSON.parse(e.target.result); logs = data.logs; customExercises = data.customExercises; localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs)); localStorage.setItem("wt_custom_ex_v5", JSON.stringify(customExercises)); alert("復元完了！"); location.reload(); } catch(err) { alert("失敗"); } }; reader.readAsText(file); }
-    function resetData() { if(confirm("初期化しますか？")) { localStorage.removeItem("wt_logs_html_v3"); localStorage.removeItem("wt_custom_ex_v5"); location.reload(); } }
-
-    init();
+    function resetData() { if(confirm("初期化しますか？")) { localStorage.removeItem("wt_logs_html_v3"); localStorage.removeItem("wt_custom_ex_v5"); localStorage.removeItem("wt_last_sync"); location.reload(); } }
   </script>
 </body>
 </html>
