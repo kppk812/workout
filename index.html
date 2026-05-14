@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>筋トレ管理アプリ</title>
   
-  <!-- Google Identity Services (Drive API用) -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-
   <script>
     (function() {
       const theme = localStorage.getItem('wt_theme') || 'auto';
@@ -20,7 +18,6 @@
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     ::-webkit-scrollbar { display: none; }
     
-    /* ライトモード */
     :root {
       --bg-primary: #ffffff;
       --bg-secondary: #f4f4f5;
@@ -61,7 +58,6 @@
       color-scheme: light;
     }
 
-    /* ダークモード */
     :root[data-theme="dark"] {
       --bg-primary: #18181b;
       --bg-secondary: #27272a;
@@ -93,29 +89,26 @@
       color-scheme: dark;
     }
 
-    body { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", sans-serif; margin: 0; padding: 0; background: var(--bg-app); color: var(--text-primary); padding-bottom: calc(var(--nav-height) + 24px); transition: background-color 0.3s ease, color 0.3s ease; }
-    .app-container { max-width: 680px; margin: 0 auto; padding: 1.25rem 1rem; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", sans-serif; margin: 0; padding: 0; background: var(--bg-app); color: var(--text-primary); padding-bottom: calc(var(--nav-height) + 24px); transition: background-color 0.3s ease, color 0.3s ease; overflow-x: hidden; }
+    .app-container { max-width: 680px; margin: 0 auto; padding: 1.25rem 1rem; width: 100%; overflow-x: hidden; }
     
     .header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 0.75rem; margin-bottom: 1.25rem; }
     .header h1 { font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
     
-    /* 強化された同期バッジUI */
-    .sync-badge { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 20px; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .sync-badge { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 20px; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     .sync-badge:active { transform: scale(0.95); }
     .sync-badge.safe { background: rgba(34, 197, 94, 0.1); color: #16a34a; border: 1px solid rgba(34, 197, 94, 0.2); }
-    .sync-badge.warning { background: rgba(249, 115, 22, 0.1); color: #ea580c; border: 1px solid rgba(249, 115, 22, 0.3); animation: pulseOrange 2s infinite; }
-    .sync-badge.danger { background: rgba(239, 68, 68, 0.1); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3); animation: pulseRed 1.5s infinite; }
+    .sync-badge.warning { background: rgba(249, 115, 22, 0.1); color: #ea580c; border: 1px solid rgba(249, 115, 22, 0.3); }
+    .sync-badge.danger { background: rgba(239, 68, 68, 0.1); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3); }
     .sync-badge.syncing { background: var(--bg-secondary); color: var(--text-secondary); opacity: 0.7; pointer-events: none; }
-    .sync-icon { width: 12px; height: 12px; }
+    .sync-icon { width: 14px; height: 14px; }
     .syncing .sync-icon { animation: spin 1s linear infinite; }
     
-    @keyframes pulseOrange { 0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(249, 115, 22, 0); } 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); } }
-    @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
     @keyframes spin { 100% { transform: rotate(360deg); } }
     
-    .view { display: none; animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+    .view { display: none; animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1); width: 100%; }
     .view.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } }
 
     .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background: var(--bg-nav); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -4px 20px rgba(0,0,0,0.02); transition: background-color 0.3s ease; }
     .nav-btn { flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: none; background: transparent; color: var(--text-tertiary); font-size: 10px; font-weight: 700; cursor: pointer; transition: color 0.2s, transform 0.1s; }
@@ -144,7 +137,6 @@
 
     .suggest-create-btn { padding: 16px; font-size: 15px; font-weight: 700; color: var(--accent); cursor: pointer; display: flex; align-items: center; gap: 10px; background: var(--icon-chest-bg); }
 
-    /* モーダル */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
     .modal-content { background: var(--bg-primary); width: 100%; max-width: 400px; border-radius: var(--radius-xl); padding: 1.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.3); animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid var(--border); }
     .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 1.25rem; }
@@ -198,8 +190,8 @@
     .pr-list-weight span { font-size: 13px; color: var(--text-secondary); font-weight: 700; margin-left: 2px; }
     .pr-list-graph { width: 60px; height: 30px; }
     
-    .chips { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1.5rem; }
-    .chip { padding: 10px 20px; font-size: 14px; font-weight: 700; border-radius: 30px; border: 1px solid var(--border); background: var(--bg-primary); color: var(--text-secondary); cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+    .chips { display: flex; gap: 10px; flex-wrap: nowrap; overflow-x: auto; margin-bottom: 1.5rem; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
+    .chip { flex-shrink: 0; padding: 10px 20px; font-size: 14px; font-weight: 700; border-radius: 30px; border: 1px solid var(--border); background: var(--bg-primary); color: var(--text-secondary); cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
     .chip.active { border-color: var(--text-primary); background: var(--text-primary); color: var(--bg-primary); }
 
     #last-record { background: var(--bg-secondary); padding: 14px 18px; border-radius: var(--radius-md); margin-bottom: 24px; border-left: 4px solid var(--text-primary); display: none; align-items: center; justify-content: space-between; }
@@ -218,7 +210,10 @@
     .stat-bar-fill { height: 100%; border-radius: 5px; transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
     
     .settings-list { display: flex; flex-direction: column; gap: 16px; }
-    .settings-btn { width: 100%; padding: 18px 20px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 16px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 14px; cursor: pointer; text-align: left; transition: transform 0.1s, background-color 0.2s; }
+    /* 設定ボタン内のテキスト折り返し対応 */
+    .settings-btn { width: 100%; padding: 18px 20px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-lg); color: var(--text-primary); display: flex; align-items: center; gap: 14px; cursor: pointer; text-align: left; transition: transform 0.1s, background-color 0.2s; }
+    .settings-btn svg { flex-shrink: 0; }
+    .settings-btn span { flex: 1; line-height: 1.3; font-size: 15px; font-weight: 800; }
     .settings-btn:active { transform: scale(0.98); background: var(--border); }
     .settings-note { font-size: 13px; color: var(--text-tertiary); font-weight: 600; margin-top: 6px; line-height: 1.5; padding: 0 4px; }
 
@@ -226,7 +221,6 @@
     .theme-btn { flex: 1; padding: 14px 0; font-size: 14px; font-weight: 800; border: none; background: transparent; color: var(--text-tertiary); border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s; }
     .theme-btn.active { background: var(--bg-primary); color: var(--text-primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 
-    /* Google Drive Login Style */
     .google-btn { width: 100%; padding: 16px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 15px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer; margin-bottom: 12px; transition: background 0.2s; }
     .google-btn:active { background: var(--bg-secondary); }
 
@@ -238,12 +232,12 @@
     <div class="header">
       <h1>
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.4 14.4l-4.8-4.8M6.5 10.5l-3-3a2 2 0 112.8-2.8l3 3M17.5 13.5l3 3a2 2 0 11-2.8 2.8l-3-3M8 12l4-4M12 16l4-4M10 14l4-4"/></svg>
-        WORKOUT
+        workout
       </h1>
-      <!-- 進化した同期バッジ -->
+      <!-- シンプル化された同期バッジ -->
       <div id="sync-badge" class="sync-badge safe" onclick="triggerManualSync()">
         <svg class="sync-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-        <span id="sync-badge-text">同期済み</span>
+        <span id="sync-badge-text">同期済</span>
       </div>
     </div>
 
@@ -302,7 +296,7 @@
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
           <div style="font-size:13px; font-weight:700; color:var(--text-secondary);">
-            推定1RM(RPE加味): <strong id="onerm-display" style="font-size:18px; color:var(--text-primary);">80</strong> kg
+            推定1RM: <strong id="onerm-display" style="font-size:18px; color:var(--text-primary);">80</strong> kg
           </div>
           <div id="pr-hint" style="font-size:13px; color:#16a34a; font-weight:800; display:none; align-items:center; gap:4px;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
@@ -379,14 +373,14 @@
             <p style="font-size:14px; font-weight:700; color:#16a34a; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
               アカウント接続済み
-            </button>
+            </p>
             <button class="settings-btn" onclick="syncToDrive()" style="margin-bottom:12px;">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              今すぐクラウドへバックアップ
+              <span>クラウドへバックアップ</span>
             </button>
             <button class="settings-btn" onclick="syncFromDrive()">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              クラウドから復元（上書き）
+              <span>クラウドから復元（上書き）</span>
             </button>
           </div>
         </div>
@@ -396,20 +390,20 @@
           <div>
             <button class="settings-btn" onclick="exportDataLocal()">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              ファイルとして出力 (JSON)
+              <span>ファイルを出力 (JSON)</span>
             </button>
           </div>
           <div>
             <input type="file" id="import-file" style="display:none;" accept=".json" onchange="importDataLocal(event)">
             <button class="settings-btn" onclick="document.getElementById('import-file').click()">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              ファイルから復元
+              <span>ファイルから復元</span>
             </button>
           </div>
           <div style="margin-top: 20px; padding-top: 20px; border-top: 1px dashed var(--border);">
-            <button class="settings-btn" onclick="resetData()" style="color:var(--color-rpe-high); border-color:var(--color-rpe-high); background:transparent;">
+            <button class="settings-btn" onclick="resetData()" style="color:var(--color-rpe-high); border-color:var(--border); background:transparent;">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-              全データを初期化
+              <span>全データを初期化</span>
             </button>
           </div>
         </div>
@@ -452,12 +446,50 @@
   </div>
 
   <script>
-    // --- 触覚フィードバック関数 (非常に弱く) ---
     function haptic(ms = 5) {
       if (navigator.vibrate) navigator.vibrate(ms);
     }
 
-    // --- State ---
+    // --- スワイプジェスチャー ---
+    let touchStartX = 0;
+    let touchStartY = 0;
+    const swipeThreshold = 50;
+    const viewOrder = ['log', 'history', 'pr', 'analysis', 'settings'];
+
+    document.addEventListener('touchstart', e => {
+      if (e.target.closest('input[type="range"], .chips, .suggest-list, .pr-list, .body-map-container')) return;
+      touchStartX = e.changedTouches[0].screenX;
+      touchStartY = e.changedTouches[0].screenY;
+    }, {passive: true});
+
+    document.addEventListener('touchend', e => {
+      if (e.target.closest('input[type="range"], .chips, .suggest-list, .pr-list, .body-map-container')) return;
+      const touchEndX = e.changedTouches[0].screenX;
+      const touchEndY = e.changedTouches[0].screenY;
+      
+      const diffX = touchEndX - touchStartX;
+      const diffY = touchEndY - touchStartY;
+      
+      if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > swipeThreshold) {
+        const activeView = document.querySelector('.view.active');
+        if(!activeView) return;
+        
+        const currentViewId = activeView.id.replace('view-', '');
+        const currentIndex = viewOrder.indexOf(currentViewId);
+        const navBtns = document.querySelectorAll('.nav-btn');
+        
+        if (diffX < 0) { // 左へスワイプ (右のタブへ)
+          if (currentIndex < viewOrder.length - 1) {
+            switchView(viewOrder[currentIndex + 1], navBtns[currentIndex + 1]);
+          }
+        } else { // 右へスワイプ (左のタブへ)
+          if (currentIndex > 0) {
+            switchView(viewOrder[currentIndex - 1], navBtns[currentIndex - 1]);
+          }
+        }
+      }
+    }, {passive: true});
+
     let prSortMode = localStorage.getItem("wt_pr_sort") || "category";
     let prViewMode = localStorage.getItem("wt_pr_view") || "grid";
 
@@ -491,8 +523,7 @@
       }
     });
 
-    // --- Google Drive API Logic ---
-        const CLIENT_ID = '504605284753-9482edtgg5ndcp8p1723pvf4mfe12t6b.apps.googleusercontent.com';
+    const CLIENT_ID = '504605284753-9482edtgg5ndcp8p1723pvf4mfe12t6b.apps.googleusercontent.com';
     const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
     let tokenClient;
     let gapiAccessToken = null;
@@ -507,13 +538,12 @@
             gapiAccessToken = tokenResponse.access_token;
             document.getElementById('gdrive-login-area').style.display = 'none';
             document.getElementById('gdrive-sync-area').style.display = 'block';
-            syncToDrive(); // ログイン直後に自動バックアップ
+            syncToDrive();
           }
         },
       });
     }
     
-    // GSIスクリプトがロードされたら初期化
     window.onload = () => {
       initGoogleDrive();
       init();
@@ -528,7 +558,6 @@
       tokenClient.requestAccessToken();
     }
 
-    // ドライブ内のバックアップファイルを検索
     async function getBackupFileId() {
       const response = await fetch('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name="workout_backup_v3.json"', {
         headers: { 'Authorization': `Bearer ${gapiAccessToken}` }
@@ -553,14 +582,12 @@
 
       try {
         if (fileId) {
-          // Update existing
           await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`, {
             method: 'PATCH',
             headers: { 'Authorization': `Bearer ${gapiAccessToken}` },
             body: form
           });
         } else {
-          // Create new
           await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${gapiAccessToken}` },
@@ -642,17 +669,16 @@
       
       if (daysDiff >= 7) {
         badge.classList.add('danger');
-        text.innerText = "❌ バックアップ推奨";
-      } else if (daysDiff >= 3) {
+        text.innerText = "未同期";
+      } else if (daysDiff >= 1) {
         badge.classList.add('warning');
-        text.innerText = `⚠️ 未同期: ${daysDiff}日経過`;
+        text.innerText = "未同期";
       } else {
         badge.classList.add('safe');
-        text.innerText = "✓ 同期済み";
+        text.innerText = "同期済";
       }
     }
 
-    // --- Core Logic ---
     const CAT_ICONS = {
       "胸": `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h16M4 16h16M12 4v16"/></svg>`,
       "背中": `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 22h20L12 2z"/></svg>`,
@@ -804,20 +830,14 @@
     }
 
     function selectSuggest(exName) {
-      haptic();
+      haptic(10);
       document.getElementById('exercise-input').value = exName;
       document.getElementById('suggest-list').style.display = 'none';
       updateUI();
     }
 
-    document.addEventListener('click', (e) => {
-      if(!e.target.closest('#suggest-wrapper')) {
-        document.getElementById('suggest-list').style.display = 'none';
-      }
-    });
-
     function openCreateModal(name) {
-      haptic(10);
+      haptic(15);
       pendingExerciseName = name;
       document.getElementById('modal-ex-name').innerText = name;
       const grid = document.getElementById('modal-cat-grid');
@@ -834,13 +854,13 @@
     }
     
     function closeModal() {
-      haptic();
+      haptic(10);
       document.getElementById('create-modal').style.display = 'none';
       pendingExerciseName = "";
     }
 
     function createCustomExercise(cat) {
-      haptic(10);
+      haptic(15);
       customExercises.push({ c: cat, n: pendingExerciseName, s: pendingExerciseName });
       localStorage.setItem("wt_custom_ex_v5", JSON.stringify(customExercises));
       
@@ -880,10 +900,6 @@
       if(viewId === 'history') renderHistoryTab();
       if(viewId === 'pr') renderPRTab();
       if(viewId === 'analysis') renderAnalysisTab();
-    }
-
-    function showSave() {
-      // Local Save feedback (can be skipped since sync-badge handles global state, but good for local immediate feedback)
     }
 
     function adjustVal(id, delta) {
@@ -977,15 +993,10 @@
       
       localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs));
       
-      // ローカル保存時にバッジをオレンジ（未同期）にする
-      const lastSync = localStorage.getItem("wt_last_sync");
-      if(gapiAccessToken && lastSync) {
-        // バックグラウンドで勝手に同期しても良いが、制限回避のためバッジ色変更に留める
-        const badge = document.getElementById('sync-badge');
-        const text = document.getElementById('sync-badge-text');
-        badge.className = 'sync-badge warning';
-        text.innerText = "⚠️ 未同期の変更あり";
-      }
+      const badge = document.getElementById('sync-badge');
+      const text = document.getElementById('sync-badge-text');
+      badge.className = 'sync-badge warning';
+      text.innerText = "未同期";
 
       updateUI();
     }
@@ -997,7 +1008,7 @@
         localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs));
         const badge = document.getElementById('sync-badge');
         badge.className = 'sync-badge warning';
-        document.getElementById('sync-badge-text').innerText = "⚠️ 未同期の変更あり";
+        document.getElementById('sync-badge-text').innerText = "未同期";
         updateUI();
         renderHistoryTab();
       }
@@ -1131,20 +1142,20 @@
     }
 
     function selectHistoryEx(ex) {
-      haptic();
+      haptic(10);
       selectedHistoryEx = selectedHistoryEx === ex ? null : ex;
       renderHistoryTab();
     }
 
     function setPRSort(mode) {
-      haptic();
+      haptic(10);
       prSortMode = mode;
       localStorage.setItem("wt_pr_sort", mode);
       renderPRTab();
     }
 
     function setPRView(mode) {
-      haptic();
+      haptic(10);
       prViewMode = mode;
       localStorage.setItem("wt_pr_view", mode);
       renderPRTab();
@@ -1237,7 +1248,7 @@
         prData.forEach(item => {
           const bgVar = `var(--pr-${getCatClass(item.cat)}-bg)`;
           contentHtml += `
-            <div class="pr-card" style="background: ${bgVar};">
+            <div class="pr-card" style="background: ${bgVar}; border-color: transparent;">
               <p style="font-size:14px;font-weight:800;color:var(--text-secondary);margin:0 0 10px 0;display:flex;align-items:center;gap:8px;">
                 <span class="cat-icon-wrapper ${getCatClass(item.cat)}" style="width:24px;height:24px;border-radius:6px;">${CAT_ICONS[item.cat]||CAT_ICONS["全身"]}</span>
                 ${item.name}
@@ -1254,7 +1265,6 @@
       } else {
         contentHtml = '<div class="pr-list">';
         prData.forEach(item => {
-          // ダークモード等にも適応する色を取得
           let fgColor = '';
           switch(item.cat) {
             case '胸': fgColor = '#2563eb'; break;
