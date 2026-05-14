@@ -106,8 +106,12 @@
 
     .suggest-create-btn { padding: 16px; font-size: 15px; font-weight: 700; color: var(--accent); cursor: pointer; display: flex; align-items: center; gap: 10px; background: var(--icon-chest-bg); }
 
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
-    .modal-content { background: var(--bg-primary); width: 100%; max-width: 400px; border-radius: var(--radius-xl); padding: 1.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.3); animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid var(--border); max-height: 90vh; overflow-y: auto;}
+    /* モーダル共通 (作成・編集) */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); opacity: 0; visibility: hidden; transition: opacity 0.2s, visibility 0.2s; }
+    .modal-overlay.show { opacity: 1; visibility: visible; }
+    .modal-content { background: var(--bg-primary); width: 100%; max-width: 400px; border-radius: var(--radius-xl); padding: 1.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 1px solid var(--border); max-height: 90vh; overflow-y: auto; transform: scale(0.95); transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);}
+    .modal-overlay.show .modal-content { transform: scale(1); }
+
     .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 1.25rem; }
     .cat-btn { padding: 14px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-secondary); font-size: 14px; font-weight: 700; color: var(--text-primary); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: transform 0.1s, background 0.2s; }
     .cat-btn:active { transform: scale(0.96); background: var(--border); }
@@ -146,10 +150,12 @@
     .pr-view-btn.active { background: var(--bg-primary); color: var(--text-primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
     .pr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; }
-    .pr-card { border-radius: var(--radius-xl); padding: 1.5rem; border: 1px solid transparent; transition: background-color 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
-    
+    .pr-card { border-radius: var(--radius-xl); padding: 1.5rem; border: 1px solid transparent; transition: transform 0.1s, background-color 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.02); cursor: pointer; }
+    .pr-card:active { transform: scale(0.97); }
+
     .pr-list { display: flex; flex-direction: column; gap: 12px; }
-    .pr-list-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-radius: var(--radius-xl); border: 1px solid transparent; transition: background-color 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.01); }
+    .pr-list-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-radius: var(--radius-xl); border: 1px solid transparent; transition: transform 0.1s, background-color 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.01); cursor: pointer; }
+    .pr-list-item:active { transform: scale(0.98); }
     .pr-list-left { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
     .pr-list-info { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
     .pr-list-name { font-size: 14px; font-weight: 800; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -159,10 +165,6 @@
     .pr-list-weight span { font-size: 13px; color: var(--text-secondary); font-weight: 700; margin-left: 2px; }
     .pr-list-graph { width: 60px; height: 30px; }
     
-    .chips { display: flex; gap: 10px; flex-wrap: nowrap; overflow-x: auto; margin-bottom: 1.5rem; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
-    .chip { flex-shrink: 0; padding: 10px 20px; font-size: 14px; font-weight: 700; border-radius: 30px; border: 1px solid var(--border); background: var(--bg-primary); color: var(--text-secondary); cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-    .chip.active { border-color: var(--text-primary); background: var(--text-primary); color: var(--bg-primary); }
-
     #last-record { background: var(--bg-secondary); padding: 14px 18px; border-radius: var(--radius-md); margin-bottom: 24px; border-left: 4px solid var(--text-primary); display: none; align-items: center; justify-content: space-between; }
 
     .body-map-container { display: flex; justify-content: space-around; padding: 1rem 0; margin-bottom: 1rem; }
@@ -183,12 +185,27 @@
     .settings-btn svg { flex-shrink: 0; }
     .settings-btn span { flex: 1; line-height: 1.3; font-size: 15px; font-weight: 800; }
     .settings-btn:active { transform: scale(0.98); background: var(--border); }
-    .settings-note { font-size: 13px; color: var(--text-tertiary); font-weight: 600; margin-top: 6px; line-height: 1.5; padding: 0 4px; }
-    .theme-toggle-group { display: flex; gap: 8px; background: var(--bg-secondary); padding: 6px; border-radius: var(--radius-lg); border: 1px solid var(--border); }
-    .theme-btn { flex: 1; padding: 14px 0; font-size: 14px; font-weight: 800; border: none; background: transparent; color: var(--text-tertiary); border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s; }
-    .theme-btn.active { background: var(--bg-primary); color: var(--text-primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    
+    .segment-group { display: flex; gap: 8px; background: var(--bg-secondary); padding: 6px; border-radius: var(--radius-lg); border: 1px solid var(--border); }
+    .segment-btn { flex: 1; padding: 14px 0; font-size: 14px; font-weight: 800; border: none; background: transparent; color: var(--text-tertiary); border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s; }
+    .segment-btn.active { background: var(--bg-primary); color: var(--text-primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+
     .google-btn { width: 100%; padding: 16px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 15px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer; margin-bottom: 12px; transition: background 0.2s; }
     .google-btn:active { background: var(--bg-secondary); }
+
+    /* ボトムシート（履歴詳細） */
+    .bottom-sheet { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 2500; display: flex; align-items: flex-end; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
+    .bottom-sheet.show { opacity: 1; visibility: visible; }
+    .bottom-sheet-content { background: var(--bg-app); width: 100%; height: 85vh; border-radius: 20px 20px 0 0; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 -10px 40px rgba(0,0,0,0.2); }
+    .bottom-sheet.show .bottom-sheet-content { transform: translateY(0); }
+    
+    /* アコーディオン履歴 */
+    details { background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+    summary { padding: 14px 16px; font-weight: 800; font-size: 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: var(--bg-primary); list-style: none; user-select: none; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: '▼'; font-size: 10px; color: var(--text-tertiary); transition: transform 0.2s; margin-left: 8px; }
+    details[open] summary::after { transform: rotate(180deg); }
+    .details-content { padding: 0; border-top: 1px solid var(--bg-secondary); }
 
     svg { display: block; }
   </style>
@@ -233,7 +250,7 @@
             <label class="label">重量 (kg) <span style="font-weight:500;font-size:11px;color:var(--text-tertiary);">※0で自重</span></label>
             <div class="quick-control">
               <button onclick="adjustVal('weight', -2.5)">-</button>
-              <input type="number" id="weight" value="60" step="0.5" oninput="updateUI()">
+              <input type="number" id="weight" value="60" step="0.5" oninput="updateInputState()">
               <button onclick="adjustVal('weight', 2.5)">+</button>
             </div>
           </div>
@@ -241,7 +258,7 @@
             <label class="label">レップ数</label>
             <div class="quick-control">
               <button onclick="adjustVal('reps', -1)">-</button>
-              <input type="number" id="reps" value="10" oninput="updateUI()">
+              <input type="number" id="reps" value="10" oninput="updateInputState()">
               <button onclick="adjustVal('reps', 1)">+</button>
             </div>
           </div>
@@ -253,7 +270,7 @@
             <span id="rpe-label" style="font-size:13px; font-weight:700; color:var(--text-tertiary);">高負荷</span>
           </div>
           <div class="rpe-container">
-            <input type="range" id="rpe" min="5" max="10" step="0.5" value="8" oninput="updateUI()">
+            <input type="range" id="rpe" min="5" max="10" step="0.5" value="8" oninput="updateInputState()">
             <span class="rpe-val" id="rpe-display">8</span>
           </div>
         </div>
@@ -279,27 +296,38 @@
         <span id="today-date-display" style="font-size:13px; font-weight:700; color:var(--text-tertiary);"></span>
       </div>
       <div id="today-logs"></div>
+      
+      <div id="past-logs"></div>
     </div>
 
     <div id="view-history" class="view">
-      <div id="history-chips" class="chips"></div>
-      <div id="history-content"></div>
+      <div id="pr-container"></div>
     </div>
 
-    <div id="view-pr" class="view">
-      <div id="pr-container"></div>
+    <div id="history-detail-modal" class="bottom-sheet">
+      <div class="bottom-sheet-content">
+        <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+          <h3 id="hd-title" style="margin:0; font-size:18px; font-weight:800; color:var(--text-primary);">種目名</h3>
+          <button onclick="closeHistoryDetail()" style="background:var(--bg-secondary); border:none; font-weight:800; color:var(--text-secondary); cursor:pointer; padding:6px 12px; border-radius:16px; transition:background 0.2s;">閉じる</button>
+        </div>
+        <div style="flex:1; overflow-y:auto; padding:1.5rem;">
+          <div id="hd-graph" style="margin-bottom:2rem; display:none;"></div>
+          <div id="hd-list"></div>
+        </div>
+      </div>
     </div>
 
     <div id="view-analysis" class="view">
       <div class="card">
-        <h2 style="font-size:18px; font-weight:800; margin:0 0 16px 0; text-align:center; color:var(--text-primary);">部位別バランス分析</h2>
+        <h2 style="font-size:18px; font-weight:800; margin:0 0 16px 0; text-align:center; color:var(--text-primary);">
+          部位別バランス分析<br>
+          <span id="analysis-subtitle" style="font-size:13px; font-weight:600; color:var(--text-tertiary);">（直近30日間の負荷スコア）</span>
+        </h2>
         
-        <div class="pr-controls" style="margin-bottom: 20px;">
-          <select id="analysis-period" class="pr-sort-select" onchange="renderAnalysisTab()" style="width: 100%;">
-            <option value="7">直近 1週間（短期的な抜け漏れチェック）</option>
-            <option value="30" selected>直近 30日間（全体のバランスチェック）</option>
-            <option value="all">全期間（総合実績）</option>
-          </select>
+        <div class="segment-group" style="margin-bottom: 24px;">
+          <button id="period-btn-7" class="segment-btn" onclick="setAnalysisPeriod('7')">1週間</button>
+          <button id="period-btn-30" class="segment-btn active" onclick="setAnalysisPeriod('30')">30日間</button>
+          <button id="period-btn-365" class="segment-btn" onclick="setAnalysisPeriod('365')">1年</button>
         </div>
         
         <div class="body-map-container" id="body-map-render"></div>
@@ -322,10 +350,10 @@
         <h2 style="font-size:18px; font-weight:800; margin:0 0 24px 0; color:var(--text-primary);">設定</h2>
         
         <h3 style="font-size:15px; font-weight:800; margin:0 0 14px 0; color:var(--text-secondary);">外観テーマ</h3>
-        <div class="theme-toggle-group" style="margin-bottom:32px;">
-          <button class="theme-btn" id="theme-btn-light" onclick="setTheme('light')">ライト</button>
-          <button class="theme-btn" id="theme-btn-dark" onclick="setTheme('dark')">ダーク</button>
-          <button class="theme-btn" id="theme-btn-auto" onclick="setTheme('auto')">端末に合わせる</button>
+        <div class="segment-group" style="margin-bottom:32px;">
+          <button class="segment-btn" id="theme-btn-light" onclick="setTheme('light')">ライト</button>
+          <button class="segment-btn" id="theme-btn-dark" onclick="setTheme('dark')">ダーク</button>
+          <button class="segment-btn" id="theme-btn-auto" onclick="setTheme('auto')">端末に合わせる</button>
         </div>
 
         <h3 style="font-size:15px; font-weight:800; margin:0 0 14px 0; color:var(--text-secondary);">Google Drive バックアップ</h3>
@@ -335,7 +363,7 @@
               <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
               <span>Googleアカウントでログイン</span>
             </button>
-            <p class="settings-note">※事前にGoogle Cloud ConsoleでClient IDを取得し、コード内のプレースホルダーを書き換える必要があります。</p>
+            <p class="settings-note">事前にGoogle Cloud ConsoleでClient IDを取得し、コード内に挿入してください。</p>
           </div>
           <div id="gdrive-sync-area" style="display:none;">
             <p style="font-size:14px; font-weight:700; color:#16a34a; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
@@ -449,44 +477,39 @@
       <span>記録</span>
     </button>
     <button class="nav-btn" onclick="switchView('history', this)">
-      <svg class="nav-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-      <span>履歴</span>
-    </button>
-    <button class="nav-btn" onclick="switchView('pr', this)">
       <svg class="nav-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
-      <span>PR</span>
+      <span>履歴・PR</span>
     </button>
     <button class="nav-btn" onclick="switchView('analysis', this)">
       <svg class="nav-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
       <span>分析</span>
     </button>
     <button class="nav-btn" onclick="switchView('settings', this)">
-      <svg class="nav-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      <svg class="nav-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
       <span>設定</span>
     </button>
   </div>
 
   <script>
-    function haptic(ms = 5) {
-      if (navigator.vibrate) navigator.vibrate(ms);
-    }
+    function haptic(ms = 5) { if (navigator.vibrate) navigator.vibrate(ms); }
 
     let touchStartX = 0; let touchStartY = 0; const swipeThreshold = 50;
-    const viewOrder = ['log', 'history', 'pr', 'analysis', 'settings'];
+    const viewOrder = ['log', 'history', 'analysis', 'settings'];
 
     document.addEventListener('touchstart', e => {
-      if (e.target.closest('input, select, button, .chips, .suggest-list, .pr-list, .body-map-container')) return;
+      if (e.target.closest('input, select, button, details, summary, .pr-card, .pr-list-item, .suggest-list, .body-map-container, .bottom-sheet-content')) return;
       touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY;
     }, {passive: true});
 
     document.addEventListener('touchend', e => {
-      if (e.target.closest('input, select, button, .chips, .suggest-list, .pr-list, .body-map-container')) return;
+      if (e.target.closest('input, select, button, details, summary, .pr-card, .pr-list-item, .suggest-list, .body-map-container, .bottom-sheet-content')) return;
       const diffX = e.changedTouches[0].screenX - touchStartX;
       const diffY = e.changedTouches[0].screenY - touchStartY;
       if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > swipeThreshold) {
         const activeView = document.querySelector('.view.active');
         if(!activeView) return;
-        const currentIndex = viewOrder.indexOf(activeView.id.replace('view-', ''));
+        const currentViewId = activeView.id.replace('view-', '');
+        const currentIndex = viewOrder.indexOf(currentViewId);
         const navBtns = document.querySelectorAll('.nav-btn');
         if (diffX < 0 && currentIndex < viewOrder.length - 1) switchView(viewOrder[currentIndex + 1], navBtns[currentIndex + 1]);
         else if (diffX > 0 && currentIndex > 0) switchView(viewOrder[currentIndex - 1], navBtns[currentIndex - 1]);
@@ -510,11 +533,10 @@
     function setTheme(mode) { haptic(); localStorage.setItem('wt_theme', mode); applyThemeSettings(); }
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => { if ((localStorage.getItem('wt_theme') || 'auto') === 'auto') applyThemeSettings(); });
 
-    // ==========================================
-    // ⚠️ Google Drive API設定
-    // ==========================================
     const CLIENT_ID = '504605284753-9482edtgg5ndcp8p1723pvf4mfe12t6b.apps.googleusercontent.com';
     const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
+    const DRIVE_FILE_NAME = 'workout_app_data_v1.json'; // ファイル名を独自に
+    
     let tokenClient; let gapiAccessToken = null; let editingLogId = null;
 
     function initGoogleDrive() {
@@ -540,26 +562,38 @@
     }
 
     async function getBackupFileId() {
-      const res = await fetch('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name="workout_backup_v3.json"', { headers: { 'Authorization': `Bearer ${gapiAccessToken}` } });
+      const res = await fetch(`https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name="${DRIVE_FILE_NAME}"`, { headers: { 'Authorization': `Bearer ${gapiAccessToken}` } });
       const data = await res.json();
       return (data.files && data.files.length > 0) ? data.files[0].id : null;
     }
 
+    // 2段階アップロード（空ファイル問題解消）
     async function syncToDrive() {
       if(!gapiAccessToken) return;
       haptic(); updateSyncBadgeState('syncing');
       const fileContent = JSON.stringify({ logs: logs, customExercises: customExercises });
-      const fileId = await getBackupFileId();
-      const metadata = { name: 'workout_backup_v3.json', parents: ['appDataFolder'] };
-      const form = new FormData();
-      form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-      form.append('file', new Blob([fileContent], { type: 'application/json' }));
       try {
-        if (fileId) await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`, { method: 'PATCH', headers: { 'Authorization': `Bearer ${gapiAccessToken}` }, body: form });
-        else await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', { method: 'POST', headers: { 'Authorization': `Bearer ${gapiAccessToken}` }, body: form });
+        let fileId = await getBackupFileId();
+        if (!fileId) {
+          const metaRes = await fetch('https://www.googleapis.com/drive/v3/files', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${gapiAccessToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: DRIVE_FILE_NAME, parents: ['appDataFolder'] })
+          });
+          const metaData = await metaRes.json();
+          fileId = metaData.id;
+        }
+        await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
+          method: 'PATCH',
+          headers: { 'Authorization': `Bearer ${gapiAccessToken}`, 'Content-Type': 'application/json' },
+          body: fileContent
+        });
         localStorage.setItem("wt_last_sync", new Date().toISOString());
         updateSyncBadgeState('safe');
-      } catch (e) { updateSyncBadgeState('danger'); }
+      } catch (e) { 
+        console.error("Sync failed:", e); 
+        updateSyncBadgeState('danger'); 
+      }
     }
 
     async function syncFromDrive() {
@@ -582,7 +616,7 @@
     function triggerManualSync() {
       haptic();
       if(gapiAccessToken) syncToDrive();
-      else { switchView('settings', document.querySelectorAll('.nav-btn')[4]); alert("Googleアカウントでログインしてください。"); }
+      else { switchView('settings', document.querySelectorAll('.nav-btn')[3]); alert("Googleアカウントでログインしてください。"); }
     }
 
     function updateSyncBadgeState(state) {
@@ -668,20 +702,20 @@
 
     let customExercises = JSON.parse(localStorage.getItem("wt_custom_ex_v5")) || [];
     let logs = JSON.parse(localStorage.getItem("wt_logs_html_v3")) || [];
-    let selectedHistoryEx = null; let pendingExerciseName = "";
+    let pendingExerciseName = "";
 
     const getTodayStr = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
     const formatDate = (iso) => { const d = new Date(iso); return `${d.getMonth()+1}/${d.getDate()}`; };
-    function normalizeStr(str) { return str ? str.toLowerCase().replace(/[\u30a1-\u30f6]/g, m => String.fromCharCode(match.charCodeAt(0) - 0x60)) : ""; }
+    function normalizeStr(str) { return str ? str.toLowerCase().replace(/[\u30a1-\u30f6]/g, m => String.fromCharCode(m.charCodeAt(0) - 0x60)) : ""; }
 
     function getMuscleImpactsFallback(exName, primaryCat) {
       const name = exName.toLowerCase(); const impacts = {}; const baseCat = primaryCat === "カスタム" ? "全身" : primaryCat; impacts[baseCat] = 1.0;
-      if (name.includes("ベンチプレス") || name.includes("チェストプレス") || name.includes("ディップス") || name.includes("プッシュアップ") || name.includes("腕立て")) { impacts["胸"] = 1.0; impacts["肩"] = 0.5; impacts["腕"] = 0.5; } 
+      if (name.includes("ベンチプレス") || name.includes("チェストプレス") || name.includes("ディップス") || name.includes("プッシュアップ") || name.includes("腕立て")) { impacts["胸"] = 1.0; impacts["肩"] = 0.4; impacts["腕"] = 0.4; } 
       else if (name.includes("フライ") || name.includes("ペックデック")) { impacts["胸"] = 1.0; impacts["肩"] = 0.2; } 
       else if (name.includes("デッドリフト")) { impacts["背中"] = 0.8; impacts["脚"] = 1.0; impacts["腹・体幹"] = 0.15; } 
-      else if (name.includes("ロウ") || name.includes("プルダウン") || name.includes("チンニング") || name.includes("懸垂")) { impacts["背中"] = 1.0; impacts["腕"] = 0.5; } 
+      else if (name.includes("ロウ") || name.includes("プルダウン") || name.includes("チンニング") || name.includes("懸垂")) { impacts["背中"] = 1.0; impacts["腕"] = 0.4; } 
       else if (name.includes("スクワット") || name.includes("レッグプレス") || name.includes("ランジ")) { impacts["脚"] = 1.0; impacts["腹・体幹"] = 0.15; } 
-      else if (name.includes("ショルダープレス") || name.includes("ミリタリー") || name.includes("アップライトロウ")) { impacts["肩"] = 1.0; impacts["腕"] = 0.5; } 
+      else if (name.includes("ショルダープレス") || name.includes("ミリタリー") || name.includes("アップライトロウ")) { impacts["肩"] = 1.0; impacts["腕"] = 0.4; } 
       else if (name.includes("レイズ")) { impacts["肩"] = 1.0; } 
       else if (name.includes("カール") || name.includes("エクステンション") || name.includes("プレスダウン") || name.includes("クラッシャー")) { impacts["腕"] = 1.0; } 
       else if (name.includes("クランチ") || name.includes("シットアップ") || name.includes("ローラー") || name.includes("プランク")) { impacts["腹・体幹"] = 1.0; } 
@@ -697,7 +731,7 @@
 
     function handleSuggest() {
       const inputRaw = document.getElementById('exercise-input').value; const listDiv = document.getElementById('suggest-list');
-      if (!inputRaw.trim()) { listDiv.style.display = 'none'; updateUI(); return; }
+      if (!inputRaw.trim()) { listDiv.style.display = 'none'; updateInputState(); return; }
       const searchTerms = normalizeStr(inputRaw).trim().split(/\s+/);
       const filtered = getAllExercises().filter(ex => searchTerms.every(term => (normalizeStr(ex.c) + " " + normalizeStr(ex.n) + " " + normalizeStr(ex.s)).includes(term)));
       
@@ -706,29 +740,30 @@
       } else {
         listDiv.innerHTML = `<div class="suggest-create-btn" onclick="openCreateModal('${inputRaw}')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>「${inputRaw}」を新規作成</div>`;
       }
-      listDiv.style.display = 'block'; updateUI();
+      listDiv.style.display = 'block'; updateInputState();
     }
 
-    function selectSuggest(exName) { haptic(10); document.getElementById('exercise-input').value = exName; document.getElementById('suggest-list').style.display = 'none'; updateUI(); }
+    function selectSuggest(exName) { haptic(10); document.getElementById('exercise-input').value = exName; document.getElementById('suggest-list').style.display = 'none'; updateInputState(); }
     document.addEventListener('click', (e) => { if(!e.target.closest('#suggest-wrapper')) document.getElementById('suggest-list').style.display = 'none'; });
 
     function openCreateModal(name) {
       haptic(15); pendingExerciseName = name; document.getElementById('modal-ex-name').innerText = name;
       document.getElementById('modal-cat-grid').innerHTML = ["胸", "背中", "脚", "肩", "腕", "腹・体幹", "全身"].map(c => `<button class="cat-btn" onclick="createCustomExercise('${c}')"><div class="cat-icon-wrapper ${getCatClass(c)}" style="width:28px; height:28px; border-radius:6px;">${CAT_ICONS[c]}</div>${c}</button>`).join('');
-      document.getElementById('suggest-list').style.display = 'none'; document.getElementById('create-modal').style.display = 'flex';
+      document.getElementById('suggest-list').style.display = 'none'; 
+      const m = document.getElementById('create-modal'); m.style.display = 'flex'; setTimeout(()=> m.classList.add('show'), 10);
     }
     
-    function closeModal() { haptic(10); document.getElementById('create-modal').style.display = 'none'; pendingExerciseName = ""; }
-    function createCustomExercise(cat) { haptic(15); customExercises.push(pendingExerciseName); localStorage.setItem("wt_custom_ex_v5", JSON.stringify(customExercises)); document.getElementById('exercise-input').value = pendingExerciseName; closeModal(); updateUI(); }
+    function closeModal() { haptic(10); const m = document.getElementById('create-modal'); m.classList.remove('show'); setTimeout(()=> { m.style.display = 'none'; pendingExerciseName = ""; }, 200); }
+    function createCustomExercise(cat) { haptic(15); customExercises.push(pendingExerciseName); localStorage.setItem("wt_custom_ex_v5", JSON.stringify(customExercises)); document.getElementById('exercise-input').value = pendingExerciseName; closeModal(); updateInputState(); }
 
     function openEditModal(id) {
       haptic(); const log = logs.find(l => l.id === id); if(!log) return; editingLogId = id;
       document.getElementById('edit-date').value = log.date;
       document.getElementById('edit-exercise').innerHTML = [...new Set(getAllExercises().map(ex => ex.n))].map(name => `<option value="${name}" ${name === log.exercise ? 'selected' : ''}>${name}</option>`).join('');
       document.getElementById('edit-weight').value = log.weight; document.getElementById('edit-reps').value = log.reps; document.getElementById('edit-rpe').value = log.rpe || 8; document.getElementById('edit-set').value = log.setNumber || 1;
-      document.getElementById('edit-modal').style.display = 'flex';
+      const m = document.getElementById('edit-modal'); m.style.display = 'flex'; setTimeout(()=> m.classList.add('show'), 10);
     }
-    function closeEditModal() { haptic(); document.getElementById('edit-modal').style.display = 'none'; editingLogId = null; }
+    function closeEditModal() { haptic(); const m = document.getElementById('edit-modal'); m.classList.remove('show'); setTimeout(()=> { m.style.display = 'none'; editingLogId = null; }, 200); }
 
     function adjustEditVal(idSuffix, delta) {
       haptic(); const el = document.getElementById(`edit-${idSuffix}`); let val = parseFloat(el.value) || 0; val += delta;
@@ -739,35 +774,90 @@
 
     function saveEditLog() {
       haptic(15); if(!editingLogId) return; const logIndex = logs.findIndex(l => l.id === editingLogId); if(logIndex === -1) return;
-      const w = parseFloat(document.getElementById('edit-weight').value) || 0; const r = parseInt(document.getElementById('edit-reps').value) || 1; const rpe = parseFloat(document.getElementById('edit-rpe').value) || 8;
-      logs[logIndex].date = document.getElementById('edit-date').value; logs[logIndex].exercise = document.getElementById('edit-exercise').value; logs[logIndex].setNumber = parseInt(document.getElementById('edit-set').value) || 1; logs[logIndex].weight = w; logs[logIndex].reps = r; logs[logIndex].rpe = rpe; logs[logIndex].oneRM = calculate1RM(w, r, rpe);
-      logs.sort((a, b) => new Date(b.date) - new Date(a.date) || b.id - a.id); localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs));
-      if(gapiAccessToken && localStorage.getItem("wt_last_sync")) { document.getElementById('sync-badge').className = 'sync-badge warning'; document.getElementById('sync-badge-text').innerText = "未同期"; }
-      closeEditModal(); updateUI(); if(document.querySelector('.view.active').id === 'view-history') renderHistoryTab();
+      
+      const log = logs[logIndex];
+      const exAfter = document.getElementById('edit-exercise').value;
+
+      const w = parseFloat(document.getElementById('edit-weight').value) || 0; 
+      const r = parseInt(document.getElementById('edit-reps').value) || 1; 
+      const rpe = parseFloat(document.getElementById('edit-rpe').value) || 8;
+      
+      log.date = document.getElementById('edit-date').value; 
+      log.exercise = exAfter; 
+      log.setNumber = parseInt(document.getElementById('edit-set').value) || 1; 
+      log.weight = w; 
+      log.reps = r; 
+      log.rpe = rpe; 
+      log.oneRM = calculate1RM(w, r, rpe);
+      
+      logs.sort((a, b) => new Date(b.date) - new Date(a.date) || b.id - a.id); 
+      localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs));
+      
+      if(gapiAccessToken && localStorage.getItem("wt_last_sync")) { 
+        document.getElementById('sync-badge').className = 'sync-badge warning'; 
+        document.getElementById('sync-badge-text').innerText = "未同期"; 
+      }
+      closeEditModal(); 
+      updateUI(); 
+      
+      const activeView = document.querySelector('.view.active').id;
+      if(activeView === 'view-history') renderHistoryTab();
+      
+      const sheet = document.getElementById('history-detail-modal');
+      if (sheet && sheet.classList.contains('show')) openHistoryDetail(exAfter);
     }
 
     const calculate1RM = (w, r, rpe) => { if (!w || !r || r < 1) return parseFloat(w)||0; const effectiveReps = parseInt(r) + Math.max(0, 10 - parseFloat(rpe)); if (effectiveReps <= 1) return parseFloat(w); return Math.round((parseFloat(w) * (1 + effectiveReps / 30)) * 10) / 10; };
     const getPR = (ex) => { const exLogs = logs.filter(l => l.exercise === ex); if(!exLogs.length) return null; return exLogs.reduce((prev, current) => ((parseFloat(prev.weight)||0) > (parseFloat(current.weight)||0)) ? prev : current).weight; };
 
-    function init() { applyThemeSettings(); updateSyncBadgeState(); document.getElementById('record-date').value = getTodayStr(); document.getElementById('exercise-input').value = "ベンチプレス（バーベル）"; updateUI(); renderTodayLogs(); }
+    function init() { applyThemeSettings(); updateSyncBadgeState(); document.getElementById('record-date').value = getTodayStr(); document.getElementById('exercise-input').value = "ベンチプレス（バーベル）"; updateUI(); }
 
     function switchView(viewId, btn) {
       haptic(10); document.querySelectorAll('.view').forEach(v => v.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
       document.getElementById(`view-${viewId}`).classList.add('active'); if (btn) btn.classList.add('active');
-      if(viewId === 'history') renderHistoryTab(); if(viewId === 'pr') renderPRTab(); if(viewId === 'analysis') renderAnalysisTab();
+      if(viewId === 'history') renderHistoryTab(); if(viewId === 'analysis') renderAnalysisTab();
     }
 
-    function adjustVal(id, delta) { haptic(); const el = document.getElementById(id); let val = parseFloat(el.value) || 0; val += delta; if (id === 'weight' && val < 0) val = 0; if (id === 'reps' && val < 1) val = 1; el.value = id === 'weight' ? val : Math.round(val); updateUI(); }
+    function adjustVal(id, delta) { haptic(); const el = document.getElementById(id); let val = parseFloat(el.value) || 0; val += delta; if (id === 'weight' && val < 0) val = 0; if (id === 'reps' && val < 1) val = 1; el.value = id === 'weight' ? val : Math.round(val); updateInputState(); }
 
-    function updateUI() {
-      const dateStr = document.getElementById('record-date').value || getTodayStr(); const ex = document.getElementById('exercise-input').value.trim(); const w = document.getElementById('weight').value; const r = document.getElementById('reps').value; const rpeVal = parseFloat(document.getElementById('rpe').value);
-      document.getElementById('today-date-display').innerText = dateStr; document.getElementById('rpe-display').innerText = rpeVal;
+    function updateInputState() {
+      const w = document.getElementById('weight').value; const r = document.getElementById('reps').value; const rpeVal = parseFloat(document.getElementById('rpe').value);
+      document.getElementById('rpe-display').innerText = rpeVal;
       let rpeLabel = "余裕あり"; if(rpeVal >= 8) rpeLabel = "高負荷"; if(rpeVal >= 9.5) rpeLabel = "限界"; document.getElementById('rpe-label').innerText = rpeLabel; document.getElementById('rpe').style.accentColor = getRPEColor(rpeVal);
       if (parseFloat(w) === 0) { document.getElementById('onerm-display').innerText = "自重"; document.getElementById('onerm-unit').style.display = "none"; } else { document.getElementById('onerm-display').innerText = calculate1RM(w, r, rpeVal); document.getElementById('onerm-unit').style.display = "inline"; }
-      const pr = getPR(ex); document.getElementById('pr-hint').style.display = (pr && parseFloat(w) > pr) ? 'flex' : 'none';
+      const ex = document.getElementById('exercise-input').value.trim(); const pr = getPR(ex); document.getElementById('pr-hint').style.display = (pr && parseFloat(w) > pr) ? 'flex' : 'none';
+    }
+
+    function updateUI() {
+      updateInputState(); renderLogView();
+    }
+
+    function renderLogView() {
+      const dateStr = document.getElementById('record-date').value || getTodayStr();
+      const ex = document.getElementById('exercise-input').value.trim();
+      document.getElementById('today-date-display').innerText = dateStr;
+      
       const last = logs.find(l => l.exercise === ex && l.date !== dateStr); const container = document.getElementById('last-record');
       if (last && ex !== "") { document.getElementById('last-record-date').innerText = `前回の記録 (${formatDate(last.date)})`; document.getElementById('last-record-val').innerHTML = `${last.weight === 0 ? '自重' : last.weight + 'kg'} × ${last.reps} <span style="font-size:13px;color:var(--text-tertiary);">RPE${last.rpe}</span>`; container.style.display = 'flex'; } else { container.style.display = 'none'; }
-      document.getElementById('record-btn-text').innerText = `第${logs.filter(l => l.date === dateStr && l.exercise === ex).length + 1}セットを記録`; renderTodayLogs();
+      
+      document.getElementById('record-btn-text').innerText = `第${logs.filter(l => l.date === dateStr && l.exercise === ex).length + 1}セットを記録`;
+      
+      const targetLogs = logs.filter(l => l.date === dateStr);
+      document.getElementById('today-logs').innerHTML = targetLogs.length ? targetLogs.map(l => buildLogRow(l, false)).join('') : `<div style="text-align:center;padding:4rem 0;background:var(--bg-primary);border-radius:var(--radius-xl);border:1px dashed var(--border);color:var(--text-tertiary);font-weight:700;font-size:15px;">この日の記録はありません</div>`;
+
+      // 過去のログ
+      const pastLogs = logs.filter(l => l.date !== dateStr);
+      const pastContainer = document.getElementById('past-logs');
+      if (!pastLogs.length) { pastContainer.innerHTML = ''; return; }
+      
+      const groupedByDate = pastLogs.reduce((acc, log) => { if (!acc[log.date]) acc[log.date] = []; acc[log.date].push(log); return acc; }, {});
+      let pastHtml = '<h3 style="font-size:16px; font-weight:800; margin:32px 0 12px 0; color:var(--text-secondary); padding:0 4px;">過去の記録</h3>';
+      
+      Object.keys(groupedByDate).sort((a,b) => new Date(b) - new Date(a)).slice(0, 10).forEach(date => {
+        const dayLogs = groupedByDate[date].sort((a,b) => a.id - b.id);
+        pastHtml += `<details><summary><span>${formatDate(date)}</span> <span style="font-size:12px;color:var(--text-tertiary);font-weight:600;">計${dayLogs.length}セット</span></summary><div class="details-content" style="padding:12px; display:flex; flex-direction:column; gap:8px;">${dayLogs.map(l => buildLogRow(l, false)).join('')}</div></details>`;
+      });
+      pastContainer.innerHTML = pastHtml;
     }
 
     function addLog() {
@@ -775,14 +865,31 @@
       if(!weight || !reps || !exercise) { alert("種目を選択してください"); return; }
       document.getElementById('suggest-list').style.display = 'none';
       if (!getAllExercises().some(e => e.n === exercise)) { openCreateModal(exercise); return; }
+      
       logs.unshift({ id: Date.now(), date: dateStr, exercise: exercise, weight: parseFloat(weight), reps: parseInt(reps), setNumber: logs.filter(l => l.date === dateStr && l.exercise === exercise).length + 1, rpe: rpeVal, oneRM: calculate1RM(weight, reps, rpeVal) });
       logs.sort((a, b) => new Date(b.date) - new Date(a.date) || b.id - a.id); localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs));
+      
       if(gapiAccessToken && localStorage.getItem("wt_last_sync")) { document.getElementById('sync-badge').className = 'sync-badge warning'; document.getElementById('sync-badge-text').innerText = "未同期"; }
       updateUI();
     }
 
     function confirmDelete(id) {
-      haptic(10); if(confirm("この記録を削除しますか？")) { logs = logs.filter(l => l.id !== id); localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs)); if(gapiAccessToken && localStorage.getItem("wt_last_sync")) { document.getElementById('sync-badge').className = 'sync-badge warning'; document.getElementById('sync-badge-text').innerText = "未同期"; } updateUI(); if(document.querySelector('.view.active').id === 'view-history') renderHistoryTab(); }
+      haptic(10); 
+      if(confirm("この記録を削除しますか？")) { 
+        const log = logs.find(l => l.id === id); const ex = log ? log.exercise : null;
+        logs = logs.filter(l => l.id !== id); localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs)); 
+        
+        if(gapiAccessToken && localStorage.getItem("wt_last_sync")) { document.getElementById('sync-badge').className = 'sync-badge warning'; document.getElementById('sync-badge-text').innerText = "未同期"; } 
+        updateUI(); 
+        
+        const activeView = document.querySelector('.view.active').id;
+        if(activeView === 'view-history') renderHistoryTab();
+
+        const sheet = document.getElementById('history-detail-modal');
+        if (sheet && sheet.classList.contains('show') && ex) {
+          if (logs.filter(l => l.exercise === ex).length === 0) closeHistoryDetail(); else openHistoryDetail(ex);
+        }
+      }
     }
 
     function buildLogRow(log, showDate = false) {
@@ -792,27 +899,8 @@
       return `<div class="log-item"><div class="log-header"><div class="log-title">${badgeHtml} <span>${log.exercise}</span> ${isPR ? `<span class="pr-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>PR</span>` : ''}</div><div style="display:flex; gap:4px;"><button class="action-btn" onclick="openEditModal(${log.id})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></button><button class="action-btn" onclick="confirmDelete(${log.id})"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div></div><div style="display:flex;align-items:baseline;justify-content:space-between;"><div>${weightDisplay}<span style="font-size:20px;font-weight:800;">× ${log.reps}</span><span style="font-size:15px;font-weight:700;color:var(--text-secondary);">rep</span></div><div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:6px;"><span style="font-size:13px;font-weight:800;color:#fff;background:${getRPEColor(log.rpe)};padding:3px 10px;border-radius:8px;">RPE ${log.rpe}</span><span style="font-size:12px;font-weight:700;color:var(--text-tertiary);">1RM: ${log.weight === 0 ? '自重' : log.oneRM + 'kg'}</span></div></div></div>`;
     }
 
-    function renderTodayLogs() {
-      const targetLogs = logs.filter(l => l.date === (document.getElementById('record-date').value || getTodayStr()));
-      document.getElementById('today-logs').innerHTML = targetLogs.length ? targetLogs.map(l => buildLogRow(l, false)).join('') : `<div style="text-align:center;padding:4rem 0;background:var(--bg-primary);border-radius:var(--radius-xl);border:1px dashed var(--border);color:var(--text-tertiary);font-weight:700;font-size:15px;">この日の記録はありません</div>`;
-    }
-
-    function renderHistoryTab() {
-      document.getElementById('history-chips').innerHTML = [...new Set(logs.slice(0, 50).map(l => l.exercise))].map(ex => `<button class="chip ${selectedHistoryEx === ex ? 'active' : ''}" onclick="selectHistoryEx('${ex}')">${ex}</button>`).join('');
-      const content = document.getElementById('history-content');
-      if (!selectedHistoryEx) { content.innerHTML = !logs.length ? `<p style="text-align:center;font-weight:700;color:var(--text-tertiary);padding:3rem;">記録がありません</p>` : logs.slice(0, 30).map(l => buildLogRow(l, true)).join(''); return; }
-      const exLogs = logs.filter(l => l.exercise === selectedHistoryEx); if(!exLogs.length) return;
-      const dailyMax = []; const groupedByDate = exLogs.reduce((acc, log) => { if (!acc[log.date]) acc[log.date] = []; acc[log.date].push(log); return acc; }, {});
-      Object.keys(groupedByDate).sort().reverse().slice(0, 15).reverse().forEach(date => { dailyMax.push(groupedByDate[date].reduce((p, c) => ((parseFloat(p.weight)||0) > (parseFloat(c.weight)||0)) ? p : c)); });
-      const weights = dailyMax.map(l => l.weight); const minW = Math.max(0, Math.min(...weights) - 5); const range = Math.max(...weights) - minW || 10; const H = 200, W = 600, PAD = 44;
-      const points = dailyMax.map((l, i) => ({ x: PAD + (i / Math.max(dailyMax.length-1, 1)) * (W - PAD*2), y: H - PAD - ((l.weight - minW) / range) * (H - PAD*2), ...l }));
-      let svgHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;overflow:visible;margin-bottom:1rem;">` + [0, 0.5, 1].map(t => { const y = H - PAD - t * (H - PAD*2); return `<line x1="${PAD}" x2="${W-PAD}" y1="${y}" y2="${y}" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="4 4" /><text x="${PAD-12}" y="${y+4}" text-anchor="end" fill="var(--text-tertiary)" font-size="13" font-weight="700">${(minW + t * range).toFixed(0)}kg</text>`; }).join('') + `<path d="${points.map((p,i) => `${i===0?"M":"L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ")}" fill="none" stroke="var(--text-tertiary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 6"/>` + points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="7" fill="${getRPEColor(p.rpe)}" stroke="var(--bg-primary)" stroke-width="2.5" /><text x="${p.x}" y="${H-6}" text-anchor="middle" fill="var(--text-secondary)" font-size="12" font-weight="800">${formatDate(p.date)}</text>`).join('') + `</svg>`;
-      content.innerHTML = `<div class="card" style="margin-bottom:0;"><p style="font-size:16px;font-weight:800;margin-bottom:24px;color:var(--text-primary);">日別MAX重量推移 (RPE色分け)</p>${dailyMax.length > 1 ? svgHTML + `<div style="display:flex; justify-content:center; gap:16px; margin-bottom:2rem; font-size:12px; font-weight:800; color:var(--text-secondary);"><span style="display:flex; align-items:center; gap:6px;"><span style="width:12px;height:12px;border-radius:50%;background:var(--color-rpe-high);"></span>RPE 9.5~10</span><span style="display:flex; align-items:center; gap:6px;"><span style="width:12px;height:12px;border-radius:50%;background:var(--color-rpe-mid);"></span>RPE 8~9</span><span style="display:flex; align-items:center; gap:6px;"><span style="width:12px;height:12px;border-radius:50%;background:var(--color-rpe-low);"></span>余裕あり</span></div>` : '<p style="font-size:14px;font-weight:700;color:var(--text-tertiary);margin-bottom:24px;">グラフ表示には2日以上の記録が必要です</p>'}<div style="margin-top:2rem;border-top:1px solid var(--border);padding-top:1.5rem;"><p style="font-size:14px;font-weight:800;color:var(--text-tertiary);margin:0 0 10px 0;">全履歴</p>${exLogs.map(l => buildLogRow(l, true)).join('')}</div></div>`;
-    }
-
-    function selectHistoryEx(ex) { haptic(10); selectedHistoryEx = selectedHistoryEx === ex ? null : ex; renderHistoryTab(); }
-    function setPRSort(mode) { haptic(); prSortMode = mode; localStorage.setItem("wt_pr_sort", mode); renderPRTab(); }
-    function setPRView(mode) { haptic(); prViewMode = mode; localStorage.setItem("wt_pr_view", mode); renderPRTab(); }
+    function setPRSort(mode) { haptic(10); prSortMode = mode; localStorage.setItem("wt_pr_sort", mode); renderHistoryTab(); }
+    function setPRView(mode) { haptic(10); prViewMode = mode; localStorage.setItem("wt_pr_view", mode); renderHistoryTab(); }
 
     function getSparklineSVG(exLogs, color) {
       const dailyMax = []; const grouped = exLogs.reduce((acc, log) => { if (!acc[log.date]) acc[log.date] = []; acc[log.date].push(log); return acc; }, {});
@@ -823,19 +911,29 @@
       return `<svg width="100%" height="100%" viewBox="0 0 ${W} ${H}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="${points.join(' ')}"/></svg>`;
     }
 
-    function renderPRTab() {
-      const container = document.getElementById('pr-container'); const activeExercises = [...new Set(logs.map(l => l.exercise))];
+    function renderHistoryTab() {
+      const container = document.getElementById('pr-container'); 
+      const activeExercises = [...new Set(logs.map(l => l.exercise))];
       if(activeExercises.length === 0) { container.innerHTML = `<p style="text-align:center;font-weight:700;color:var(--text-tertiary);padding:3rem;">記録がありません</p>`; return; }
+      
       const CAT_ORDER = {"胸":1, "背中":2, "脚":3, "肩":4, "腕":5, "腹・体幹":6, "全身":7};
-      let prData = activeExercises.map(ex => { const exLogs = logs.filter(l => l.exercise === ex); const cat = getExerciseCategory(ex); return { name: ex, cat: cat, catOrder: CAT_ORDER[cat] || 99, maxLog: exLogs.reduce((p, c) => ((parseFloat(p.weight)||0) > (parseFloat(c.weight)||0)) ? p : c), exLogs: exLogs }; });
-      if (prSortMode === 'category') prData.sort((a, b) => a.catOrder !== b.catOrder ? a.catOrder - b.catOrder : a.name.localeCompare(b.name, 'ja')); else prData.sort((a, b) => a.name.localeCompare(b.name, 'ja'));
-      let controlsHtml = `<div class="pr-controls"><select class="pr-sort-select" onchange="setPRSort(this.value)"><option value="category" ${prSortMode==='category'?'selected':''}>部位順</option><option value="name" ${prSortMode==='name'?'selected':''}>五十音順</option></select><div class="pr-view-toggle"><button class="pr-view-btn ${prViewMode==='grid'?'active':''}" onclick="setPRView('grid')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></button><button class="pr-view-btn ${prViewMode==='list'?'active':''}" onclick="setPRView('list')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button></div></div>`;
+      let prData = activeExercises.map(ex => { 
+        const exLogs = logs.filter(l => l.exercise === ex); 
+        const cat = getExerciseCategory(ex);
+        return { name: ex, cat: cat, catOrder: CAT_ORDER[cat] || 99, maxLog: exLogs.reduce((p, c) => ((parseFloat(p.weight)||0) > (parseFloat(c.weight)||0)) ? p : c), exLogs: exLogs }; 
+      });
+
+      if (prSortMode === 'category') { prData.sort((a, b) => a.catOrder !== b.catOrder ? a.catOrder - b.catOrder : a.name.localeCompare(b.name, 'ja')); } 
+      else { prData.sort((a, b) => a.name.localeCompare(b.name, 'ja')); }
+
+      let controlsHtml = `<div class="pr-controls"><select class="pr-sort-select" onchange="setPRSort(this.value)"><option value="category" ${prSortMode==='category'?'selected':''}>部位順に並べ替え</option><option value="name" ${prSortMode==='name'?'selected':''}>五十音順</option></select><div class="pr-view-toggle"><button class="pr-view-btn ${prViewMode==='grid'?'active':''}" onclick="setPRView('grid')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></button><button class="pr-view-btn ${prViewMode==='list'?'active':''}" onclick="setPRView('list')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button></div></div>`;
+      
       let contentHtml = '';
       if (prViewMode === 'grid') { 
         contentHtml = '<div class="pr-grid">'; 
         prData.forEach(item => { 
           const wDisplay = item.maxLog.weight === 0 ? '自重' : `${item.maxLog.weight}<span style="font-size:16px;color:var(--text-secondary);">kg</span>`;
-          contentHtml += `<div class="pr-card" style="background: var(--pr-${getCatClass(item.cat)}-bg); border-color: transparent;"><p style="font-size:14px;font-weight:800;color:var(--text-secondary);margin:0 0 10px 0;display:flex;align-items:center;gap:8px;"><span class="cat-icon-wrapper ${getCatClass(item.cat)}" style="width:24px;height:24px;border-radius:6px;">${CAT_ICONS[item.cat]||CAT_ICONS["全身"]}</span>${item.name}</p><p style="font-size:32px;font-weight:800;margin:0 0 6px 0;color:var(--text-primary);letter-spacing:-0.5px;">${wDisplay}</p><p style="font-size:13px;font-weight:700;color:var(--text-tertiary);margin:0;display:flex;justify-content:space-between;"><span>×${item.maxLog.reps} <span style="color:${getRPEColor(item.maxLog.rpe)};">RPE${item.maxLog.rpe}</span></span><span>全${item.exLogs.length}セット</span></p></div>`; 
+          contentHtml += `<div class="pr-card" style="background: var(--pr-${getCatClass(item.cat)}-bg);" onclick="openHistoryDetail('${item.name}')"><p style="font-size:14px;font-weight:800;color:var(--text-secondary);margin:0 0 10px 0;display:flex;align-items:center;gap:8px;"><span class="cat-icon-wrapper ${getCatClass(item.cat)}" style="width:24px;height:24px;border-radius:6px;">${CAT_ICONS[item.cat]||CAT_ICONS["全身"]}</span>${item.name}</p><p style="font-size:32px;font-weight:800;margin:0 0 6px 0;color:var(--text-primary);letter-spacing:-0.5px;">${wDisplay}</p><p style="font-size:13px;font-weight:700;color:var(--text-tertiary);margin:0;display:flex;justify-content:space-between;"><span>×${item.maxLog.reps} <span style="color:${getRPEColor(item.maxLog.rpe)};">RPE${item.maxLog.rpe}</span></span><span>全${item.exLogs.length}セット</span></p></div>`; 
         }); 
         contentHtml += '</div>'; 
       } else { 
@@ -845,30 +943,87 @@
           let fgColor = isDark ? '#d4d4d8' : '#52525b'; 
           if(item.cat==='胸') fgColor=isDark?'#60a5fa':'#2563eb'; else if(item.cat==='背中') fgColor=isDark?'#4ade80':'#16a34a'; else if(item.cat==='脚') fgColor=isDark?'#facc15':'#ca8a04'; else if(item.cat==='肩') fgColor=isDark?'#fb923c':'#ea580c'; else if(item.cat==='腕') fgColor=isDark?'#c084fc':'#9333ea'; else if(item.cat==='腹・体幹') fgColor=isDark?'#f87171':'#dc2626'; 
           const wDisplay = item.maxLog.weight === 0 ? '自重' : `${item.maxLog.weight}<span>kg</span>`;
-          contentHtml += `<div class="pr-list-item" style="background: var(--pr-${getCatClass(item.cat)}-bg);"><div class="pr-list-left"><span class="cat-icon-wrapper ${getCatClass(item.cat)}" style="width:36px;height:36px;border-radius:8px;">${CAT_ICONS[item.cat]||CAT_ICONS["全身"]}</span><div class="pr-list-info"><span class="pr-list-name">${item.name}</span><span class="pr-list-detail"><span>×${item.maxLog.reps}</span> <span style="color:${getRPEColor(item.maxLog.rpe)};">RPE${item.maxLog.rpe}</span></span></div></div><div class="pr-list-right"><div class="pr-list-graph">${getSparklineSVG(item.exLogs, fgColor)}</div><div class="pr-list-weight">${wDisplay}</div></div></div>`; 
+          contentHtml += `<div class="pr-list-item" style="background: var(--pr-${getCatClass(item.cat)}-bg);" onclick="openHistoryDetail('${item.name}')"><div class="pr-list-left"><span class="cat-icon-wrapper ${getCatClass(item.cat)}" style="width:36px;height:36px;border-radius:8px;">${CAT_ICONS[item.cat]||CAT_ICONS["全身"]}</span><div class="pr-list-info"><span class="pr-list-name">${item.name}</span><span class="pr-list-detail"><span>×${item.maxLog.reps}</span> <span style="color:${getRPEColor(item.maxLog.rpe)};">RPE${item.maxLog.rpe}</span></span></div></div><div class="pr-list-right"><div class="pr-list-graph">${getSparklineSVG(item.exLogs, fgColor)}</div><div class="pr-list-weight">${wDisplay}</div></div></div>`; 
         }); 
         contentHtml += '</div>'; 
       }
       container.innerHTML = controlsHtml + contentHtml;
     }
 
+    function openHistoryDetail(ex) {
+      haptic(10); document.getElementById('hd-title').innerText = ex;
+      const exLogs = logs.filter(l => l.exercise === ex);
+      
+      const dailyMax = [];
+      const groupedByDate = exLogs.reduce((acc, log) => { if (!acc[log.date]) acc[log.date] = []; acc[log.date].push(log); return acc; }, {});
+      const sortedDates = Object.keys(groupedByDate).sort((a, b) => new Date(b) - new Date(a));
+      
+      const graphDates = [...sortedDates].reverse().slice(-15);
+      graphDates.forEach(date => { dailyMax.push(groupedByDate[date].reduce((prev, current) => ((parseFloat(prev.weight)||0) > (parseFloat(current.weight)||0)) ? prev : current)); });
+      
+      const graphContainer = document.getElementById('hd-graph');
+      if(dailyMax.length > 1) {
+        const weights = dailyMax.map(l => parseFloat(l.weight)||0);
+        const maxW = Math.max(...weights); const minW = Math.max(0, Math.min(...weights) - 5); const range = maxW - minW || 10;
+        const H = 160, W = 600, PAD = 44;
+        const points = dailyMax.map((l, i) => ({ x: PAD + (i / Math.max(dailyMax.length-1, 1)) * (W - PAD*2), y: H - PAD - (((parseFloat(l.weight)||0) - minW) / range) * (H - PAD*2), ...l }));
+        const pathD = points.map((p,i) => `${i===0?"M":"L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+        let svgHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;overflow:visible;margin-bottom:0.5rem; margin-top:0.5rem;">`;
+        [0, 0.5, 1].forEach(t => { const y = H - PAD - t * (H - PAD*2); const val = (minW + t * range).toFixed(0); svgHTML += `<line x1="${PAD}" x2="${W-PAD}" y1="${y}" y2="${y}" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="4 4" /><text x="${PAD-8}" y="${y+4}" text-anchor="end" fill="var(--text-tertiary)" font-size="12" font-weight="700">${val}</text>`; });
+        svgHTML += `<path d="${pathD}" fill="none" stroke="var(--text-tertiary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 6"/>`;
+        points.forEach(p => { svgHTML += `<circle cx="${p.x}" cy="${p.y}" r="6" fill="${getRPEColor(p.rpe)}" stroke="var(--bg-primary)" stroke-width="2.5" /><text x="${p.x}" y="${H-10}" text-anchor="middle" fill="var(--text-secondary)" font-size="11" font-weight="800">${formatDate(p.date)}</text>`; });
+        svgHTML += `</svg>`;
+        graphContainer.innerHTML = `<h4 style="margin:0 0 16px 0; font-size:14px; font-weight:800; color:var(--text-secondary);">MAX重量推移</h4>` + svgHTML;
+        graphContainer.style.display = 'block';
+      } else { graphContainer.style.display = 'none'; }
+
+      let listHtml = '';
+      sortedDates.forEach((date, index) => {
+        const dayLogs = groupedByDate[date].sort((a,b) => a.setNumber - b.setNumber);
+        const isOpen = index === 0 ? 'open' : '';
+        const dayMaxLog = dayLogs.reduce((prev, current) => ((parseFloat(prev.weight)||0) > (parseFloat(current.weight)||0)) ? prev : current);
+        const dayMaxW = dayMaxLog.weight === 0 ? '自重' : dayMaxLog.weight + 'kg';
+        
+        listHtml += `<details ${isOpen}><summary><span>${formatDate(date)}</span> <span style="font-size:13px; color:var(--accent);">MAX: ${dayMaxW}</span></summary><div class="details-content">`;
+        dayLogs.forEach((log, idx) => {
+          const borderStyle = idx === dayLogs.length - 1 ? 'border-bottom:none;' : 'border-bottom: 1px dashed var(--border);';
+          listHtml += `<div style="padding: 12px 16px; ${borderStyle} display:flex; justify-content:space-between; align-items:center;"><div style="display:flex; align-items:center; gap:12px;"><span class="set-badge">${log.setNumber}</span><div><div style="display:flex; align-items:baseline;">${log.weight === 0 ? `<span style="font-size:20px;font-weight:800;letter-spacing:-0.5px;">自重</span>` : `<span style="font-size:22px;font-weight:800;letter-spacing:-0.5px;">${log.weight}</span><span style="font-size:13px;font-weight:700;color:var(--text-secondary);margin:0 10px 0 2px;">kg</span>`}<span style="font-size:18px;font-weight:800;">× ${log.reps}</span></div><div style="font-size:11px; font-weight:700; color:var(--text-tertiary); margin-top:2px;">1RM: ${log.weight===0?'自重':log.oneRM+'kg'}</div></div></div><div style="display:flex; align-items:center; gap:8px;"><span style="font-size:11px;font-weight:800;color:#fff;background:${getRPEColor(log.rpe)};padding:2px 8px;border-radius:6px;">RPE ${log.rpe}</span><button class="action-btn" onclick="openEditModal(${log.id})" style="padding:4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></button></div></div>`;
+        });
+        listHtml += `</div></details>`;
+      });
+      document.getElementById('hd-list').innerHTML = listHtml;
+      
+      const sheet = document.getElementById('history-detail-modal');
+      sheet.style.display = 'flex'; void sheet.offsetWidth; sheet.classList.add('show');
+    }
+
+    function closeHistoryDetail() {
+      haptic(); const sheet = document.getElementById('history-detail-modal'); sheet.classList.remove('show');
+      setTimeout(() => { sheet.style.display = 'none'; renderHistoryTab(); }, 300);
+    }
+
+    function setAnalysisPeriod(period) { haptic(10); localStorage.setItem("wt_analysis_period", period); renderAnalysisTab(); }
+
     function renderAnalysisTab() {
-      const periodSelect = document.getElementById('analysis-period');
-      const period = periodSelect ? periodSelect.value : "30";
+      const period = localStorage.getItem("wt_analysis_period") || "30";
+      document.getElementById('period-btn-7').classList.toggle('active', period === '7');
+      document.getElementById('period-btn-30').classList.toggle('active', period === '30');
+      document.getElementById('period-btn-365').classList.toggle('active', period === '365');
+      
+      const subtitleMap = { '7': '（直近1週間の負荷スコア）', '30': '（直近30日間の負荷スコア）', '365': '（直近1年間の負荷スコア）' };
+      document.getElementById('analysis-subtitle').innerText = subtitleMap[period];
 
       const limitDate = new Date();
-      if (period !== "all") limitDate.setDate(limitDate.getDate() - parseInt(period));
-      
-      const recentLogs = period === "all" ? logs : logs.filter(l => new Date(l.date) >= limitDate);
+      limitDate.setDate(limitDate.getDate() - parseInt(period));
+      const targetLogs = logs.filter(l => new Date(l.date) >= limitDate);
       
       const stats = { "胸": 0, "背中": 0, "脚": 0, "肩": 0, "腕": 0, "腹・体幹": 0, "全身": 0 };
       let totalScore = 0;
 
-      recentLogs.forEach(log => { 
+      targetLogs.forEach(log => { 
         const cat = getExerciseCategory(log.exercise); 
         const impacts = getMuscleImpacts(log.exercise, cat);
         let intensity = log.rpe ? (parseFloat(log.rpe) / 8.0) : 1.0;
-        
         for (const [muscle, impact] of Object.entries(impacts)) {
           if (stats[muscle] !== undefined) {
             const score = intensity * impact;
@@ -878,30 +1033,41 @@
         }
       });
       
-      const maxScore = Math.max(...Object.values(stats), 1);
-      const getColor = (cat) => { const ratio = stats[cat] / maxScore; if (stats[cat] === 0) return "var(--heat-0)"; if (ratio >= 0.7) return "var(--heat-3)"; if (ratio >= 0.3) return "var(--heat-2)"; return "var(--heat-1)"; };
+      // 動的閾値（期間による厳しさの変化）
+      const thresholds = {
+        '7': { heat1: 0.05, heat2: 0.15, heat3: 0.30 },
+        '30': { heat1: 0.15, heat2: 0.25, heat3: 0.40 },
+        '365': { heat1: 0.20, heat2: 0.30, heat3: 0.50 }
+      };
+      const th = thresholds[period] || thresholds['30'];
+
+      const getColor = (cat) => { 
+        if (totalScore === 0) return "var(--heat-0)";
+        const ratio = stats[cat] / totalScore;
+        if (ratio < th.heat1) return "var(--heat-0)"; 
+        if (ratio >= th.heat3) return "var(--heat-3)"; 
+        if (ratio >= th.heat2) return "var(--heat-2)"; 
+        return "var(--heat-1)"; 
+      };
+      
       document.getElementById('body-map-render').innerHTML = `<div class="body-figure"><svg viewBox="0 0 100 220" width="130"><circle cx="50" cy="20" r="14" fill="var(--bg-secondary)"/><rect class="body-part" x="33" y="40" width="34" height="28" rx="6" fill="${getColor('胸')}"/><rect class="body-part" x="35" y="70" width="30" height="32" rx="4" fill="${getColor('腹・体幹')}"/><rect class="body-part" x="15" y="40" width="16" height="16" rx="8" fill="${getColor('肩')}"/><rect class="body-part" x="69" y="40" width="16" height="16" rx="8" fill="${getColor('肩')}"/><rect class="body-part" x="15" y="58" width="14" height="45" rx="7" fill="${getColor('腕')}"/><rect class="body-part" x="71" y="58" width="14" height="45" rx="7" fill="${getColor('腕')}"/><rect class="body-part" x="33" y="104" width="15" height="70" rx="7" fill="${getColor('脚')}"/><rect class="body-part" x="52" y="104" width="15" height="70" rx="7" fill="${getColor('脚')}"/></svg><span class="body-label">FRONT</span></div><div class="body-figure"><svg viewBox="0 0 100 220" width="130"><circle cx="50" cy="20" r="14" fill="var(--bg-secondary)"/><rect class="body-part" x="32" y="40" width="36" height="60" rx="6" fill="${getColor('背中')}"/><rect class="body-part" x="15" y="40" width="15" height="15" rx="7.5" fill="${getColor('肩')}"/><rect class="body-part" x="70" y="40" width="15" height="15" rx="7.5" fill="${getColor('肩')}"/><rect class="body-part" x="15" y="57" width="13" height="45" rx="6.5" fill="${getColor('腕')}"/><rect class="body-part" x="72" y="57" width="13" height="45" rx="6.5" fill="${getColor('腕')}"/><rect class="body-part" x="33" y="102" width="15" height="70" rx="7" fill="${getColor('脚')}"/><rect class="body-part" x="52" y="102" width="15" height="70" rx="7" fill="${getColor('脚')}"/></svg><span class="body-label">BACK</span></div>`;
       
       let advice = "";
-      const minScoreThreshold = period === "7" ? 5 : 10;
+      const minScoreThreshold = period === "7" ? 5 : (period === "30" ? 10 : 30);
       
       if (totalScore < minScoreThreshold) { 
         advice = "データが少ないため、まだ詳細分析できません。記録を増やしましょう！"; 
       } else { 
         const msgs = [];
         const pChest = stats["胸"] / totalScore; const pBack = stats["背中"] / totalScore; const pLegs = stats["脚"] / totalScore; const pShoulder = stats["肩"] / totalScore; const pArms = stats["腕"] / totalScore;
-        const volHigh = period === "7" ? 40 : (period === "30" ? 140 : 500);
+        const volHigh = period === "7" ? 40 : (period === "30" ? 140 : 1500);
 
         if (totalScore >= volHigh) msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#ef4444' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><path d='M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z'></path></svg><div><b style='color:var(--text-primary);'>素晴らしいトレーニング量です！</b><br>ただしオーバートレーニング気味です。関節の痛みや疲労を感じた場合は、計画的なディロード（重量やセット数を落とす週）を取り入れましょう。</div></div>");
         
-        if (period === "7" && pLegs < 0.1) {
-          msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#ea580c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'></path><line x1='12' y1='9' x2='12' y2='13'></line><line x1='12' y1='17' x2='12.01' y2='17'></line></svg><div><b style='color:var(--text-primary);'>今週は脚のトレーニングが不足しています。</b><br>全身のバランスと基礎代謝向上のため、そろそろスクワット等を取り入れましょう。</div></div>");
-        } else if (pLegs < 0.15) {
-          msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#ea580c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'></path><line x1='12' y1='9' x2='12' y2='13'></line><line x1='12' y1='17' x2='12.01' y2='17'></line></svg><div><b style='color:var(--text-primary);'>全体的に脚への負荷が不足気味です。</b><br>下半身は全身の筋肉の約7割を占めます。脚トレはテストステロンの分泌促進にも大きく貢献します。</div></div>");
-        }
+        if (period === "7" && pLegs < 0.1) msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#ea580c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'></path><line x1='12' y1='9' x2='12' y2='13'></line><line x1='12' y1='17' x2='12.01' y2='17'></line></svg><div><b style='color:var(--text-primary);'>今週は脚のトレーニングが不足しています。</b><br>全身のバランスと基礎代謝向上のため、そろそろスクワット等を取り入れましょう。</div></div>");
+        else if (pLegs < 0.15) msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#ea580c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'></path><line x1='12' y1='9' x2='12' y2='13'></line><line x1='12' y1='17' x2='12.01' y2='17'></line></svg><div><b style='color:var(--text-primary);'>全体的に脚への負荷が不足気味です。</b><br>下半身は全身の筋肉の約7割を占めます。脚トレはテストステロンの分泌促進にも大きく貢献します。</div></div>");
 
         if ((pChest + pArms) > 0.60) msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#ea580c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'></path><line x1='12' y1='9' x2='12' y2='13'></line><line x1='12' y1='17' x2='12.01' y2='17'></line></svg><div><b style='color:var(--text-primary);'>上半身の前面と腕に特化しています。</b><br>いわゆる「Bro Split」に偏りがちです。全身の機能性を高めるため、背中や下半身の強化をお勧めします。</div></div>");
-
         if (pChest > pBack * 1.5 && (pChest + pArms) <= 0.60) msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#ea580c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'></path><line x1='12' y1='9' x2='12' y2='13'></line><line x1='12' y1='17' x2='12.01' y2='17'></line></svg><div><b style='color:var(--text-primary);'>胸に対して背中のボリュームが不足しています。</b><br>巻き肩（猫背）を防ぎ美しい姿勢を保つため、ロウイング系の種目を増やしましょう。</div></div>");
         else if (pBack > pChest * 2) msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#eab308' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='16' x2='12' y2='12'></line><line x1='12' y1='8' x2='12.01' y2='8'></line></svg><div><b style='color:var(--text-primary);'>背中を非常にしっかり鍛えられています。</b><br>プレス系（胸）の種目もバランス良く追加するとさらに立体的になります。</div></div>");
         
@@ -910,9 +1076,8 @@
         if (pArms > 0.3) msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#3b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='16' x2='12' y2='12'></line><line x1='12' y1='8' x2='12.01' y2='8'></line></svg><div><b style='color:var(--text-primary);'>腕のトレーニングに非常に熱心です！</b><br>腕は回復が早い部位ですが、成長が停滞している場合は一時的にボリュームを減らすのも一つの手です。</div></div>");
         else if (pArms === 0 && (pChest > 0 || pBack > 0)) msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#eab308' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='16' x2='12' y2='12'></line><line x1='12' y1='8' x2='12.01' y2='8'></line></svg><div><b style='color:var(--text-primary);'>腕のアイソレーション種目がありません。</b><br>さらに腕を太くしたい場合はカールやエクステンションを追加してみましょう。</div></div>");
 
-        // 腹・体幹のチェック（全体の5%未満なら不足とみなす）
         if (stats["腹・体幹"] < totalScore * 0.05) msgs.push("<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#eab308' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='16' x2='12' y2='12'></line><line x1='12' y1='8' x2='12.01' y2='8'></line></svg><div><b style='color:var(--text-primary);'>体幹への直接的なトレーニングが不足しています。</b><br>フリーウェイトの姿勢維持だけでは不十分なため、プランクやクランチなどのメニューも追加してみましょう。</div></div>");
-
+        
         if (msgs.length === 0) advice = "<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#3b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'></polygon></svg><div><b style='color:var(--text-primary);'>全身が非常にバランス良く鍛えられています！</b><br>現在のメニュー構成は理想的です。この調子で継続しましょう。</div></div>";
         else advice = msgs.join("");
       }
