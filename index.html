@@ -115,7 +115,7 @@
     .suggest-create-btn { padding: 16px; font-size: 15px; font-weight: 700; color: var(--accent); cursor: pointer; display: flex; align-items: center; gap: 10px; background: var(--icon-chest-bg); }
 
     /* モーダル共通 */
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); opacity: 0; visibility: hidden; transition: opacity 0.2s, visibility 0.2s; }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 3000; display: flex; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); opacity: 0; visibility: hidden; transition: opacity 0.2s, visibility 0.2s; }
     .modal-overlay.show { opacity: 1; visibility: visible; }
     .modal-content { background: var(--bg-primary); width: 100%; max-width: 400px; border-radius: var(--radius-xl); padding: 1.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 1px solid var(--border); max-height: 90vh; overflow-y: auto; transform: scale(0.95); transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);}
     .modal-overlay.show .modal-content { transform: scale(1); }
@@ -315,8 +315,8 @@
     <div id="history-detail-modal" class="bottom-sheet">
       <div class="bottom-sheet-content">
         <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-          <h3 id="hd-title" style="margin:0; font-size:18px; font-weight:800; color:var(--text-primary);">種目名</h3>
-          <button onclick="closeHistoryDetail()" style="background:var(--bg-secondary); border:none; font-weight:800; color:var(--text-secondary); cursor:pointer; padding:6px 12px; border-radius:16px; transition:background 0.2s;">閉じる</button>
+          <h3 id="hd-title" style="margin:0; font-size:18px; font-weight:800; color:var(--text-primary); text-overflow:ellipsis; white-space:nowrap; overflow:hidden; flex:1; padding-right:10px;">種目名</h3>
+          <div id="hd-header-actions" style="display:flex; gap:8px;"></div>
         </div>
         <div style="flex:1; overflow-y:auto; padding:1.5rem;">
           <div id="hd-graph" style="margin-bottom:2rem; display:none;"></div>
@@ -344,7 +344,7 @@
           <div class="legend-item"><div class="legend-color" style="background:var(--heat-3);"></div>オーバー</div>
           <div class="legend-item"><div class="legend-color" style="background:var(--heat-2);"></div>適正量</div>
           <div class="legend-item"><div class="legend-color" style="background:var(--heat-1);"></div>不足</div>
-          <div class="legend-item"><div class="legend-color" style="background:var(--heat-0); border:1px solid var(--border);"></div>なし</div>
+          <div class="legend-item"><div class="legend-color" style="background:var(--heat-0);"></div>なし</div>
         </div>
 
         <div id="analysis-advice" class="advice-box"></div>
@@ -478,6 +478,32 @@
     </div>
   </div>
 
+  <div id="edit-custom-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h3 style="margin:0 0 16px 0; font-size:18px; font-weight:800;">カスタム種目の編集</h3>
+      <p style="font-size:12px; color:var(--text-tertiary); margin-bottom:16px;">名前や部位を変更すると、過去の記録もすべて自動で更新されます。</p>
+      
+      <label class="label">種目名</label>
+      <input type="text" id="edit-custom-name" style="margin-bottom:16px;" autocomplete="off">
+      
+      <label class="label">メインの部位</label>
+      <select id="edit-custom-cat" style="margin-bottom:16px;">
+        <option value="胸">胸</option>
+        <option value="背中">背中</option>
+        <option value="脚">脚</option>
+        <option value="肩">肩</option>
+        <option value="腕">腕</option>
+        <option value="腹・体幹">腹・体幹</option>
+        <option value="全身">全身</option>
+      </select>
+      
+      <div style="display:flex; justify-content:space-between; margin-top:24px;">
+        <button onclick="closeEditCustomModal()" style="padding:12px 20px; background:transparent; border:none; font-size:15px; font-weight:800; color:var(--text-secondary); cursor:pointer;">キャンセル</button>
+        <button onclick="saveEditCustom()" style="padding:12px 24px; background:var(--accent); border:none; border-radius:var(--radius-md); font-size:15px; font-weight:800; color:#fff; cursor:pointer;">更新する</button>
+      </div>
+    </div>
+  </div>
+
   <div class="bottom-nav">
     <button class="nav-btn active" onclick="switchView('log', this)">
       <svg class="nav-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
@@ -492,7 +518,7 @@
       <span>分析</span>
     </button>
     <button class="nav-btn" onclick="switchView('settings', this)">
-      <svg class="nav-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      <svg class="nav-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 .33-1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
       <span>設定</span>
     </button>
   </div>
@@ -504,12 +530,15 @@
     const viewOrder = ['log', 'history', 'analysis', 'settings'];
 
     document.addEventListener('touchstart', e => {
-      if (e.target.closest('input, select, button, details, summary, .pr-card, .pr-list-item, .suggest-list, .body-map-container, .bottom-sheet-content')) return;
+      if (e.target.closest('input[type="range"], .chips')) return;
+      if (document.querySelector('.modal-overlay.show, .bottom-sheet.show')) return;
       touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY;
     }, {passive: true});
 
     document.addEventListener('touchend', e => {
-      if (e.target.closest('input, select, button, details, summary, .pr-card, .pr-list-item, .suggest-list, .body-map-container, .bottom-sheet-content')) return;
+      if (e.target.closest('input[type="range"], .chips')) return;
+      if (document.querySelector('.modal-overlay.show, .bottom-sheet.show')) return;
+      
       const diffX = e.changedTouches[0].screenX - touchStartX;
       const diffY = e.changedTouches[0].screenY - touchStartY;
       if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > swipeThreshold) {
@@ -539,7 +568,6 @@
 
     function setTheme(mode) { haptic(); localStorage.setItem('wt_theme', mode); applyThemeSettings(); }
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => { if ((localStorage.getItem('wt_theme') || 'auto') === 'auto') applyThemeSettings(); });
-
 
     const CLIENT_ID = '504605284753-9482edtgg5ndcp8p1723pvf4mfe12t6b.apps.googleusercontent.com';
     const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
@@ -708,6 +736,8 @@
     ];
 
     let customExercises = JSON.parse(localStorage.getItem("wt_custom_ex_v5")) || [];
+    customExercises = customExercises.map(ex => { if (typeof ex === 'string') return { n: ex, c: "全身" }; return ex; });
+
     let logs = JSON.parse(localStorage.getItem("wt_logs_html_v3")) || [];
     let pendingExerciseName = "";
 
@@ -730,7 +760,7 @@
       return impacts;
     }
 
-    function getAllExercises() { const customs = customExercises.map(name => ({ c: "カスタム", n: name, s: name, i: getMuscleImpactsFallback(name, "カスタム") })); return [...PRESET_DB, ...customs]; }
+    function getAllExercises() { const customs = customExercises.map(ex => ({ c: ex.c, n: ex.n, s: ex.n, i: getMuscleImpactsFallback(ex.n, ex.c) })); return [...PRESET_DB, ...customs]; }
     function getExerciseCategory(exName) { const ex = getAllExercises().find(e => e.n === exName); return ex && ex.c !== "カスタム" ? ex.c : "全身"; }
     function getMuscleImpacts(exName, primaryCat) { const dbEx = getAllExercises().find(e => e.n === exName); return (dbEx && dbEx.i) ? dbEx.i : getMuscleImpactsFallback(exName, primaryCat); }
     function getRPEColor(rpe) { if(rpe >= 9.5) return "var(--color-rpe-high)"; if(rpe >= 8) return "var(--color-rpe-mid)"; return "var(--color-rpe-low)"; }
@@ -760,15 +790,84 @@
     }
     
     function closeModal() { haptic(10); const m = document.getElementById('create-modal'); m.classList.remove('show'); setTimeout(()=> { m.style.display = 'none'; pendingExerciseName = ""; }, 200); }
-    function createCustomExercise(cat) { haptic(15); customExercises.push(pendingExerciseName); localStorage.setItem("wt_custom_ex_v5", JSON.stringify(customExercises)); document.getElementById('exercise-input').value = pendingExerciseName; closeModal(); updateInputState(); }
+    
+    function createCustomExercise(cat) { 
+      haptic(15); 
+      customExercises.push({ n: pendingExerciseName, c: cat }); 
+      localStorage.setItem("wt_custom_ex_v5", JSON.stringify(customExercises)); 
+      document.getElementById('exercise-input').value = pendingExerciseName; 
+      closeModal(); 
+      updateInputState(); 
+    }
+
+    let editingCustomOriginalName = "";
+    function openEditCustomModal(exName) {
+      haptic(10);
+      const exObj = customExercises.find(ex => ex.n === exName);
+      if(!exObj) return;
+      
+      editingCustomOriginalName = exName;
+      document.getElementById('edit-custom-name').value = exObj.n;
+      document.getElementById('edit-custom-cat').value = exObj.c;
+      
+      const m = document.getElementById('edit-custom-modal'); 
+      m.style.display = 'flex'; setTimeout(()=> m.classList.add('show'), 10);
+    }
+    
+    function closeEditCustomModal() { 
+      haptic(); const m = document.getElementById('edit-custom-modal'); m.classList.remove('show'); setTimeout(()=> { m.style.display = 'none'; editingCustomOriginalName = ""; }, 200); 
+    }
+
+    function saveEditCustom() {
+      haptic(15);
+      const newName = document.getElementById('edit-custom-name').value.trim();
+      const newCat = document.getElementById('edit-custom-cat').value;
+      if(!newName) { alert("種目名を入力してください"); return; }
+      
+      if (newName !== editingCustomOriginalName && getAllExercises().some(ex => ex.n === newName)) {
+        alert("この種目名は既に存在します"); return;
+      }
+
+      const exIndex = customExercises.findIndex(ex => ex.n === editingCustomOriginalName);
+      if(exIndex !== -1) {
+        customExercises[exIndex].n = newName;
+        customExercises[exIndex].c = newCat;
+        localStorage.setItem("wt_custom_ex_v5", JSON.stringify(customExercises));
+      }
+
+      logs.forEach(log => { if (log.exercise === editingCustomOriginalName) log.exercise = newName; });
+      localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs));
+
+      if(gapiAccessToken && localStorage.getItem("wt_last_sync")) { document.getElementById('sync-badge').className = 'sync-badge warning'; document.getElementById('sync-badge-text').innerText = "未同期"; }
+
+      closeEditCustomModal();
+      if (document.getElementById('exercise-input').value === editingCustomOriginalName) document.getElementById('exercise-input').value = newName;
+
+      updateUI();
+      const activeView = document.querySelector('.view.active').id;
+      if(activeView === 'view-history') renderHistoryTab();
+      if(activeView === 'view-analysis') renderAnalysisTab();
+
+      const sheet = document.getElementById('history-detail-modal');
+      if (sheet && sheet.classList.contains('show')) openHistoryDetail(newName);
+    }
 
     function openEditModal(id) {
-      haptic(); const log = logs.find(l => l.id === id); if(!log) return; editingLogId = id;
+      haptic(); 
+      // 履歴詳細ボトムシートが開いていれば閉じる（裏に隠す）
+      const sheet = document.getElementById('history-detail-modal');
+      if (sheet && sheet.classList.contains('show')) {
+        sheet.classList.remove('show');
+        setTimeout(() => { sheet.style.display = 'none'; }, 200);
+      }
+
+      const log = logs.find(l => l.id === id); if(!log) return; editingLogId = id;
       document.getElementById('edit-date').value = log.date;
       document.getElementById('edit-exercise').innerHTML = [...new Set(getAllExercises().map(ex => ex.n))].map(name => `<option value="${name}" ${name === log.exercise ? 'selected' : ''}>${name}</option>`).join('');
       document.getElementById('edit-weight').value = log.weight; document.getElementById('edit-reps').value = log.reps; document.getElementById('edit-rpe').value = log.rpe || 8; document.getElementById('edit-set').value = log.setNumber || 1;
       const m = document.getElementById('edit-modal'); m.style.display = 'flex'; setTimeout(()=> m.classList.add('show'), 10);
     }
+    
     function closeEditModal() { haptic(); const m = document.getElementById('edit-modal'); m.classList.remove('show'); setTimeout(()=> { m.style.display = 'none'; editingLogId = null; }, 200); }
 
     function adjustEditVal(idSuffix, delta) {
@@ -807,10 +906,11 @@
       updateUI(); 
       
       const activeView = document.querySelector('.view.active').id;
-      if(activeView === 'view-history') renderHistoryTab();
-      
-      const sheet = document.getElementById('history-detail-modal');
-      if (sheet && sheet.classList.contains('show')) openHistoryDetail(exAfter);
+      if(activeView === 'view-history') {
+        renderHistoryTab();
+        // 編集後に再度同じ種目の詳細を開く
+        setTimeout(() => { openHistoryDetail(exAfter); }, 250); 
+      }
     }
 
     const calculate1RM = (w, r, rpe) => { if (!w || !r || r < 1) return parseFloat(w)||0; const effectiveReps = parseInt(r) + Math.max(0, 10 - parseFloat(rpe)); if (effectiveReps <= 1) return parseFloat(w); return Math.round((parseFloat(w) * (1 + effectiveReps / 30)) * 10) / 10; };
@@ -852,6 +952,7 @@
       const targetLogs = logs.filter(l => l.date === dateStr);
       document.getElementById('today-logs').innerHTML = targetLogs.length ? targetLogs.map(l => buildLogRow(l, false)).join('') : `<div style="text-align:center;padding:4rem 0;background:var(--bg-primary);border-radius:var(--radius-xl);border:1px dashed var(--border);color:var(--text-tertiary);font-weight:700;font-size:15px;">この日の記録はありません</div>`;
 
+      // 過去のログ
       const pastLogs = logs.filter(l => l.date !== dateStr);
       const pastContainer = document.getElementById('past-logs');
       if (!pastLogs.length) { pastContainer.innerHTML = ''; return; }
@@ -959,6 +1060,11 @@
     function openHistoryDetail(ex) {
       haptic(10);
       document.getElementById('hd-title').innerText = ex;
+      
+      const isCustom = customExercises.some(ce => ce.n === ex);
+      const editBtnHtml = isCustom ? `<button onclick="openEditCustomModal('${ex}')" style="background:var(--bg-secondary); border:none; font-weight:800; color:var(--text-secondary); cursor:pointer; padding:6px 12px; border-radius:16px; transition:background 0.2s;">種目を編集</button>` : '';
+      document.getElementById('hd-header-actions').innerHTML = editBtnHtml + `<button onclick="closeHistoryDetail()" style="background:var(--bg-secondary); border:none; font-weight:800; color:var(--text-secondary); cursor:pointer; padding:6px 12px; border-radius:16px; transition:background 0.2s;">閉じる</button>`;
+
       const exLogs = logs.filter(l => l.exercise === ex);
       
       const dailyMax = [];
@@ -1007,6 +1113,8 @@
         
         listHtml += `<details ${isOpen}><summary><span>${formatDate(date)}</span> <span style="font-size:13px; color:var(--accent);">MAX: ${dayMaxW}</span></summary><div class="details-content">`;
         dayLogs.forEach((log, idx) => {
+          const rpeColor = getRPEColor(log.rpe);
+          const weightDisplay = log.weight === 0 ? `<span style="font-size:20px;font-weight:800;letter-spacing:-0.5px;">自重</span>` : `<span style="font-size:22px;font-weight:800;letter-spacing:-0.5px;">${log.weight}</span><span style="font-size:13px;font-weight:700;color:var(--text-secondary);margin:0 10px 0 2px;">kg</span>`;
           const borderStyle = idx === dayLogs.length - 1 ? 'border-bottom:none;' : 'border-bottom: 1px dashed var(--border);';
           
           listHtml += `
@@ -1015,14 +1123,14 @@
                 <span class="set-badge">${log.setNumber}</span>
                 <div>
                   <div style="display:flex; align-items:baseline;">
-                    ${log.weight === 0 ? `<span style="font-size:20px;font-weight:800;letter-spacing:-0.5px;">自重</span>` : `<span style="font-size:22px;font-weight:800;letter-spacing:-0.5px;">${log.weight}</span><span style="font-size:13px;font-weight:700;color:var(--text-secondary);margin:0 10px 0 2px;">kg</span>`}
+                    ${weightDisplay}
                     <span style="font-size:18px;font-weight:800;">× ${log.reps}</span>
                   </div>
                   <div style="font-size:11px; font-weight:700; color:var(--text-tertiary); margin-top:2px;">1RM: ${log.weight===0?'自重':log.oneRM+'kg'}</div>
                 </div>
               </div>
               <div style="display:flex; align-items:center; gap:8px;">
-                <span style="font-size:11px;font-weight:800;color:#fff;background:${getRPEColor(log.rpe)};padding:2px 8px;border-radius:6px;">RPE ${log.rpe}</span>
+                <span style="font-size:11px;font-weight:800;color:#fff;background:${rpeColor};padding:2px 8px;border-radius:6px;">RPE ${log.rpe}</span>
                 <button class="action-btn" onclick="openEditModal(${log.id})" style="padding:4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></button>
               </div>
             </div>
@@ -1100,8 +1208,10 @@
       document.getElementById('body-map-render').innerHTML = `<div class="body-figure"><svg viewBox="0 0 100 220" width="130"><circle cx="50" cy="20" r="14" fill="var(--bg-secondary)"/><rect class="body-part" x="33" y="40" width="34" height="28" rx="6" fill="${getColor('胸')}"/><rect class="body-part" x="35" y="70" width="30" height="32" rx="4" fill="${getColor('腹・体幹')}"/><rect class="body-part" x="15" y="40" width="16" height="16" rx="8" fill="${getColor('肩')}"/><rect class="body-part" x="69" y="40" width="16" height="16" rx="8" fill="${getColor('肩')}"/><rect class="body-part" x="15" y="58" width="14" height="45" rx="7" fill="${getColor('腕')}"/><rect class="body-part" x="71" y="58" width="14" height="45" rx="7" fill="${getColor('腕')}"/><rect class="body-part" x="33" y="104" width="15" height="70" rx="7" fill="${getColor('脚')}"/><rect class="body-part" x="52" y="104" width="15" height="70" rx="7" fill="${getColor('脚')}"/></svg><span class="body-label">FRONT</span></div><div class="body-figure"><svg viewBox="0 0 100 220" width="130"><circle cx="50" cy="20" r="14" fill="var(--bg-secondary)"/><rect class="body-part" x="32" y="40" width="36" height="60" rx="6" fill="${getColor('背中')}"/><rect class="body-part" x="15" y="40" width="15" height="15" rx="7.5" fill="${getColor('肩')}"/><rect class="body-part" x="70" y="40" width="15" height="15" rx="7.5" fill="${getColor('肩')}"/><rect class="body-part" x="15" y="57" width="13" height="45" rx="6.5" fill="${getColor('腕')}"/><rect class="body-part" x="72" y="57" width="13" height="45" rx="6.5" fill="${getColor('腕')}"/><rect class="body-part" x="33" y="102" width="15" height="70" rx="7" fill="${getColor('脚')}"/><rect class="body-part" x="52" y="102" width="15" height="70" rx="7" fill="${getColor('脚')}"/></svg><span class="body-label">BACK</span></div>`;
       
       let advice = "";
-      if (totalScore === 0) { 
-        advice = "記録がありません。まずは日々のトレーニングを記録しましょう！"; 
+      const minScoreThreshold = period === "7" ? 5 : (period === "30" ? 10 : 30);
+      
+      if (totalScore < minScoreThreshold) { 
+        advice = "データが少ないため、まだ詳細分析できません。記録を増やしましょう！"; 
       } else { 
         const msgs = [];
         const tChest = TARGETS_PER_WEEK["胸"] * k;
@@ -1113,43 +1223,54 @@
 
         const totalTarget = Object.values(TARGETS_PER_WEEK).reduce((a,b)=>a+b,0) * k;
         
-        if (totalScore > totalTarget * 1.5) {
-          msgs.push("<div><b style='color:var(--text-primary);'>全体的にオーバートレーニングの兆候があります！</b><br>回復が追いついていない可能性があります。ディロード（積極的休養）を取り入れるか、セット数を減らすことを検討してください。</div>");
-        }
-        
-        if (stats["脚"] < tLegs * 0.4) {
-          msgs.push("<div><b style='color:var(--text-primary);'>脚のボリュームが最小有効ボリューム(MEV)に達していません。</b><br>下半身は全身の筋肉の約7割を占めるため、スクワット等を取り入れることで基礎代謝の大幅な向上や、全身の安定力アップに繋がります。</div>");
-        } else if (stats["脚"] > tLegs * 1.5) {
-          msgs.push("<div><b style='color:var(--text-primary);'>脚への負荷が非常に高いです。</b><br>膝や腰への負担に注意し、回復日をしっかり設けてください。</div>");
-        }
-
-        if (stats["胸"] > tChest * 1.5) {
-          msgs.push("<div><b style='color:var(--text-primary);'>胸のトレーニング量が過剰（限界超過）です。</b><br>肩関節の怪我に繋がりやすいため、プレス種目を少し減らし背中を引く種目を増やしましょう。</div>");
-        }
-        
-        if (stats["背中"] < tBack * 0.5 && stats["胸"] > tChest * 0.5) {
-          msgs.push("<div><b style='color:var(--text-primary);'>胸に対して背中のボリュームが不足しています。</b><br>巻き肩を防ぎ、姿勢を保つためにロウイングやプルダウンを積極的に取り入れましょう。</div>");
-        } else if (stats["背中"] > tBack * 1.5) {
-          msgs.push("<div><b style='color:var(--text-primary);'>背中のトレーニング量が非常に多いです。</b><br>素晴らしい努力ですが、腰部の疲労蓄積（特にデッドリフト等）に注意してください。</div>");
-        }
-
-        if (stats["腕"] > tArms * 1.8) {
-          msgs.push("<div><b style='color:var(--text-primary);'>腕への負荷が限界を超えています。</b><br>プレス系やプル系種目でも腕は使われるため、アイソレーション種目（カール等）を少し減らすとより成長する可能性があります。</div>");
-        }
-        
-        if (stats["肩"] < tShoulder * 0.4 && totalScore > totalTarget * 0.3) {
-          msgs.push("<div><b style='color:var(--text-primary);'>肩（三角筋）の刺激が不足しています。</b><br>レイズ系種目を追加して、肩の丸みと他種目の安定性を向上させましょう。</div>");
-        }
-
-        if (stats["腹・体幹"] < tCore * 0.3) {
-          msgs.push("<div><b style='color:var(--text-primary);'>体幹の強度が足りません。</b><br>フリーウェイトの姿勢維持だけでは腹筋群への刺激が不足します。クランチなどの直接的な種目を追加してください。</div>");
+        if (period === '7') {
+          if (totalScore > totalTarget * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>今週は全体的にトレーニング量が多く、オーバートレーニングの兆候があります。</b><br>関節の痛みや強い疲労を感じる場合は、数日の完全休養やディロード（軽めのトレーニング）を検討してください。</div>");
+          if (stats["脚"] < tLegs * 0.4) msgs.push("<div><b style='color:var(--text-primary);'>今週は下半身のトレーニングが不足気味です。</b><br>週の後半でスクワットなどを取り入れて、全身にバランスよく刺激を入れていきましょう。</div>");
+          else if (stats["脚"] > tLegs * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>今週は脚への負荷が非常に高いです。</b><br>膝や腰の疲労に注意し、しっかりとリカバリーに努めてください。</div>");
+          if (stats["胸"] > tChest * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>今週は胸のトレーニング量がやや過剰です。</b><br>肩関節の負担を減らすため、プレス種目を少し控えるか背中の種目に時間を割きましょう。</div>");
+          
+          if (stats["背中"] < stats["胸"] * 0.5 && stats["胸"] > 0) msgs.push("<div><b style='color:var(--text-primary);'>胸に対して背中のトレーニングが不足しています。</b><br>巻き肩を防ぐためにも、次回のトレーニングではロウイングやプル系を意識して取り入れてみてください。</div>");
+          else if (stats["背中"] < tBack * 0.4) msgs.push("<div><b style='color:var(--text-primary);'>今週は背中のトレーニングが不足気味です。</b><br>背中は姿勢を保ち逆三角形を作るために重要です。プル系種目を取り入れましょう。</div>");
+          else if (stats["背中"] > tBack * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>今週は背中のトレーニング量が非常に多いです。</b><br>素晴らしい追い込みですが、腰への疲労蓄積に注意してください。</div>");
+          
+          if (stats["腕"] > tArms * 1.8) msgs.push("<div><b style='color:var(--text-primary);'>今週は腕（二頭・三頭）への負荷がかなり高くなっています。</b><br>腕は他部位のトレーニングでも酷使されるため、少し休ませたほうが筋肥大に繋がる可能性があります。</div>");
+          if (stats["肩"] < tShoulder * 0.4 && totalScore > totalTarget * 0.3) msgs.push("<div><b style='color:var(--text-primary);'>今週は肩（三角筋）を直接刺激する種目が少ないようです。</b><br>レイズ系種目を追加すると、他のプレストレーニングの安定性向上にも繋がります。</div>");
+          if (stats["腹・体幹"] < tCore * 0.3) msgs.push("<div><b style='color:var(--text-primary);'>今週は体幹部への直接的なアプローチが不足しています。</b><br>プランクやクランチなどを少し追加して、フリーウェイト時の体幹の安定力を底上げしましょう。</div>");
+        } else if (period === '30') {
+          if (totalScore > totalTarget * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>直近1ヶ月のボリュームが非常に高く、回復キャパシティを超えている可能性があります。</b><br>成長が停滞している場合は、1週間のディロード（負荷を落とす週）を設けるのが効果的です。</div>");
+          if (stats["脚"] < tLegs * 0.4) msgs.push("<div><b style='color:var(--text-primary);'>この1ヶ月間、脚のボリュームが最小有効ボリューム(MEV)に達していません。</b><br>下半身の筋肉量は全身の土台となるため、優先的に種目を追加することをお勧めします。</div>");
+          else if (stats["脚"] > tLegs * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>この1ヶ月間、脚への負荷が極めて高い状態が続いています。</b><br>関節系の怪我を防ぐため、完全休養日を戦略的に設定しましょう。</div>");
+          if (stats["胸"] > tChest * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>直近1ヶ月、胸のトレーニング量が過剰（MRV超過）気味です。</b><br>肩の前側や肘に違和感がある場合は、プレス系種目を一時的に減らしてください。</div>");
+          
+          if (stats["背中"] < stats["胸"] * 0.5 && stats["胸"] > 0) msgs.push("<div><b style='color:var(--text-primary);'>直近1ヶ月の傾向として、胸のトレーニング量が背中を大きく上回っています。</b><br>長期的には姿勢の悪化や巻き肩、肩の痛みに繋がるため、背中（引く動作）のボリュームを意識して増やしましょう。</div>");
+          else if (stats["背中"] < tBack * 0.4) msgs.push("<div><b style='color:var(--text-primary);'>この1ヶ月、背中のトレーニングが全体的に不足しています。</b><br>背中は逆三角形のシルエット作りに不可欠です。メニューを見直してみましょう。</div>");
+          else if (stats["背中"] > tBack * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>この1ヶ月、背中のトレーニング量が非常に多いです。</b><br>特に腰部のオーバートレーニングには気をつけてください。</div>");
+          
+          if (stats["腕"] > tArms * 1.8) msgs.push("<div><b style='color:var(--text-primary);'>この1ヶ月間、腕のアイソレーション種目のボリュームが多すぎます。</b><br>腕の成長が止まっている場合、逆にセット数を減らして回復を促すアプローチが有効です。</div>");
+          if (stats["肩"] < tShoulder * 0.4 && totalScore > totalTarget * 0.3) msgs.push("<div><b style='color:var(--text-primary);'>1ヶ月のトータルで見ると、肩のボリュームが不足しています。</b><br>肩の筋肉は回復が比較的早いため、週の複数日に分けてサイドレイズなどを取り入れると効果的です。</div>");
+          if (stats["腹・体幹"] < tCore * 0.3) msgs.push("<div><b style='color:var(--text-primary);'>この1ヶ月間、腹筋群への直接的な刺激が足りていません。</b><br>姿勢維持の補助だけではなく、体幹専用の種目をルーティンに組み込むと全身の連動力が高まります。</div>");
+        } else if (period === '365') {
+          if (totalScore > totalTarget * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>この1年間、極めて高いハードワークを継続しています。</b><br>素晴らしい精神力ですが、慢性的な関節の摩耗を防ぐため、定期的にトレーニング強度を落とす『ピリオダイゼーション（期分け）』の導入をお勧めします。</div>");
+          if (stats["脚"] < tLegs * 0.4) msgs.push("<div><b style='color:var(--text-primary);'>長期的（1年）に見ても、下半身のボリュームが明確に不足しています。</b><br>上半身ばかりが発達するアンバランスな体型になるリスクがあるため、脚のトレーニング日を固定することをお勧めします。</div>");
+          else if (stats["脚"] > tLegs * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>年間を通じて脚に凄まじいボリュームを割いています。</b><br>オーバーワークによる関節の怪我に十分注意し、定期的に休む期間を設けてください。</div>");
+          if (stats["胸"] > tChest * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>この1年、胸への負荷が非常に高く設定されています。</b><br>大胸筋の発達には良いですが、肩関節の怪我などの慢性障害には注意してください。</div>");
+          
+          if (stats["背中"] < stats["胸"] * 0.5 && stats["胸"] > 0) msgs.push("<div><b style='color:var(--text-primary);'>年間を通して『押す種目（胸）』が『引く種目（背中）』を上回る傾向が定着しています。</b><br>将来的な怪我や巻き肩を防ぎ、美しい姿勢を作るため、抜本的なメニューの改訂をご検討ください。</div>");
+          else if (stats["背中"] < tBack * 0.4) msgs.push("<div><b style='color:var(--text-primary);'>この1年間、背中へのアプローチが圧倒的に不足しています。</b><br>ボディメイクにおいて背中の発達は最重要課題の一つです。プルダウンやロウイングを徹底しましょう。</div>");
+          else if (stats["背中"] > tBack * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>1年間、背中を非常に重点的に鍛え上げています。</b><br>見事なボリュームですが、疲労が抜けない時期があれば種目を絞り込んでみましょう。</div>");
+          
+          if (stats["腕"] > tArms * 1.8) msgs.push("<div><b style='color:var(--text-primary);'>年間を通じて腕のトレーニングに膨大なリソースを割いています。</b><br>もし腕の太さが頭打ちになっているなら、完全にオーバートレーニングです。勇気を持って腕の種目を半分に減らしてみてください。</div>");
+          if (stats["肩"] < tShoulder * 0.4 && totalScore > totalTarget * 0.3) msgs.push("<div><b style='color:var(--text-primary);'>この1年間、肩へのアプローチが手薄な状態が続いています。</b><br>逆三角形の美しいシルエットを作るには、サイドレイズやショルダープレスを長期的かつ計画的にこなす必要があります。</div>");
+          if (stats["腹・体幹"] < tCore * 0.3) msgs.push("<div><b style='color:var(--text-primary);'>年間を通して、腹筋・体幹部への直接的なトレーニングがほぼ行われていません。</b><br>高重量のスクワットやデッドリフトを行う際の怪我を防ぐためにも、強靭な体幹作りは必須です。</div>");
         }
 
         if (msgs.length === 0) {
-          advice = "<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#22c55e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'></polygon></svg><div><b style='color:var(--text-primary);'>解剖学的・運動学的に理想的なバランスです！</b><br>すべての部位が適正ボリューム内に収まっています。この調子で継続しましょう。</div></div>";
+          if (period === '7') advice = "<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#22c55e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'></polygon></svg><div><b style='color:var(--text-primary);'>今週は全身にバランス良く刺激が入っています！</b><br>素晴らしいペースです、この調子で怪我なく進めていきましょう。</div></div>";
+          else if (period === '30') advice = "<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#22c55e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'></polygon></svg><div><b style='color:var(--text-primary);'>直近1ヶ月、非常に美しいバランスでトレーニングできています！</b><br>すべての部位が適正ボリューム内に収まっています。</div></div>";
+          else advice = "<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='#22c55e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'></polygon></svg><div><b style='color:var(--text-primary);'>この1年間、完璧なバランスで全身のトレーニングを継続できています！</b><br>理想的なボディメイクが進行しています。現在のプログラムはあなたに非常に合っています。</div></div>";
         } else {
           advice = msgs.map(m => {
-            const strokeColor = m.includes('過剰') || m.includes('限界') || m.includes('高い') || m.includes('オーバートレーニング') ? '#ef4444' : '#d6d3a5';
+            const strokeColor = m.includes('過剰') || m.includes('限界') || m.includes('高い') || m.includes('オーバートレーニング') || m.includes('凄まじい') || m.includes('多い') ? '#ef4444' : '#b8a760';
             return `<div style='display:flex;gap:10px;'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='${strokeColor}' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='flex-shrink:0;'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='16' x2='12' y2='12'></line><line x1='12' y1='8' x2='12.01' y2='8'></line></svg>${m}</div>`;
           }).join("");
         }
