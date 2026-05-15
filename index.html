@@ -9,8 +9,45 @@
   <meta name="theme-color" content="#fafafa">
   <link rel="apple-touch-icon" href="icon-192x192.png">
   
+  <script>
+    // ⚠️ Google Drive同期用の設定と変数を事前に定義（読み込みタイミングエラー防止のため）
+    const CLIENT_ID = '504605284753-9482edtgg5ndcp8p1723pvf4mfe12t6b.apps.googleusercontent.com';
+    const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
+    const DRIVE_FILE_NAME = 'workout_app_data_v1.json';
+    
+    let tokenClient;
+    let gapiAccessToken = null;
+    let gapiInited = false;
+    let gisInited = false;
+
+    function gapiLoaded() {
+      gapi.load('client', () => {
+        gapi.client.init({}).then(() => {
+          gapi.client.load('drive', 'v3');
+          gapiInited = true;
+        });
+      });
+    }
+
+    function gisLoaded() {
+      tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: CLIENT_ID, 
+        scope: SCOPES,
+        callback: (tokenResponse) => {
+          if (tokenResponse && tokenResponse.access_token) {
+            gapiAccessToken = tokenResponse.access_token;
+            document.getElementById('gdrive-login-area').style.display = 'none';
+            document.getElementById('gdrive-sync-area').style.display = 'block';
+            if (typeof syncToDrive === 'function') syncToDrive();
+          }
+        },
+      });
+      gisInited = true;
+    }
+  </script>
   <script src="https://accounts.google.com/gsi/client" onload="gisLoaded()" async defer></script>
   <script src="https://apis.google.com/js/api.js" onload="gapiLoaded()" async defer></script>
+  
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -372,7 +409,7 @@
               <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
               <span>Googleアカウントでログイン</span>
             </button>
-            <p class="settings-note">事前にGoogle Cloud ConsoleでClient IDを取得し、コード内に挿入してください。</p>
+            <p class="settings-note"></p>
           </div>
           <div id="gdrive-sync-area" style="display:none;">
             <p style="font-size:14px; font-weight:700; color:#16a34a; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
@@ -532,7 +569,6 @@
     const viewOrder = ['log', 'history', 'analysis', 'settings'];
 
     document.addEventListener('touchstart', e => {
-      // 修正: 入力要素やスクロール可能な要素上でスワイプを無効化する条件を精密化
       if (e.target.closest('input[type="range"], .chips')) return;
       if (document.querySelector('.modal-overlay.show, .bottom-sheet.show')) return;
       touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY;
@@ -572,44 +608,17 @@
     function setTheme(mode) { haptic(); localStorage.setItem('wt_theme', mode); applyThemeSettings(); }
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => { if ((localStorage.getItem('wt_theme') || 'auto') === 'auto') applyThemeSettings(); });
 
-
-    const CLIENT_ID = '504605284753-9482edtgg5ndcp8p1723pvf4mfe12t6b.apps.googleusercontent.com';
-    const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
-    const DRIVE_FILE_NAME = 'workout_app_data_v1.json';
-    
-    let tokenClient; let gapiAccessToken = null; let editingLogId = null;
-    let gapiInited = false; 
-    let gisInited = false;
-
-    function gapiLoaded() {
-      gapi.load('client', () => {
-        gapi.client.init({}).then(() => {
-          gapi.client.load('drive', 'v3');
-          gapiInited = true;
-        });
-      });
-    }
-
-    function gisLoaded() {
-      tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: CLIENT_ID, scope: SCOPES,
-        callback: (tokenResponse) => {
-          if (tokenResponse && tokenResponse.access_token) {
-            gapiAccessToken = tokenResponse.access_token;
-            document.getElementById('gdrive-login-area').style.display = 'none';
-            document.getElementById('gdrive-sync-area').style.display = 'block';
-            syncToDrive();
-          }
-        },
-      });
-      gisInited = true;
-    }
+    // ==========================================
+    // ⚠️ Google Drive API設定
+    // ==========================================
+    let editingLogId = null;
 
     window.onload = () => { init(); };
 
     function handleAuthClick() {
       haptic();
       if(CLIENT_ID.includes('YOUR_CLIENT_ID')) { alert("Google Drive同期を利用するには、コード内の 'YOUR_CLIENT_ID_HERE' を自身のClient IDに変更する必要があります。"); return; }
+      if(!gisInited) { alert("Google認証モジュールの読み込み中です。数秒後にお試しください。"); return; }
       tokenClient.requestAccessToken();
     }
 
@@ -870,7 +879,6 @@
 
     function openEditModal(id) {
       haptic(); 
-      // 履歴詳細ボトムシートが開いていれば閉じる（裏に隠す）
       const sheet = document.getElementById('history-detail-modal');
       if (sheet && sheet.classList.contains('show')) {
         sheet.classList.remove('show');
@@ -924,7 +932,6 @@
       const activeView = document.querySelector('.view.active').id;
       if(activeView === 'view-history') {
         renderHistoryTab();
-        // 編集後に再度同じ種目の詳細を開く
         setTimeout(() => { openHistoryDetail(exAfter); }, 250); 
       }
     }
