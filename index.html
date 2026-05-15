@@ -402,7 +402,6 @@
               <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
               <span>Googleアカウントでログイン</span>
             </button>
-            <p class="settings-note">事前にGoogle Cloud ConsoleでClient IDを取得し、コード内に挿入してください。</p>
           </div>
           <div id="gdrive-sync-area" style="display:none;">
             <p style="font-size:14px; font-weight:700; color:#16a34a; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
@@ -649,6 +648,14 @@
     async function syncToDrive() {
       const token = gapi.client.getToken();
       if(!token) return;
+
+      // 🚨 空データ上書き防止処理
+      if (logs.length === 0 && customExercises.length === 0) {
+        if (!confirm("⚠️ 警告：ローカルの記録が空です。\nこのまま保存すると、クラウド上のバックアップも空データで上書き（消去）されます。\n本当に実行しますか？")) {
+          return;
+        }
+      }
+
       haptic(); 
       updateSyncBadgeState('syncing');
       
@@ -840,7 +847,7 @@
 
     function handleSuggest() {
       const inputRaw = document.getElementById('exercise-input').value; const listDiv = document.getElementById('suggest-list');
-      if (!inputRaw.trim()) { listDiv.style.display = 'none'; updateInputState(); return; }
+      if (!inputRaw.trim()) { listDiv.style.display = 'none'; updateUI(); return; }
       const searchTerms = normalizeStr(inputRaw).trim().split(/\s+/);
       const filtered = getAllExercises().filter(ex => searchTerms.every(term => (normalizeStr(ex.c) + " " + normalizeStr(ex.n) + " " + normalizeStr(ex.s)).includes(term)));
       
@@ -849,10 +856,10 @@
       } else {
         listDiv.innerHTML = `<div class="suggest-create-btn" onclick="openCreateModal('${inputRaw}')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>「${inputRaw}」を新規作成</div>`;
       }
-      listDiv.style.display = 'block'; updateInputState();
+      listDiv.style.display = 'block'; updateUI();
     }
 
-    function selectSuggest(exName) { haptic(10); document.getElementById('exercise-input').value = exName; document.getElementById('suggest-list').style.display = 'none'; updateInputState(); }
+    function selectSuggest(exName) { haptic(10); document.getElementById('exercise-input').value = exName; document.getElementById('suggest-list').style.display = 'none'; updateUI(); }
     document.addEventListener('click', (e) => { if(!e.target.closest('#suggest-wrapper')) document.getElementById('suggest-list').style.display = 'none'; });
 
     function openCreateModal(name) {
@@ -870,7 +877,7 @@
       localStorage.setItem("wt_custom_ex_v5", JSON.stringify(customExercises)); 
       document.getElementById('exercise-input').value = pendingExerciseName; 
       closeModal(); 
-      updateInputState(); 
+      updateUI(); 
     }
 
     let editingCustomOriginalName = "";
@@ -1389,7 +1396,15 @@
 
     function exportDataLocal() { haptic(20); const data = { logs: logs, customExercises: customExercises }; const blob = new Blob([JSON.stringify(data)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `workout_backup_${getTodayStr()}.json`; a.click(); }
     function importDataLocal(event) { const file = event.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = (e) => { try { const data = JSON.parse(e.target.result); logs = data.logs; customExercises = data.customExercises; localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs)); localStorage.setItem("wt_custom_ex_v5", JSON.stringify(customExercises)); alert("復元完了！"); location.reload(); } catch(err) { alert("失敗"); } }; reader.readAsText(file); }
-    function resetData() { if(confirm("初期化しますか？")) { localStorage.removeItem("wt_logs_html_v3"); localStorage.removeItem("wt_custom_ex_v5"); localStorage.removeItem("wt_last_sync"); location.reload(); } }
+    
+    function resetData() { 
+      if(confirm("端末の全データを初期化しますか？\n（※Google Drive上のバックアップは削除されません）")) { 
+        localStorage.removeItem("wt_logs_html_v3"); 
+        localStorage.removeItem("wt_custom_ex_v5"); 
+        localStorage.removeItem("wt_last_sync"); 
+        location.reload(); 
+      } 
+    }
   </script>
 </body>
 </html>
