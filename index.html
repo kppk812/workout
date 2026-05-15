@@ -9,7 +9,8 @@
   <meta name="theme-color" content="#fafafa">
   <link rel="apple-touch-icon" href="icon-192x192.png">
   
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://accounts.google.com/gsi/client" onload="gisLoaded()" async defer></script>
+  <script src="https://apis.google.com/js/api.js" onload="gapiLoaded()" async defer></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -45,8 +46,8 @@
       --icon-arms-bg: #f3e8ff; --icon-arms-fg: #9333ea; --icon-core-bg: #fee2e2; --icon-core-fg: #dc2626;
       --icon-full-bg: #f4f4f5; --icon-full-fg: #52525b;
       
-      --pr-chest-bg: rgba(37, 99, 235, 0.05); --pr-back-bg: rgba(22, 163, 74, 0.05); --pr-legs-bg: rgba(202, 138, 4, 0.05);
-      --pr-shoulder-bg: rgba(234, 88, 12, 0.05); --pr-arms-bg: rgba(147, 51, 234, 0.05); --pr-core-bg: rgba(220, 38, 38, 0.05); --pr-full-bg: rgba(82, 82, 91, 0.05);
+      --pr-chest-bg: rgba(37, 99, 235, 0.15); --pr-back-bg: rgba(22, 163, 74, 0.15); --pr-legs-bg: rgba(202, 138, 4, 0.15);
+      --pr-shoulder-bg: rgba(234, 88, 12, 0.15); --pr-arms-bg: rgba(147, 51, 234, 0.15); --pr-core-bg: rgba(220, 38, 38, 0.15); --pr-full-bg: rgba(82, 82, 91, 0.15);
       color-scheme: light;
     }
 
@@ -62,8 +63,8 @@
       --icon-arms-bg: rgba(147, 51, 234, 0.15); --icon-arms-fg: #c084fc; --icon-core-bg: rgba(220, 38, 38, 0.15); --icon-core-fg: #f87171;
       --icon-full-bg: rgba(82, 82, 91, 0.25); --icon-full-fg: #d4d4d8;
       
-      --pr-chest-bg: rgba(37, 99, 235, 0.1); --pr-back-bg: rgba(22, 163, 74, 0.1); --pr-legs-bg: rgba(202, 138, 4, 0.1);
-      --pr-shoulder-bg: rgba(234, 88, 12, 0.1); --pr-arms-bg: rgba(147, 51, 234, 0.1); --pr-core-bg: rgba(220, 38, 38, 0.1); --pr-full-bg: rgba(82, 82, 91, 0.1);
+      --pr-chest-bg: rgba(96, 165, 250, 0.15); --pr-back-bg: rgba(74, 222, 128, 0.15); --pr-legs-bg: rgba(250, 204, 21, 0.15);
+      --pr-shoulder-bg: rgba(251, 146, 60, 0.15); --pr-arms-bg: rgba(192, 132, 252, 0.15); --pr-core-bg: rgba(248, 113, 113, 0.15); --pr-full-bg: rgba(161, 161, 170, 0.15);
       color-scheme: dark;
     }
 
@@ -571,15 +572,25 @@
     function setTheme(mode) { haptic(); localStorage.setItem('wt_theme', mode); applyThemeSettings(); }
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => { if ((localStorage.getItem('wt_theme') || 'auto') === 'auto') applyThemeSettings(); });
 
-   
+
     const CLIENT_ID = '504605284753-9482edtgg5ndcp8p1723pvf4mfe12t6b.apps.googleusercontent.com';
     const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
     const DRIVE_FILE_NAME = 'workout_app_data_v1.json';
     
     let tokenClient; let gapiAccessToken = null; let editingLogId = null;
+    let gapiInited = false; 
+    let gisInited = false;
 
-    function initGoogleDrive() {
-      if (typeof google === 'undefined') return;
+    function gapiLoaded() {
+      gapi.load('client', () => {
+        gapi.client.init({}).then(() => {
+          gapi.client.load('drive', 'v3');
+          gapiInited = true;
+        });
+      });
+    }
+
+    function gisLoaded() {
       tokenClient = google.accounts.oauth2.initTokenClient({
         client_id: CLIENT_ID, scope: SCOPES,
         callback: (tokenResponse) => {
@@ -591,8 +602,10 @@
           }
         },
       });
+      gisInited = true;
     }
-    window.onload = () => { initGoogleDrive(); init(); };
+
+    window.onload = () => { init(); };
 
     function handleAuthClick() {
       haptic();
@@ -1050,13 +1063,15 @@
         contentHtml = '<div class="pr-list">'; 
         prData.forEach(item => { 
           const isDark = document.documentElement.getAttribute('data-theme')==='dark'; 
+          
           let fgColor = isDark ? '#e4e4e7' : '#3f3f46'; 
           if(item.cat==='胸') fgColor=isDark?'#93c5fd':'#1d4ed8'; 
           else if(item.cat==='背中') fgColor=isDark?'#86efac':'#15803d'; 
           else if(item.cat==='脚') fgColor=isDark?'#fde047':'#a16207'; 
           else if(item.cat==='肩') fgColor=isDark?'#fdba74':'#c2410c'; 
           else if(item.cat==='腕') fgColor=isDark?'#d8b4fe':'#7e22ce'; 
-          else if(item.cat==='腹・体幹') fgColor=isDark?'#fca5a5':'#b91c1c';
+          else if(item.cat==='腹・体幹') fgColor=isDark?'#fca5a5':'#b91c1c'; 
+
           const wDisplay = item.maxLog.weight === 0 ? '自重' : `${item.maxLog.weight}<span>kg</span>`;
           contentHtml += `<div class="pr-list-item" style="background: var(--pr-${getCatClass(item.cat)}-bg);" onclick="openHistoryDetail('${item.name}')"><div class="pr-list-left"><span class="cat-icon-wrapper ${getCatClass(item.cat)}" style="width:36px;height:36px;border-radius:8px;">${CAT_ICONS[item.cat]||CAT_ICONS["全身"]}</span><div class="pr-list-info"><span class="pr-list-name">${item.name}</span><span class="pr-list-detail"><span>×${item.maxLog.reps}</span> <span style="color:${getRPEColor(item.maxLog.rpe)};">RPE${item.maxLog.rpe}</span></span></div></div><div class="pr-list-right"><div class="pr-list-graph">${getSparklineSVG(item.exLogs, fgColor)}</div><div class="pr-list-weight">${wDisplay}</div></div></div>`; 
         }); 
@@ -1230,12 +1245,10 @@
         const tCore = TARGETS_PER_WEEK["腹・体幹"] * k;
 
         const totalTarget = Object.values(TARGETS_PER_WEEK).reduce((a,b)=>a+b,0) * k;
-        
-        // --- ここから新しいロジック（胸と背中のバランスなど） ---
         const chestVol = stats["胸"];
         const backVol = stats["背中"];
-        const ratioCB = (backVol > 0) ? (chestVol / backVol) : chestVol; 
-
+        const ratioCB = (backVol > 0) ? (chestVol / backVol) : chestVol;
+        
         if (period === '7') {
           if (totalScore > totalTarget * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>今週は全体的にトレーニング量が多く、オーバートレーニングの兆候があります。</b><br>関節の痛みや強い疲労を感じる場合は、数日の完全休養やディロード（軽めのトレーニング）を検討してください。</div>");
           
@@ -1244,7 +1257,6 @@
           
           if (stats["胸"] > tChest * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>今週は胸のトレーニング量がやや過剰です。</b><br>肩関節の負担を減らすため、プレス種目を少し控えるか背中の種目に時間を割きましょう。</div>");
           
-          // 胸に対して背中が極端に少ない（比率で判定）
           if (ratioCB > 1.5 && chestVol > tChest * 0.2) msgs.push("<div><b style='color:var(--text-primary);'>胸に対して背中のトレーニングが不足しています。</b><br>巻き肩を防ぐためにも、次回のトレーニングではロウイングやプル系を意識して取り入れてみてください。</div>");
           else if (stats["背中"] < tBack * 0.4) msgs.push("<div><b style='color:var(--text-primary);'>今週は背中のトレーニングが不足気味です。</b><br>背中は姿勢を保ち逆三角形を作るために重要です。プル系種目を取り入れましょう。</div>");
           else if (stats["背中"] > tBack * 1.5) msgs.push("<div><b style='color:var(--text-primary);'>今週は背中のトレーニング量が非常に多いです。</b><br>素晴らしい追い込みですが、腰への疲労蓄積に注意してください。</div>");
@@ -1294,7 +1306,6 @@
           if (stats["腹・体幹"] < tCore * 0.3 && totalScore > totalTarget * 0.2) msgs.push("<div><b style='color:var(--text-primary);'>年間を通して、腹筋・体幹部への直接的なトレーニングがほぼ行われていません。</b><br>高重量のスクワットやデッドリフトを行う際の怪我を防ぐためにも、強靭な体幹作りは必須です。</div>");
         }
 
-        // BIG3（胸・背中・脚）のいずれかが不足している場合はパーフェクトを出さない
         const isMissingBig3 = (stats["胸"] < tChest * 0.4) || (stats["背中"] < tBack * 0.4) || (stats["脚"] < tLegs * 0.4);
 
         if (msgs.length === 0 && !isMissingBig3) {
