@@ -10,16 +10,15 @@
   <link rel="apple-touch-icon" href="icon-192x192.png">
   
   <script>
-    // ⚠️ Google Drive同期用の設定と変数を事前に定義（読み込みタイミングエラー防止のため）
     const CLIENT_ID = '504605284753-9482edtgg5ndcp8p1723pvf4mfe12t6b.apps.googleusercontent.com';
     const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
     const DRIVE_FILE_NAME = 'workout_app_data_v1.json';
     
     let tokenClient;
-    let gapiAccessToken = null;
     let gapiInited = false;
     let gisInited = false;
 
+    // GAPIの初期化
     function gapiLoaded() {
       gapi.load('client', () => {
         gapi.client.init({}).then(() => {
@@ -29,18 +28,12 @@
       });
     }
 
+    // GISの初期化（コールバックは後から動的にセットする方式）
     function gisLoaded() {
       tokenClient = google.accounts.oauth2.initTokenClient({
         client_id: CLIENT_ID, 
         scope: SCOPES,
-        callback: (tokenResponse) => {
-          if (tokenResponse && tokenResponse.access_token) {
-            gapiAccessToken = tokenResponse.access_token;
-            document.getElementById('gdrive-login-area').style.display = 'none';
-            document.getElementById('gdrive-sync-area').style.display = 'block';
-            if (typeof syncToDrive === 'function') syncToDrive();
-          }
-        },
+        callback: '' 
       });
       gisInited = true;
     }
@@ -409,7 +402,7 @@
               <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
               <span>Googleアカウントでログイン</span>
             </button>
-            <p class="settings-note"></p>
+            <p class="settings-note">事前にGoogle Cloud ConsoleでClient IDを取得し、コード内に挿入してください。</p>
           </div>
           <div id="gdrive-sync-area" style="display:none;">
             <p style="font-size:14px; font-weight:700; color:#16a34a; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
@@ -608,46 +601,78 @@
     function setTheme(mode) { haptic(); localStorage.setItem('wt_theme', mode); applyThemeSettings(); }
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => { if ((localStorage.getItem('wt_theme') || 'auto') === 'auto') applyThemeSettings(); });
 
-    // ==========================================
-    // ⚠️ Google Drive API設定
-    // ==========================================
     let editingLogId = null;
-
     window.onload = () => { init(); };
 
+    // ==========================================
+    // ⚠️ Google Drive API 連携処理
+    // ==========================================
+    
     function handleAuthClick() {
       haptic();
-      if(CLIENT_ID.includes('YOUR_CLIENT_ID')) { alert("Google Drive同期を利用するには、コード内の 'YOUR_CLIENT_ID_HERE' を自身のClient IDに変更する必要があります。"); return; }
-      if(!gisInited) { alert("Google認証モジュールの読み込み中です。数秒後にお試しください。"); return; }
-      tokenClient.requestAccessToken();
+      if(CLIENT_ID.includes('YOUR_CLIENT_ID')) { 
+        alert("Google Drive同期を利用するには、コード内の 'YOUR_CLIENT_ID_HERE' を自身のClient IDに変更する必要があります。"); 
+        return; 
+      }
+      if (!gisInited || !gapiInited) { 
+        alert("モジュールの読み込み中です。数秒後にお試しください。"); 
+        return; 
+      }
+
+      // 動的にコールバックを設定
+      tokenClient.callback = async (resp) => {
+        if (resp.error !== undefined) {
+          console.error(resp.error);
+          return;
+        }
+        // 認証成功時、UIを切り替え
+        document.getElementById('gdrive-login-area').style.display = 'none';
+        document.getElementById('gdrive-sync-area').style.display = 'block';
+      };
+
+      // 既存のトークンがない場合は同意画面を強制、ある場合はスキップを試みる
+      if (gapi.client.getToken() === null) {
+        tokenClient.requestAccessToken({prompt: 'consent'});
+      } else {
+        tokenClient.requestAccessToken({prompt: ''});
+      }
     }
 
-    async function getBackupFileId() {
-      const res = await fetch(`https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name="${DRIVE_FILE_NAME}"`, { headers: { 'Authorization': `Bearer ${gapiAccessToken}` } });
+    async function getBackupFileId(tokenStr) {
+      const res = await fetch(`https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name="${DRIVE_FILE_NAME}"`, { 
+        headers: { 'Authorization': `Bearer ${tokenStr}` } 
+      });
       const data = await res.json();
       return (data.files && data.files.length > 0) ? data.files[0].id : null;
     }
 
     async function syncToDrive() {
-      if(!gapiAccessToken) return;
-      haptic(); updateSyncBadgeState('syncing');
+      const token = gapi.client.getToken();
+      if(!token) return;
+      haptic(); 
+      updateSyncBadgeState('syncing');
+      
       const fileContent = JSON.stringify({ logs: logs, customExercises: customExercises });
       try {
-        let fileId = await getBackupFileId();
+        let fileId = await getBackupFileId(token.access_token);
         if (!fileId) {
+          // ファイルが存在しない場合は新規作成
           const metaRes = await fetch('https://www.googleapis.com/drive/v3/files', {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${gapiAccessToken}`, 'Content-Type': 'application/json' },
+            headers: { 'Authorization': `Bearer ${token.access_token}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: DRIVE_FILE_NAME, parents: ['appDataFolder'] })
           });
           const metaData = await metaRes.json();
           fileId = metaData.id;
         }
+        
+        // ファイルをアップロード（上書き）
         await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
           method: 'PATCH',
-          headers: { 'Authorization': `Bearer ${gapiAccessToken}`, 'Content-Type': 'application/json' },
+          headers: { 'Authorization': `Bearer ${token.access_token}`, 'Content-Type': 'application/json' },
           body: fileContent
         });
+        
         localStorage.setItem("wt_last_sync", new Date().toISOString());
         updateSyncBadgeState('safe');
       } catch (e) { 
@@ -657,26 +682,49 @@
     }
 
     async function syncFromDrive() {
-      if(!gapiAccessToken) return;
-      haptic(); if(!confirm("クラウド上のデータで上書きしますか？")) return;
+      const token = gapi.client.getToken();
+      if(!token) return;
+      haptic(); 
+      
+      if(!confirm("クラウド上のデータで現在のデータを上書きしますか？")) return;
       updateSyncBadgeState('syncing');
-      const fileId = await getBackupFileId();
-      if(fileId) {
-        try {
-          const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, { headers: { 'Authorization': `Bearer ${gapiAccessToken}` } });
+      
+      try {
+        const fileId = await getBackupFileId(token.access_token);
+        if(fileId) {
+          const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, { 
+            headers: { 'Authorization': `Bearer ${token.access_token}` } 
+          });
           const data = await res.json();
-          if(data.logs) { logs = data.logs; localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs)); }
-          if(data.customExercises) { customExercises = data.customExercises; localStorage.setItem("wt_custom_ex_v5", JSON.stringify(customExercises)); }
+          if(data.logs) { 
+            logs = data.logs; 
+            localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs)); 
+          }
+          if(data.customExercises) { 
+            customExercises = data.customExercises; 
+            localStorage.setItem("wt_custom_ex_v5", JSON.stringify(customExercises)); 
+          }
           localStorage.setItem("wt_last_sync", new Date().toISOString());
-          alert("復元しました！"); location.reload();
-        } catch(e) { alert("復元失敗"); updateSyncBadgeState('danger'); }
-      } else { alert("データがありません"); updateSyncBadgeState('danger'); }
+          alert("復元しました！"); 
+          location.reload();
+        } else { 
+          alert("クラウド上にデータが見つかりません。"); 
+          updateSyncBadgeState('danger'); 
+        }
+      } catch(e) { 
+        alert("復元に失敗しました。"); 
+        updateSyncBadgeState('danger'); 
+      }
     }
 
     function triggerManualSync() {
       haptic();
-      if(gapiAccessToken) syncToDrive();
-      else { switchView('settings', document.querySelectorAll('.nav-btn')[3]); alert("Googleアカウントでログインしてください。"); }
+      if(gapi.client && gapi.client.getToken() !== null) {
+        syncToDrive();
+      } else { 
+        switchView('settings', document.querySelectorAll('.nav-btn')[3]); 
+        alert("Googleアカウントでログインしてください。"); 
+      }
     }
 
     function updateSyncBadgeState(state) {
@@ -863,7 +911,7 @@
       logs.forEach(log => { if (log.exercise === editingCustomOriginalName) log.exercise = newName; });
       localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs));
 
-      if(gapiAccessToken && localStorage.getItem("wt_last_sync")) { document.getElementById('sync-badge').className = 'sync-badge warning'; document.getElementById('sync-badge-text').innerText = "未同期"; }
+      if(gapi.client && gapi.client.getToken() && localStorage.getItem("wt_last_sync")) { document.getElementById('sync-badge').className = 'sync-badge warning'; document.getElementById('sync-badge-text').innerText = "未同期"; }
 
       closeEditCustomModal();
       if (document.getElementById('exercise-input').value === editingCustomOriginalName) document.getElementById('exercise-input').value = newName;
@@ -879,6 +927,7 @@
 
     function openEditModal(id) {
       haptic(); 
+      // 履歴詳細ボトムシートが開いていれば閉じる（裏に隠す）
       const sheet = document.getElementById('history-detail-modal');
       if (sheet && sheet.classList.contains('show')) {
         sheet.classList.remove('show');
@@ -922,7 +971,7 @@
       logs.sort((a, b) => new Date(b.date) - new Date(a.date) || b.id - a.id); 
       localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs));
       
-      if(gapiAccessToken && localStorage.getItem("wt_last_sync")) { 
+      if(gapi.client && gapi.client.getToken() && localStorage.getItem("wt_last_sync")) { 
         document.getElementById('sync-badge').className = 'sync-badge warning'; 
         document.getElementById('sync-badge-text').innerText = "未同期"; 
       }
@@ -932,6 +981,7 @@
       const activeView = document.querySelector('.view.active').id;
       if(activeView === 'view-history') {
         renderHistoryTab();
+        // 編集後に再度同じ種目の詳細を開く
         setTimeout(() => { openHistoryDetail(exAfter); }, 250); 
       }
     }
@@ -999,7 +1049,7 @@
       logs.unshift({ id: Date.now(), date: dateStr, exercise: exercise, weight: parseFloat(weight), reps: parseInt(reps), setNumber: logs.filter(l => l.date === dateStr && l.exercise === exercise).length + 1, rpe: rpeVal, oneRM: calculate1RM(weight, reps, rpeVal) });
       logs.sort((a, b) => new Date(b.date) - new Date(a.date) || b.id - a.id); localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs));
       
-      if(gapiAccessToken && localStorage.getItem("wt_last_sync")) { document.getElementById('sync-badge').className = 'sync-badge warning'; document.getElementById('sync-badge-text').innerText = "未同期"; }
+      if(gapi.client && gapi.client.getToken() && localStorage.getItem("wt_last_sync")) { document.getElementById('sync-badge').className = 'sync-badge warning'; document.getElementById('sync-badge-text').innerText = "未同期"; }
       updateUI();
     }
 
@@ -1009,7 +1059,7 @@
         const log = logs.find(l => l.id === id); const ex = log ? log.exercise : null;
         logs = logs.filter(l => l.id !== id); localStorage.setItem("wt_logs_html_v3", JSON.stringify(logs)); 
         
-        if(gapiAccessToken && localStorage.getItem("wt_last_sync")) { document.getElementById('sync-badge').className = 'sync-badge warning'; document.getElementById('sync-badge-text').innerText = "未同期"; } 
+        if(gapi.client && gapi.client.getToken() && localStorage.getItem("wt_last_sync")) { document.getElementById('sync-badge').className = 'sync-badge warning'; document.getElementById('sync-badge-text').innerText = "未同期"; } 
         updateUI(); 
         
         const activeView = document.querySelector('.view.active').id;
